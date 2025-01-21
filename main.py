@@ -152,6 +152,8 @@ async def flush(interaction: discord.Interaction,):
     global pinged_messages
     messages = []
     pinged_messages = {}
+    pinged_messages.clear()
+    messages.clear()
     messages.append({"role":"system","content": systemprompt})
     await interaction.response.send_message(content=f"Flushed toilet!")
 
