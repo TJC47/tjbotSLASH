@@ -68,12 +68,12 @@ class MyClient(discord.Client):
                 pinged_messages[message.channel.id].append({"role":"system","content": systemprompt})
             pinged_messages[message.channel.id].append({"role": "user", "content": f"{msg}, message sent from user: {message.author.name}"})
             try:
-                out = requests.post("http://192.168.2.2:11434/api/chat", json={"model":"hermes3","messages":pinged_messages[message.channel.id],"stream":False, "system": systemprompt})
-                output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch")
-                pinged_messages[message.channel.id].append(json.loads(out.text)["message"])
                 async with message.channel.typing():
-                    print(output)
-                    await message.reply(content=json.loads(out.text)["message"]["content"])
+                    out = requests.post("http://192.168.2.2:11434/api/chat", json={"model":"hermes3","messages":pinged_messages[message.channel.id],"stream":False, "system": systemprompt})
+                    output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch")
+                    pinged_messages[message.channel.id].append(json.loads(out.text)["message"])
+                    print(pinged_messages[message.channel.id])
+                await message.reply(content=json.loads(out.text)["message"]["content"])
             except:
                 output ="`An error occured`"
                 await message.send(output)
