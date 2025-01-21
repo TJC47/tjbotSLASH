@@ -73,7 +73,7 @@ class MyClient(discord.Client):
                     output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch")
                     pinged_messages[message.channel.id].append(json.loads(out.text)["message"])
                     print(pinged_messages[message.channel.id])
-                await message.reply(content=json.loads(out.text)["message"]["content"])
+                    await message.reply(content=json.loads(out.text)["message"]["content"])
             except:
                 output ="`An error occured`"
                 await message.send(output)
