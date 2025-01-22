@@ -1,2 +1,4 @@
 venv*
-token.sensitive
+*.sensitive
+token.*
+.venv*
