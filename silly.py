@@ -119,8 +119,16 @@ class Silly(commands.Cog):
         output = message.lower().replace("l","w").replace("r", "w").replace("the","da").replace ("i ", "i-i-i ").replace("!","!!").replace(".",".!").replace("?","?!")+" "+random.choice([":3","nyyaaa :333","rawr :3"," ~"])
         await interaction.response.send_message(content=f"{output}")
 
-
-
+    @app_commands.command(description="get a quote from old cdc quotes! :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def cdcquote(self, interaction: discord.Interaction):
+        f = open("/home/tjc/server/tjbotSLASH/cdcquotes.json")
+        quotes = f.read()
+        f.close()
+        quotesj = json.loads(quotes)
+        selectedquote = random.choice(quotesj)
+        await interaction.response.send_message(content=f'Quote from <@{selectedquote["author_id"]}>: {selectedquote["content"]}')
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Silly(bot))
