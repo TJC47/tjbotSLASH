@@ -43,12 +43,13 @@ class MyClient(commands.Bot):
     """Copy pasted from random github repo"""
     def __init__(self,intents: discord.Intents):
         super().__init__(
-        command_prefix='t!',                                                                                # required, you can change it to an empty string also, doesnt do anything
-        intents=discord.Intents.all(),                                                                                    # intents, this is in the bot already
-        activity=discord.CustomActivity(name='probably cuddling my blanky rn :3'),                                                  # you can ignore this
-        allowed_contexts=app_commands.AppCommandContext(guild=True, dm_channel=True, private_channel=True), # same with this
-        allowed_installs=app_commands.AppInstallationType(guild=True, user=True),                           # and this
-        help_command=None)                                                                                   # no help command, we are
+            command_prefix='t!',                                                                                # required, you can change it to an empty string also, doesnt do anything
+            intents=discord.Intents.all(),                                                                      # intents, this is in the bot already
+            activity=discord.CustomActivity(name='probably cuddling my blanky rn :3'),                          # you can ignore this
+            allowed_contexts=app_commands.AppCommandContext(guild=True, dm_channel=True, private_channel=True), # same with this
+            allowed_installs=app_commands.AppInstallationType(guild=True, user=True),                           # and this
+            help_command=None
+        )
     async def setup_hook(self):
         #self.tree.copy_global_to(guild=MY_GUILD,)
 
