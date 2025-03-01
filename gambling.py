@@ -31,10 +31,11 @@ class Gambling(commands.Cog):
         await interaction.response.send_message(content=f"Let's go gambling!")
         try:
             conn = mariadb.connect(
-            host="localhost",
-            port=3306,
-            user="tjc",
-            password="i will NOT commit my hardcoded password")
+                host="localhost",
+                port=3306,
+                user="tjc",
+                password="i will NOT commit my hardcoded password"
+            )
             await asyncio.sleep(1)
             if random.randint(1,10) ==5:
                 await interaction.edit_original_response(content=f"You won {random.randint(1,amount)} trillon buckarroos!!!!\n-# WOHOOO!!!!")
