@@ -15,6 +15,24 @@ import hashlib
 import base64
 from enum import Enum
 
+class EvalModal(discord.ui.Modal, title='Eval this shit'):
+        prompt = discord.ui.TextInput(
+            label='Eval this shit',
+            style=discord.TextStyle.long,
+            placeholder='TOKEN',
+            required=True,
+            max_length=500,
+        )
+
+        async def on_submit(self, interaction: discord.Interaction):
+            if interaction.user.name == "tjc472":
+                output = str(eval(self.prompt.value))
+            else:
+                output = "idk i dont want to rn"
+            await interaction.response.send_message(content=output)
+
+
+
 class Dev(commands.Cog):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
@@ -104,15 +122,17 @@ class Dev(commands.Cog):
                     await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n`{resultamount} Potential Results`\nOutput too long for message.")
             else:
                 if prompt.startswith("m="):
-                    requestlogchannel = self.bot.get_channel(1331091330713124986)
+                    requestlogchannel = self.bot.get_channel(1326278694200676396)
                     searchterm = prompt.split("m=", 1)[1]
                     await requestlogchannel.send(searchterm)
                     await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\nSent Message successfully")
                 else:
-                    await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`Invalid Prompt!`\nDid you misspell something?")
+                    if prompt == "penis":
+                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\nThe penis game has (not) been activated")
+                    else:
+                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`Invalid Prompt!`\nDid you misspell something?")
         else:
             await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`No permission!`")
-
 
     @app_commands.command(description="Developer utilities and debug :3")
     @app_commands.describe(
@@ -120,12 +140,11 @@ class Dev(commands.Cog):
     )
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def eval(self, interaction: discord.Interaction, prompt: str):
-        if interaction.user.name == "tjc472":
-            output = str(eval(prompt))
-        else:
-            output = "idk i dont want to rn"
-        await interaction.response.send_message(content=output)
+    async def eval(self, interaction: discord.Interaction, prompt: str=""):
+            if interaction.user.name == "tjc472":
+                await interaction.response.send_modal(EvalModal())
+            else:
+                await interaction.response.send_message(content="idk i dont want to rn")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Dev(bot))
