@@ -11,7 +11,7 @@ from threading import Thread
 import hashlib
 import base64
 from enum import Enum
-#TOKEN = "nuh uh"
+
 MY_GUILD = discord.Object(id=1261724509229023252)
 f = open("token.sensitive")
 TOKEN = f.readline()
@@ -29,7 +29,7 @@ async def activity():
     global index
     global minute
     minute = minute +1
-    #print(f"Total: {str(index)} | Minutes: {str(round(minute/60,ndigits=3))} | Result: {str(round((index*60)/minute, ndigits=3))}")
+
 
 messages = []
 pinged_messages = {}
@@ -51,15 +51,13 @@ class MyClient(commands.Bot):
             help_command=None
         )
     async def setup_hook(self):
-        #self.tree.copy_global_to(guild=MY_GUILD,)
-
         await self.load_extension("silly")
         await self.load_extension("sapph")
         await self.load_extension("dev")
         await self.load_extension("useful")
         await self.load_extension("ai")
         await self.load_extension("gambling")
-        #await self.tree.sync()#guild=MY_GUILD)
+
         activity.start()
     async def on_message(self, message):
         global model
@@ -82,18 +80,8 @@ class MyClient(commands.Bot):
             file.close()
         global index
         global temperature
-        if message.author.name.lower() == "mee6":
-            await message.channel.send("# :warning: mee6 detected! :warning:\n Mee6 is a ~~bot~~ cashgrab made by a big coorporation. They have hosted an nft scam and are charging way to much for their 'premium' features. Please do not use mee6.")
-            await message.channel.send("if you do not believe me, here is some videos that proove this:\nhttps://www.youtube.com/watch?v=FAsGoexR_AA\nhttps://www.youtube.com/watch?v=HepIpx63yKo\nhttps://www.youtube.com/watch?v=EqLBdLBxhds\nhttps://www.youtube.com/watch?v=mqOU2lHFWkk")
-            await message.channel.send("# Attempting to remove mee6...")
-            await message.author.ban()
         if message.content=="!a":
             await message.channel.send(f"Total: {str(index)} | Minutes: {str(round(minute/60,ndigits=3))} | Result: {str(round((index*60)/minute, ndigits=3))}")
-
-        #if "fitness" in message.content.lower():
-         #   await message.delete()
-        #if "pacer" in message.content.lower():
-         #   await message.delete()
         index = index + 1
 intents = discord.Intents.all()
 client = MyClient(intents=intents)
