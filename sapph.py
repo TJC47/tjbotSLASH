@@ -1,19 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import requests
-import time
-import json
-import random
-import discord
-from discord.ext import commands
-from discord import app_commands
-from discord.ext import tasks
-import asyncio
-from threading import Thread
-import hashlib
-import base64
-from enum import Enum
 
 class Sapph(commands.Cog):
     def __init__(self, bot: commands.Bot) :
