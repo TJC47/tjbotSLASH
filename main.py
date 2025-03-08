@@ -1,16 +1,10 @@
-import requests
 import time
-import json
-import random
 import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ext import tasks
-import asyncio
-from threading import Thread
 import hashlib
 import base64
-from enum import Enum
 
 MY_GUILD = discord.Object(id=1261724509229023252)
 f = open("token.sensitive")
