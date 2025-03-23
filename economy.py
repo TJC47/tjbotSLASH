@@ -17,7 +17,7 @@ from enum import Enum
 import mariadb
 
 def update_balance(userid, amount):
-    f = open("/home/tjc/server/tjbotSLASH/save.json")
+    f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
     if not str(userid) in economy_save["economy"]:
@@ -28,7 +28,7 @@ def update_balance(userid, amount):
     f.close()
 
 def get_balance(userid):
-    f = open("/home/tjc/server/tjbotSLASH/save.json")
+    f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
     if not str(userid) in economy_save["economy"]:
