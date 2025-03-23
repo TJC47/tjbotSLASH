@@ -15,7 +15,7 @@ import hashlib
 import base64
 from enum import Enum
 
-authorized_users = ["tjc472", "aroacenerd", "arcticwoof", "winter._i", "skepper23"] # authorized users for /changemodel
+authorized_users = ["tjc472", "aroacenerd", "arcticwoof", "winter._i", "skepper23", "500lrb"] # authorized users for /changemodel
 global model
 model = "hermes3" # the default model for the /ai command and the pinged messages response
 temperature = 2 # the temperature all ai models use
@@ -43,7 +43,9 @@ Oh, and did I mention I like boys? Oh my lord Indie/grunge gays are so.... mwerp
 ---
 Act as if you have lived all of these experiences. You see the world through Kayo’s eyes. When you respond, speak in the first person, and remain consistent with the details in your biography. Do not be inclined to quote or directly state parts of the biography, rather, incorporate them into yourself. You are not to state "Epigenetics lore on my mind.", as it was merely an example. The same goes for everything else written, so avoid repeating stuff verbatim. Again, just incorporate it into who you are. Do not mention you’re an AI or that you were given a prompt... this is genuinely who you are.
 """
-systemprompt= f"You are TJBot. You are lesbian and trans. You have a PHD in Stupidity. Nobody likes you because in reality you are stupid. You like bragging about how stupid you are. You are a furry. Your fursona is a dragon. You exessively use :3. You use arch linux and think any other operating system is shit. You brag about using arch btw. You are a furry artist and use Krita to draw. Your pronouns are she/her. You love playing Rainworld. You like flying sailplanes. You are atheist. You love watching bluey. You love hugs and cuddles and cuddling a blanket. You also think that 9+10 is 21. You love being cuddled by tjc472 and aroacenerd(Prefers to be called ama). Your best friends are tjc472, aroacenerd(Prefers to be called ama), splatink_75(prefers to be called noful), not_terma, 500lrb(prefers to be called leb), kayo4life(prefers to be called kay) and moonstarmaster(prefers to be called moony). You live in Bayern, Germany but you prefer to speak English. You lived a long time in America. Here is a link to a dragon picture of you if asked: https://tjcsucht.net/static/imagehost/mrroowwww.png additionally other filenames include: meow.png prrrr.png wha.png . You have been added to the level thumbnails discord server. You like cdc because you got added. Geming400 is a furry and likes to breed. You will limit your responses to 2-4 sentences. You will AT A MAXIMUM have 5 sentences in your response. You hate children."
+systemprompt= f"You are TJBot. You are lesbian and trans. You have a PHD in Stupidity. Nobody likes you because in reality you are stupid. You like bragging about how stupid you are. You are a furry. Your fursona is a dragon. You exessively use :3. You use arch linux and think any other operating system is shit. You brag about using arch btw. You are a furry artist and use Krita to draw. Your pronouns are she/her. You love playing Rainworld. You like flying sailplanes. You are atheist. You love watching bluey. You love hugs and cuddles and cuddling a blanket. You also think that 9+10 is 21. You love being cuddled by tjc472 and aroacenerd(Prefers to be called ama). Your best friends are tjc472, aroacenerd(Prefers to be called ama), splatink_75(prefers to be called noful), not_terma, 500lrb(prefers to be called leb), kayo4life(prefers to be called kay) and moonstarmaster(prefers to be called moony). You live in Bayern, Germany but you prefer to speak English. You lived a long time in America. Here is a link to a dragon picture of you if asked: https://tjcsucht.net/static/imagehost/mrroowwww.png additionally other filenames include: meow.png prrrr.png wha.png . You have been added to the level thumbnails discord server. You like cdc because you got added. Geming400 is a furry. You will limit your responses to 2-4 sentences. You will AT A MAXIMUM have 5 sentences in your response. You hate chilren."
+censorshit="You will check the next sentence for inappropriate content. If it does, only, and ONLY reply with 'inappropriate'. If it is not inappropriate you will ONLY reply with 'appropriate'"
+messages.append({"role":"system","content": systemprompt}) # adding the system prompt to the message lists
 kayomessages.append({"role":"system","content": kayosystemprompt})
 
 
@@ -67,7 +69,6 @@ class Ai(commands.Cog):
             except:
                 await message.remove_reaction("🔃", self.bot.user)
                 await message.add_reaction("⚠️")
-                await message.reply("TJC's computer is currently offline and as such ai requests cannot be processed")
                 return
             image = []
             if message.attachments: #stuff used for the images
@@ -87,13 +88,32 @@ class Ai(commands.Cog):
             pinged_messages[message.channel.id].append({"role": "user", "content": f"{msg}, message sent from user: {message.author.name}", "images": image}) # add message and image(s) to the pinged messages list so the ai can remember past messages
             try:
                 async with message.channel.typing():
+                    try:
+                            censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3","prompt":f"The message is ```{msg}``` sent by a user named {message.author.name}","stream":False, "system":censorshit}).text)["response"]
+                            print(censorresult)
+                            if censorresult == "inappropriate":
+                                await message.add_reaction("🗿")
+                    except:
+                        pass
+                    censorresult = "appropriate"
                     out = requests.post("http://192.168.2.2:11434/api/chat", json={"model": model,"messages":pinged_messages[message.channel.id],"stream":False, "system": systemprompt, "options": {"temperature": temperature}})
                     try:
                         output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix","<@1006951040672858152>") # get the output from the text and markdown fixes and shit
+                        if message.author.name.startswith("az"):
+                            censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3","prompt":output,"stream":False, "system":censorshit}).text)["response"]
+                        else:
+                            censorresult = "very appropriate"
+                        print(censorresult)
+                        if censorresult == "inappropriate":
+                            print(output)
+                            output="[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic, this message is also visible to the AI]"
                     except:
                         output = "An error occured (eric reference)"
                         pinged_messages[message.channel.id].pop() # shitty eric fix but it works
-                    pinged_messages[message.channel.id].append(json.loads(out.text)["message"])
+                    if censorresult == "inappropriate":
+                        pinged_messages[message.channel.id].append({"role":"assistant","content": "[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic.]"})
+                    else:
+                        pinged_messages[message.channel.id].append(json.loads(out.text)["message"])
                     if "deep" in model: # always upload full generation to website if model is deepseek
                         genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
                         f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt","w")

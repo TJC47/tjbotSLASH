@@ -109,6 +109,34 @@ class Silly(commands.Cog):
             uses = "USER DOES NOT USE FOOYCORD"
         await interaction.response.send_message(content="-# OFFICIAL fooycord checker\n-# Result for <@"+str(userid)+">:\n"+uses+"\n"+result)
 
+
+
+    @app_commands.command(description="say hewwo to someone :3")
+    @app_commands.describe(
+        user='person to say hewwo to'
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def hewwo(self, interaction: discord.Interaction, user: discord.User=None):
+        disclaimer = ""
+        if interaction.user.id == 1143416222772367370:
+            disclaimer = " hi moonstar im just riding amas meat trust"
+        if user:
+            hewwotosay = user.name
+            if user.nick:
+                hewwotosay=user.nick
+            if user.id == 1155392571569356880:
+                hewwotosay = "ama"
+            if user.id == 1045761412489809975:
+                hewwotosay = "tjc"
+            if user.id == 1261732994755072031:
+                hewwotosay = "chat"
+        else:
+            hewwotosay = "chat"
+        thing = f"hewwo {hewwotosay} :3333{disclaimer}"
+        await interaction.response.send_message(content=thing)
+
+
     @app_commands.command(description="Uwuwifies a message :3")
     @app_commands.describe(
         message='content of message'
