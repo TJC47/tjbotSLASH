@@ -3,61 +3,51 @@ from discord import app_commands
 from discord.ext import commands
 import requests
 import time
-import json
 import random
 import discord
-from discord.ext import commands
-from discord import app_commands
-from discord.ext import tasks
-import asyncio
-from threading import Thread
-import hashlib
-import base64
-from enum import Enum
-
 from io import StringIO
 from contextlib import redirect_stdout
 
 class EvalModal(discord.ui.Modal, title='Eval this shit'):
-        prompt = discord.ui.TextInput(
-            label='Eval this shit',
-            style=discord.TextStyle.long,
-            placeholder='TOKEN',
-            required=True,
-            max_length=2000,
-        )
+    prompt = discord.ui.TextInput(
+        label='Eval this shit',
+        style=discord.TextStyle.long,
+        placeholder='TOKEN',
+        required=True,
+        max_length=2000,
+    )
 
-        async def on_submit(self, interaction: discord.Interaction):
-            if interaction.user.name == "tjc472":
-                try:
-                    output = str(eval(self.prompt.value))
-                except:
-                    output = "what if you read https://www.w3schools.com/python/default.asp"
-            else:
-                output = "idk i dont want to rn"
-            await interaction.response.send_message(content=output)
+    async def on_submit(self, interaction: discord.Interaction):
+        if interaction.user.name == "tjc472":
+            try:
+                output = str(eval(self.prompt.value))
+            except:
+                output = "what if you read https://www.w3schools.com/python/default.asp"
+        else:
+            output = "idk i dont want to rn"
+        await interaction.response.send_message(content=output)
 
 class ExecModal(discord.ui.Modal, title='Exec this shit'):
-        prompt = discord.ui.TextInput(
-            label='Exec this shit',
-            style=discord.TextStyle.long,
-            placeholder='TOKEN(wont work here)',
-            required=True,
-            max_length=2000,
-        )
+    prompt = discord.ui.TextInput(
+        label='Exec this shit',
+        style=discord.TextStyle.long,
+        placeholder='TOKEN(wont work here)',
+        required=True,
+        max_length=2000,
+    )
 
-        async def on_submit(self, interaction: discord.Interaction):
-            if interaction.user.name == "tjc472":
-                try:
-                    f = StringIO()
-                    with redirect_stdout(f):
-                        exec(self.prompt.value, globals())
-                    output = f.getvalue()
-                except:
-                    output = "what if you read https://www.w3schools.com/python/default.asp"
-            else:
-                output = "idk i dont want to rn"
-            await interaction.response.send_message(content=f"```ansi\n{output}```")
+    async def on_submit(self, interaction: discord.Interaction):
+        if interaction.user.name == "tjc472":
+            try:
+                f = StringIO()
+                with redirect_stdout(f):
+                    exec(self.prompt.value, globals())
+                output = f.getvalue()
+            except:
+                output = "what if you read https://www.w3schools.com/python/default.asp"
+        else:
+            output = "idk i dont want to rn"
+        await interaction.response.send_message(content=f"```ansi\n{output}```")
 
 
 
@@ -170,13 +160,13 @@ class Dev(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def eval(self, interaction: discord.Interaction, prompt: str=""):
-            if interaction.user.name == "tjc472":
-                await interaction.response.send_modal(EvalModal())
+        if interaction.user.name == "tjc472":
+            await interaction.response.send_modal(EvalModal())
+        else:
+            if "please" in prompt:
+                await interaction.response.send_message(content="ok you did say please but seriously? im not gonna run some code bruh shut up")
             else:
-                if "please" in prompt:
-                    await interaction.response.send_message(content="ok you did say please but seriously? im not gonna run some code bruh shut up")
-                else:
-                    await interaction.response.send_message(content="if you say please maybe")
+                   await interaction.response.send_message(content="if you say please maybe")
 
     @app_commands.command(description="Exec some code :3")
     @app_commands.describe(
@@ -185,13 +175,13 @@ class Dev(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def exec(self, interaction: discord.Interaction, prompt: str=""):
-            if interaction.user.name == "tjc472":
-                await interaction.response.send_modal(ExecModal())
+        if interaction.user.name == "tjc472":
+            await interaction.response.send_modal(ExecModal())
+        else:
+            if "please" in prompt:
+                await interaction.response.send_message(content="ok you did say please but seriously? im not gonna run some code bruh shut up")
             else:
-                if "please" in prompt:
-                    await interaction.response.send_message(content="ok you did say please but seriously? im not gonna run some code bruh shut up")
-                else:
-                    await interaction.response.send_message(content="if you say please maybe")
+                await interaction.response.send_message(content="if you say please maybe")
 
 
 async def setup(bot: commands.Bot):
