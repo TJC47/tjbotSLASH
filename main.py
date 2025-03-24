@@ -11,8 +11,7 @@ from threading import Thread
 import hashlib
 import base64
 from enum import Enum
-#TOKEN = "nuh uh"
-MY_GUILD = discord.Object(id=1261724509229023252)
+
 f = open("token.sensitive")
 TOKEN = f.readline()
 f.close()
@@ -39,7 +38,7 @@ class MyClient(commands.Bot):
     global index
     global pinged_messages
     global model
-    """Copy pasted from random github repo"""
+
     def __init__(self,intents: discord.Intents):
         super().__init__(
         command_prefix='t!',                                                                                # required, you can change it to an empty string also, doesnt do anything
@@ -49,7 +48,7 @@ class MyClient(commands.Bot):
         allowed_installs=app_commands.AppInstallationType(guild=True, user=True),                           # and this
         help_command=None)                                                                                   # no help command, we are
     async def setup_hook(self):
-        #self.tree.copy_global_to(guild=MY_GUILD,)
+
 
         await self.load_extension("silly")
         await self.load_extension("sapph")
@@ -57,7 +56,7 @@ class MyClient(commands.Bot):
         await self.load_extension("useful")
         await self.load_extension("ai")
         await self.load_extension("economy")
-        #await self.tree.sync()#guild=MY_GUILD)
+
         activity.start()
     async def on_message(self, message):
         global model
@@ -82,17 +81,6 @@ class MyClient(commands.Bot):
             file = open("log.txt", "a")
             file.write("\n"+"winter(winter): " +message.content.replace("\n","[lb]"))
             file.close()
-        if message.content == "st!colonthree":
-            thinglist=""":O  c==3
-:C==3
-:C=3
-:C3
-:3""".split("\n")
-            sentmessage = await message.channel.send(":O     c==3")
-            for newmessage in thinglist:
-                await sentmessage.edit(content=newmessage)
-                if newmessage == ":C3":
-                    await asyncio.sleep(1)
         if "<@1045761412489809975>" in message.content:
             await message.add_reaction("🔃")
             try:
@@ -106,19 +94,10 @@ class MyClient(commands.Bot):
                 await message.add_reaction("⚠️")
         global index
         global temperature
-        if message.author.name.lower() == "mee6" or message.content == "what is mee6":
-            await message.channel.send("# :warning: mee6 detected! :warning:\n Mee6 is a ~~bot~~ cashgrab made by a big coorporation. They have hosted an nft scam and are charging way to much for their 'premium' features. Please do not use mee6.")
-            await message.channel.send("if you do not believe me, here is some videos that prove this:\nhttps://www.youtube.com/watch?v=FAsGoexR_AA\nhttps://www.youtube.com/watch?v=HepIpx63yKo\nhttps://www.youtube.com/watch?v=EqLBdLBxhds\nhttps://www.youtube.com/watch?v=mqOU2lHFWkk")
-            if message.author.name.lower() == "mee6":
-                await message.author.ban()
-                await message.channel.send("# Attempting to remove mee6...")
+
         if message.content=="!a":
             await message.channel.send(f"Total: {str(index)} | Minutes: {str(round(minute/60,ndigits=3))} | Result: {str(round((index*60)/minute, ndigits=3))}")
 
-        #if "fitness" in message.content.lower():
-         #   await message.delete()
-        #if "pacer" in message.content.lower():
-         #   await message.delete()
         index = index + 1
 intents = discord.Intents.all()
 client = MyClient(intents=intents)
@@ -163,4 +142,5 @@ print("""
   \__| |_.__/ \___/ \__| |_____/|______/_/    \_\_____/|_|  |_|
     _/ |                                                       
    |__/    """)
+
 client.run(TOKEN)
