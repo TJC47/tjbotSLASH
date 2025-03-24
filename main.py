@@ -29,7 +29,6 @@ async def activity():
     global index
     global minute
     minute = minute +1
-    #print(f"Total: {str(index)} | Minutes: {str(round(minute/60,ndigits=3))} | Result: {str(round((index*60)/minute, ndigits=3))}")
 
 messages = []
 pinged_messages = {}
