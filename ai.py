@@ -10,7 +10,7 @@ import hashlib
 import base64
 
 
-authorized_users = ["tjc472", "aroacenerd", "arcticwoof", "winter._i", "skepper23", "500lrb"] # authorized users for /changemodel
+authorized_users = ["tjc472", "justcallmeama", "arcticwoof", "winter._i", "skepper23", "500lrb"] # authorized users for /changemodel
 global model
 model = "hermes3" # the default model for the /ai command and the pinged messages response
 temperature = 2 # the temperature all ai models use

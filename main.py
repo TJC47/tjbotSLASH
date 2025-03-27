@@ -70,7 +70,7 @@ class MyClient(commands.Bot):
             await message.channel.send("Reloaded all cogs omg")
         if message.author.name.startswith("moonstarmaster"):
             await message.add_reaction("😭")
-        if message.author.name.startswith("aroacenerd") and random.randint(1,25) == 50:
+        if message.author.name.startswith("justcallmeama") and random.randint(1,25) == 50:
             await message.add_reaction(random.choice(["😭", "🔥", "✅", "💔", "❤️", "🏳️‍🌈", "🏳️‍⚧️", "🇷🇴", "🫃"]))
         if message.content == "christmas tree" and is_owner: 
             await self.tree.sync()
