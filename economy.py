@@ -8,7 +8,7 @@ import random
 import discord
 import asyncio
 
-currency = "€"
+currency = "estrogen"
 
 def update_balance(userid, amount):
     f = open("./save.json")

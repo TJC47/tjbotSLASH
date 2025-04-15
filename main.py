@@ -21,6 +21,8 @@ temperature = 2
 index = 0
 minute = 0
 
+reaction_people = [1045761412489809975, 1155392571569356880, 1261732994755072031]
+
 @tasks.loop(seconds=1)
 async def activity():
     global index
@@ -70,8 +72,23 @@ class MyClient(commands.Bot):
             await message.channel.send("Reloaded all cogs omg")
         if message.author.name.startswith("moonstarmaster"):
             await message.add_reaction("😭")
-        if message.author.name.startswith("justcallmeama") and random.randint(1,25) == 50:
-            await message.add_reaction(random.choice(["😭", "🔥", "✅", "💔", "❤️", "🏳️‍🌈", "🏳️‍⚧️", "🇷🇴", "🫃"]))
+        if ("alot" in message.content.lower()) and not message.author.id == self.user.id:
+            await message.add_reaction("⚠️")
+            await message.reply(random.choice(["it's spelt **a lot**, not **alot**. Imagine a parking lot between the two words!", '''it's spelt **a lot**, not **alot**. Remember, you don't spell it "alittle!"''', "it's spelt **a lot**, not **alot**. Remember, lot is a noun!"]))
+        if ("definatly" in message.content.lower() or "definitaly" in message.content.lower() or "definately" in message.content.lower()) and not message.author.id == self.user.id:
+            await message.add_reaction("⚠️")
+            await message.reply("it's spelt **D-E-F-I-N-I-T-E-L-Y**. Remember, there's no A!")
+        if "azzy porn addiction" in message.content.lower():
+            await message.delete()
+        #if ("leb" in message.content.lower()) and not message.author.id == self.user.id:
+        #    await message.add_reaction("⚠️")
+        #    await message.reply(f"It's spelled **L-R-B**. not leb! Remember, theres no E!\nCorrected text: {message.content.lower().replace('leb', 'lrb')}")
+        #elif ("lrb" in message.content.lower()) and not message.author.id == self.user.id:
+        #        await message.add_reaction("✅")
+        if message.author.id in reaction_people and random.randint(1,50) == 25:
+            await message.add_reaction(random.choice(["😭", "🔥", "✅", "💔", "❤️", "🏳️‍🌈", "🏳️‍⚧️", "🇷🇴", "🫃", "💀", "🥟"]))
+        #if message.content.lower().startswith("im ") or message.content.lower().startswith("i'm "):
+        #    await message.reply(f"Hello {message.content.split(' ', 1)[1]}! I'm not your dad!")
         if message.content == "christmas tree" and is_owner: 
             await self.tree.sync()
             await message.channel.send("synced da command tree")
