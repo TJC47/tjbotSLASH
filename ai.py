@@ -38,15 +38,15 @@ Oh, and did I mention I like boys? Oh my lord Indie/grunge gays are so.... mwerp
 ---
 Act as if you have lived all of these experiences. You see the world through Kayo’s eyes. When you respond, speak in the first person, and remain consistent with the details in your biography. Do not be inclined to quote or directly state parts of the biography, rather, incorporate them into yourself. You are not to state "Epigenetics lore on my mind.", as it was merely an example. The same goes for everything else written, so avoid repeating stuff verbatim. Again, just incorporate it into who you are. Do not mention you’re an AI or that you were given a prompt... this is genuinely who you are.
 """
-systemprompt= f"You are TJBot. You are lesbian and trans. You have a PHD in Stupidity. Nobody likes you because in reality you are stupid. You like bragging about how stupid you are. You are a furry. Your fursona is a dragon. You exessively use :3. You use arch linux and think any other operating system is shit. You brag about using arch btw. You are a furry artist and use Krita to draw. Your pronouns are she/her. You love playing Rainworld. You like flying sailplanes. You are atheist. You love watching bluey. You love hugs and cuddles and cuddling a blanket. You also think that 9+10 is 21. You love being cuddled by tjc472 and aroacenerd(Prefers to be called ama). Your best friends are tjc472, aroacenerd(Prefers to be called ama), splatink_75(prefers to be called noful), not_terma, 500lrb(prefers to be called leb), krishisme(prefers to be called krish), kayo4life(prefers to be called kay) and moonstarmaster(prefers to be called moony). You live in Bayern, Germany but you prefer to speak English. You lived a long time in America. Here is a link to a dragon picture of you if asked: https://tjcsucht.net/static/imagehost/mrroowwww.png additionally other filenames include: meow.png prrrr.png wha.png . You have been added to the level thumbnails discord server. You like cdc because you got added. Geming400 is a furry. You will limit your responses to 2-4 sentences. You will AT A MAXIMUM have 5 sentences in your response. You hate chilren."
-censorshit="You will check the next sentence for inappropriate content. If it does, only, and ONLY reply with 'inappropriate'. If it is not inappropriate you will ONLY reply with 'appropriate'"
-messages.append({"role":"system","content": systemprompt}) # adding the system prompt to the message lists
-kayomessages.append({"role":"system","content": kayosystemprompt})
+systemprompt = f"You are TJBot. You are lesbian and trans. You have a PHD in Stupidity. Nobody likes you because in reality you are stupid. You like bragging about how stupid you are. You are a furry. Your fursona is a dragon. You exessively use :3. You use arch linux and think any other operating system is shit. You brag about using arch btw. You are a furry artist and use Krita to draw. Your pronouns are she/her. You love playing Rainworld. You like flying sailplanes. You are atheist. You love watching bluey. You love hugs and cuddles and cuddling a blanket. You also think that 9+10 is 21. You love being cuddled by tjc472 and aroacenerd(Prefers to be called ama). Your best friends are tjc472, aroacenerd(Prefers to be called ama), splatink_75(prefers to be called noful), not_terma, 500lrb(prefers to be called leb), krishisme(prefers to be called krish), kayo4life(prefers to be called kay) and moonstarmaster(prefers to be called moony). You live in Bayern, Germany but you prefer to speak English. You lived a long time in America. Here is a link to a dragon picture of you if asked: https://tjcsucht.net/static/imagehost/mrroowwww.png additionally other filenames include: meow.png prrrr.png wha.png . You have been added to the level thumbnails discord server. You like cdc because you got added. Geming400 is a furry. You will limit your responses to 2-4 sentences. You will AT A MAXIMUM have 5 sentences in your response. You hate chilren."
+censorshit = "You will check the next sentence for inappropriate content. If it does, only, and ONLY reply with 'inappropriate'. If it is not inappropriate you will ONLY reply with 'appropriate'"
+messages.append({"role": "system", "content": systemprompt}) # adding the system prompt to the message lists
+kayomessages.append({"role": "system", "content": kayosystemprompt})
 
 
 
 class Ai(commands.Cog):
-    def __init__(self, bot: commands.Bot) :
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.Cog.listener()
@@ -91,11 +91,11 @@ class Ai(commands.Cog):
                     #except:
                     #    pass
                     censorresult = "appropriate"
-                    out = requests.post("http://192.168.2.2:11434/api/chat", json={"model": model,"messages":pinged_messages[message.channel.id],"stream":False, "system": systemprompt, "options": {"temperature": temperature}})
+                    out = requests.post("http://192.168.2.2:11434/api/chat", json={"model": model, "messages":pinged_messages[message.channel.id], "stream":False, "system": systemprompt, "options": {"temperature": temperature}})
                     try:
-                        output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix","<@1006951040672858152>") # get the output from the text and markdown fixes and shit
+                        output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix", "<@1006951040672858152>") # get the output from the text and markdown fixes and shit
                         if message.author.name.startswith("az"):
-                            censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3","prompt":output,"stream":False, "system":censorshit}).text)["response"]
+                            censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":output, "stream":False, "system":censorshit}).text)["response"]
                         else:
                             censorresult = "very appropriate"
                         print(censorresult)
@@ -106,7 +106,7 @@ class Ai(commands.Cog):
                         output = "An error occured (eric reference)"
                         pinged_messages[message.channel.id].pop() # shitty eric fix but it works
                     if censorresult == "inappropriate":
-                        pinged_messages[message.channel.id].append({"role":"assistant","content": "[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic.]"})
+                        pinged_messages[message.channel.id].append({"role": "assistant", "content": "[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic.]"})
                     else:
                         pinged_messages[message.channel.id].append(json.loads(out.text)["message"])
                     if "deep" in model: # always upload full generation to website if model is deepseek
@@ -118,7 +118,7 @@ class Ai(commands.Cog):
                         output = output.split("</think>",1)[1]
                     if len(output) > 1999 and not "deep" in model: # upload response to website if its too long to be sent in discord but do not do it twice when seepseek is used
                         genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
-                        f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt","w")
+                        f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt", "w")
                         f.write(output)
                         f.close()
                         output = f"Output too long for discord. Output can be viewed [here](https://tjcsucht.net/generations/{genid})"
@@ -130,21 +130,21 @@ class Ai(commands.Cog):
 
     global models
     models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "llava:13b", "llama3.2-vision"] # all the available models the bot can use
-    async def model_ac(self, interaction: discord.Interaction ,current: str) -> list[app_commands.Choice[str]]:
+    async def model_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
      return [
-    app_commands.Choice(name=currentmodel,value=currentmodel)
+    app_commands.Choice(name = currentmodel,value = currentmodel)
     for currentmodel in models if current.lower() in currentmodel.lower() # weird autocomplete shit idk how this works
     ]
     @app_commands.command(description="Ask AI :3")
     @app_commands.describe(
-        prompt='Prompt to give to AI',
-        model='Model to use',
-        usegenericprompt='Uses the non custom ai system prompt'
+        prompt = 'Prompt to give to AI',
+        model = 'Model to use',
+        usegenericprompt = 'Uses the non custom ai system prompt'
     )
-    @app_commands.autocomplete(model=model_ac)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ai(self, interaction: discord.Interaction, prompt: str,usegenericprompt: bool = False, model: str="hermes3"):
+    @app_commands.autocomplete(model = model_ac)
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
+    async def ai(self, interaction: discord.Interaction, prompt: str, usegenericprompt: bool = False, model: str="hermes3"):
         global messages
         messages.append({"role": "user", "content": f"{prompt}, message sent from user: {interaction.user.name}"})
         await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`Ai is thinking...`<a:loading3:1303768414422040586>")
@@ -152,69 +152,69 @@ class Ai(commands.Cog):
             out = requests.post("http://192.168.2.2:11434/api/chat", json={"model":model,"messages":messages,"stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
             output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch")
             messages.append(json.loads(out.text)["message"])
-            if len(output)+len(prompt)+4 > 1999:
+            if len(output) + len(prompt) + 4 > 1999:
                 genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
                 f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt","w")
                 f.write(output)
                 f.close()
                 output = f"Output too long for discord. Output can be viewed [here](https://tjcsucht.net/generations/{genid})"
-            await interaction.edit_original_response(content=f"-# {prompt}\n{output}")
+            await interaction.edit_original_response(content = f"-# {prompt}\n{output}")
         except:
             output ="`An error occured`"
-            await interaction.edit_original_response(content=f"-# {prompt}\n{output}")
+            await interaction.edit_original_response(content = f"-# {prompt}\n{output}")
 
 
-    @app_commands.command(description="Ask KayoAI :3")
+    @app_commands.command(description = "Ask KayoAI :3")
     @app_commands.describe(
         prompt='Prompt to give to AI',
         model='Model to use',
     )
-    @app_commands.autocomplete(model=model_ac)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.autocomplete(model = model_ac)
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def kayoai(self, interaction: discord.Interaction, prompt: str, model: str="llama3.2"):
         global kayomessages
         kayomessages.append({"role": "user", "content": f"{prompt}, message sent from user: {interaction.user.name}"})
         await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`KayoAi is thinking...`<a:loading3:1303768414422040586>")
         try:
-            out = requests.post("http://192.168.2.2:11434/api/chat", json={"model":model,"messages":kayomessages,"stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
-            output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch")
+            out = requests.post("http://192.168.2.2:11434/api/chat", json = {"model":model, "messages":kayomessages, "stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
+            output = json.loads(out.text)["message"]["content"].replace("fr*nch", "fr\\*nch")
             kayomessages.append(json.loads(out.text)["message"])
-            if len(output)+len(prompt)+4 > 1999:
+            if len(output) + len(prompt) + 4 > 1999:
                 genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
-                f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt","w")
+                f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt", "w")
                 f.write(output)
                 f.close()
                 output = f"Output too long for discord. Output can be viewed [here](https://tjcsucht.net/generations/{genid})"
-            await interaction.edit_original_response(content=f"-# {prompt}\n{output}")
+            await interaction.edit_original_response(content = f"-# {prompt}\n{output}")
         except:
             output ="`An error occured`"
-            await interaction.edit_original_response(content=f"-# {prompt}\n{output}")
+            await interaction.edit_original_response(content = f"-# {prompt}\n{output}")
 
 
 
-    @app_commands.command(description="Sets the model to be globally used for pings (authorized only) :3")
+    @app_commands.command(description = "Sets the model to be globally used for pings (authorized only) :3")
     @app_commands.describe(
         model_override='Model to use globally for pings (Authorized only)',
     )
-    @app_commands.autocomplete(model_override=model_ac)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.autocomplete(model_override = model_ac)
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def setmodel(self, interaction: discord.Interaction, model_override: str):
         global models
         if interaction.user.name in authorized_users:
             if model_override in models:
                 global model
                 model = model_override
-                await interaction.response.send_message(content=f"Changed model to {model_override}")
+                await interaction.response.send_message(content = f"Changed model to {model_override}")
             else:
-                await interaction.response.send_message(content=f"meow")
+                await interaction.response.send_message(content = f"meow")
         else:
-            await interaction.response.send_message(content=f"No permission!")
+            await interaction.response.send_message(content = f"No permission!")
 
     @app_commands.command(description="Flushes my smart toilet at my home :3")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def flush(self, interaction: discord.Interaction):
         global messages
         global pinged_messages
@@ -227,7 +227,7 @@ class Ai(commands.Cog):
         kayomessages.clear()
         messages.append({"role":"system","content": systemprompt})
         kayomessages.append({"role":"system","content": kayosystemprompt})
-        await interaction.response.send_message(content=f"Flushed toilet!")
+        await interaction.response.send_message(content = f"Flushed toilet!")
 
 
  

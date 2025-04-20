@@ -9,9 +9,14 @@ import asyncio
 import hashlib
 import base64
 from enum import Enum
+import sys
 
 f = open("token.sensitive")
 TOKEN = f.readline()
+f.close()
+
+f = open("statussecret.sensitive")
+STATUSES_SECRET = f.readline()
 f.close()
 
 authorized_users = ["tjc472", "aroacenerd", "arcticwoof", "winter._i", "skepper23"]
@@ -78,8 +83,6 @@ class MyClient(commands.Bot):
         if ("definatly" in message.content.lower() or "definitaly" in message.content.lower() or "definately" in message.content.lower()) and not message.author.id == self.user.id:
             await message.add_reaction("⚠️")
             await message.reply("it's spelt **D-E-F-I-N-I-T-E-L-Y**. Remember, there's no A!")
-        if "azzy porn addiction" in message.content.lower():
-            await message.delete()
         #if ("leb" in message.content.lower()) and not message.author.id == self.user.id:
         #    await message.add_reaction("⚠️")
         #    await message.reply(f"It's spelled **L-R-B**. not leb! Remember, theres no E!\nCorrected text: {message.content.lower().replace('leb', 'lrb')}")
@@ -143,8 +146,13 @@ async def verify(interaction: discord.Interaction, username: str):
     await interaction.edit_original_response(content=f"-# This feature is still work in progress and currently does *NOT* work.\n{output}")
 
 
-
-
+@client.tree.command(description="Generate a Token to use for the Statuses Vencord plugin :3")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def statuses_gen_login(interaction: discord.Interaction):
+    salt = str(random.randint(100000,1000000000))
+    token = f"{hashlib.sha256(base64.b64encode(f'{interaction.user.id}+{STATUSES_SECRET}+{salt}'.lower().encode('ascii'))).hexdigest()};{salt}"
+    await interaction.response.send_message(content=f"Your new token is ```{token}```\n# DO NOT SHARE THIS WITH ANYONE, TREAT THIS LIKE YOUR PASSWORD", ephemeral=True)
 
 
 

@@ -11,21 +11,21 @@ import asyncio
 from threading import Thread
 
 class Silly(commands.Cog):
-    def __init__(self, bot: commands.Bot) :
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
 
-    @app_commands.command(description="Calculates how much of a furry you are! :3")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.command(description = "Calculates how much of a furry you are! :3")
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def furry(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\nyou are "+str(random.randint(0,100))+"% a furry.")
+        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\nyou are " + str(random.randint(0,100)) + "% a furry.")
 
-    @app_commands.command(description="Calculates how cool you are! :3")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.command(description = "Calculates how cool you are! :3")
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def cool(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\nyou are "+str(random.randint(0,100))+"% cool.")
+        await interaction.response.send_message(content = f"-# {interaction.user.name}({interaction.user.nick})\nyou are " + str(random.randint(0,100)) + "% cool.")
 
 
     @app_commands.command(description="Detects if someone is lying! :3")
