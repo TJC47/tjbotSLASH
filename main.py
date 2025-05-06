@@ -10,6 +10,7 @@ import hashlib
 import base64
 from enum import Enum
 import sys
+import re
 
 f = open("token.sensitive")
 TOKEN = f.readline()
@@ -19,7 +20,7 @@ f = open("statussecret.sensitive")
 STATUSES_SECRET = f.readline()
 f.close()
 
-authorized_users = ["tjc472", "aroacenerd", "arcticwoof", "winter._i", "skepper23"]
+authorized_users = ["tjc472", "justcallmeama", "arcticwoof", "winter._i", "skepper23"]
 model = "hermes3"
 temperature = 2
 

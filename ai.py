@@ -53,7 +53,7 @@ class Ai(commands.Cog):
     async def on_message(self, message):
         global model # ignore my shitty globals please its just python stuff and it doesnt work without them
         global temperature
-        if self.bot.user.mentioned_in(message) and not "tjbot" in message.author.name.lower(): # executes if the bot is pinged and is not pinged by itself
+        if (type(message.channel) == discord.DMChannel or self.bot.user.mentioned_in(message)) and not "tjbot" in message.author.name.lower(): # executes if the bot is pinged and is not pinged by itself
             await message.add_reaction("🔃")
             try:
                 requests.get("http://192.168.2.2:8080")
@@ -129,7 +129,7 @@ class Ai(commands.Cog):
 
 
     global models
-    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "llava:13b", "llama3.2-vision"] # all the available models the bot can use
+    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision"] # all the available models the bot can use
     async def model_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
      return [
     app_commands.Choice(name = currentmodel,value = currentmodel)

@@ -10,7 +10,7 @@ import asyncio
 
 currency = "estrogen"
 
-def update_balance(userid, amount):
+def update_balance(userid, amount, reason="None"):
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -20,6 +20,9 @@ def update_balance(userid, amount):
     f = open("save.json", "w")
     f.write(json.dumps(economy_save, indent=4))
     f.close()
+    f = open("economy.log", "a")
+    f.write(f"[{userid}] ({amount}) -> {economy_save['economy'][str(userid)]['money'] - amount}{currency} -> {economy_save['economy'][str(userid)]['money']}{currency} (Reason: {reason})\n")
+
 
 def get_balance(userid):
     f = open("./save.json")
@@ -43,7 +46,7 @@ class Economy(commands.Cog):
     async def gambling(self, interaction: discord.Interaction, amount: int):
         userbalance = get_balance(interaction.user.id)
         userbalance_before = get_balance(interaction.user.id)
-        if not userbalance < amount:
+        if (not userbalance < amount) and (not amount < 0):
 
             await interaction.response.send_message(content=f"Let's go gambling!")
             try:
@@ -53,12 +56,12 @@ class Economy(commands.Cog):
                     rig = 5
                 if random.randint(1, 1 + rig) == 1:
                     moneydiff = amount + random.randint(0, amount)
-                    update_balance(interaction.user.id, moneydiff)
+                    update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
                     userbalance_after = get_balance(interaction.user.id)
                     await interaction.edit_original_response(content=f"You won `{moneydiff}{currency}`!\n-# WOHOOO!!!!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
                 else:
                     moneydiff = amount
-                    update_balance(interaction.user.id, 0 - moneydiff)
+                    update_balance(interaction.user.id, 0 - moneydiff, f"Gambling ({interaction.user.name})")
                     userbalance_after = get_balance(interaction.user.id)
                     await interaction.edit_original_response(content=f"You lost `{moneydiff}{currency}`!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
             except:
@@ -93,12 +96,12 @@ class Economy(commands.Cog):
     async def work(self, interaction: discord.Interaction):
         userbalance_before = get_balance(interaction.user.id)
         random_money = random.randint(0, 15)
-        update_balance(interaction.user.id, random_money)
+        update_balance(interaction.user.id, random_money, f"Working ({interaction.user.name})")
         wife = ""
         if random.randint(1,100) == 1 and userbalance_before > 105:
             wifetheftamount = random.randint(95,105)
             wife = f", but your wife went to buy groceries and took `{wifetheftamount}€` without asking you"
-            update_balance(interaction.user.id, 0 - wifetheftamount)
+            update_balance(interaction.user.id, 0 - wifetheftamount, f"Working (wife) ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You went to work and got `{random_money}{currency}`{wife}\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
 
@@ -115,12 +118,12 @@ class Economy(commands.Cog):
                 await asyncio.sleep(5)
                 if random.randint(1, 5) == 1:
                     moneydiff = random.randint(30, 150)
-                    update_balance(interaction.user.id, moneydiff)
+                    update_balance(interaction.user.id, moneydiff, f"Crime ({interaction.user.name})")
                     userbalance_after = get_balance(interaction.user.id)
                     await interaction.edit_original_response(content=f"You successfully managed to commit a crime and got `{moneydiff}{currency}`!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
                 else:
                     moneydiff = random.randint(30, 100)
-                    update_balance(interaction.user.id, 0 - moneydiff)
+                    update_balance(interaction.user.id, 0 - moneydiff, f"Crime ({interaction.user.name})")
                     userbalance_after = get_balance(interaction.user.id)
                     await interaction.edit_original_response(content=f"You got caught and have been fined `{moneydiff}{currency}`!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
             except:
@@ -151,8 +154,8 @@ class Economy(commands.Cog):
         if randmax < 10:
             randmax = 10
         stealamount = random.randint(0, round(randmax))
-        update_balance(user.id, -stealamount)
-        update_balance(interaction.user.id, stealamount)
+        update_balance(user.id, -stealamount, f"Stealing (Remove stolen money from stealee) ({user.name})")
+        update_balance(interaction.user.id, stealamount, f"Stealing (Credit stolen money) ({interaction.user.name})")
         stealeebalance_after = get_balance(user.id)
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You successfully stole `{stealamount}{currency}` from {user.mention}!\n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`\n-# `{user.name} {stealeebalance_before}{currency} -> {stealeebalance_after}{currency}`")
@@ -177,8 +180,8 @@ class Economy(commands.Cog):
         if userbalance_before < amount:
             await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance_before}{currency} < {amount}{currency})`")
             return
-        update_balance(interaction.user.id, -amount)
-        update_balance(user.id, amount)
+        update_balance(interaction.user.id, -amount, f"Payment (remove money from payer) ({interaction.user.name})")
+        update_balance(user.id, amount, f"Payment (credit money to payee) ({user.name})")
         payeebalance_after = get_balance(user.id)
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You successfully paid `{amount}{currency}` to {user.mention}!\n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`\n-# `{user.name} {payeebalance_before}{currency} -> {payeebalance_after}{currency}`")
