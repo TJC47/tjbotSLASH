@@ -8,7 +8,7 @@ import random
 import discord
 import asyncio
 
-currency = "estrogen"
+currency = "€strogen"
 
 def update_balance(userid, amount, reason="None"):
     f = open("./save.json")
@@ -22,7 +22,7 @@ def update_balance(userid, amount, reason="None"):
     f.close()
     f = open("economy.log", "a")
     f.write(f"[{userid}] ({amount}) -> {economy_save['economy'][str(userid)]['money'] - amount}{currency} -> {economy_save['economy'][str(userid)]['money']}{currency} (Reason: {reason})\n")
-
+    f.close()
 
 def get_balance(userid):
     f = open("./save.json")

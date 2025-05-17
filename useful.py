@@ -68,7 +68,22 @@ class Useful(commands.Cog):
                 await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
         await interaction.edit_original_response(content=f"-# Quote from {quoteduser}:\n{quotedmessage}")
 
-
+    @app_commands.command(description="Shortens a link :3")
+    @app_commands.describe(
+        link='Link to shorten'
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def shortenlink(self, interaction: discord.Interaction, link: str):
+        generated = random.randint(1,1000000)
+        f = open("/home/tjc/server/tjbot/redirectlist.json")
+        redirectlist = json.loads(f.read())
+        f.close()
+        redirectlist["redirects"][str(generated)] = {"path": link, "creator": interaction.user.name, "creatorid": interaction.user.id} 
+        f = open("/home/tjc/server/tjbot/redirectlist.json", "w")
+        f.write(json.dumps(redirectlist, indent=4))
+        f.close()
+        await interaction.response.send_message(content=f"Your link has been shortened! Available under https://de-1.tjcsucht.net/ulink/{generated}")
  
 
 

@@ -53,7 +53,11 @@ class Ai(commands.Cog):
     async def on_message(self, message):
         global model # ignore my shitty globals please its just python stuff and it doesnt work without them
         global temperature
-        if (type(message.channel) == discord.DMChannel or self.bot.user.mentioned_in(message)) and not "tjbot" in message.author.name.lower(): # executes if the bot is pinged and is not pinged by itself
+        if (type(message.channel) == discord.DMChannel or self.bot.user.mentioned_in(message)) and not self.bot.user == message.author: # executes if the bot is pinged and is not pinged by itself
+            if message.guild.id == 1268365327058599968:
+                return
+            if message.guild.member_count > 200:
+                return
             await message.add_reaction("🔃")
             try:
                 requests.get("http://192.168.2.2:8080")
@@ -129,7 +133,7 @@ class Ai(commands.Cog):
 
 
     global models
-    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision"] # all the available models the bot can use
+    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b"] # all the available models the bot can use
     async def model_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
      return [
     app_commands.Choice(name = currentmodel,value = currentmodel)
@@ -139,18 +143,26 @@ class Ai(commands.Cog):
     @app_commands.describe(
         prompt = 'Prompt to give to AI',
         model = 'Model to use',
-        usegenericprompt = 'Uses the non custom ai system prompt'
     )
     @app_commands.autocomplete(model = model_ac)
     @app_commands.allowed_installs(guilds = True, users = True)
     @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def ai(self, interaction: discord.Interaction, prompt: str, usegenericprompt: bool = False, model: str="hermes3"):
         global messages
+        should_be_ephemeral = False
+        if interaction.guild.member_count:
+            if interaction.guild.member_count > 200:
+                should_be_ephemeral = True
+        if "bots" in interaction.channel.name:
+            should_be_ephemeral = False
+        if interaction.guild.id == 1268365327058599968:
+            await interaction.response.send_message(content=f"Sorry but AI features have been disabled in this server", ephemeral=True)
+            return
         messages.append({"role": "user", "content": f"{prompt}, message sent from user: {interaction.user.name}"})
-        await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`Ai is thinking...`<a:loading3:1303768414422040586>")
+        await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`Ai is thinking...`<a:loading3:1303768414422040586>", ephemeral=should_be_ephemeral)
         try:
             out = requests.post("http://192.168.2.2:11434/api/chat", json={"model":model,"messages":messages,"stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
-            output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch")
+            output = json.loads(out.text)["message"]["content"]
             messages.append(json.loads(out.text)["message"])
             if len(output) + len(prompt) + 4 > 1999:
                 genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
@@ -163,8 +175,7 @@ class Ai(commands.Cog):
             output ="`An error occured`"
             await interaction.edit_original_response(content = f"-# {prompt}\n{output}")
 
-
-    @app_commands.command(description = "Ask KayoAI :3")
+    @app_commands.command(description = "Ask KayoAI (deprecated):3")
     @app_commands.describe(
         prompt='Prompt to give to AI',
         model='Model to use',
@@ -174,11 +185,20 @@ class Ai(commands.Cog):
     @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def kayoai(self, interaction: discord.Interaction, prompt: str, model: str="llama3.2"):
         global kayomessages
+        should_be_ephemeral = False
+        if interaction.guild.member_count:
+            if interaction.guild.member_count > 200:
+                should_be_ephemeral = True
+        if "bots" in interaction.channel.name:
+            should_be_ephemeral = False
+        if interaction.guild.id == 1268366668384440352:
+            await interaction.response.send_message(content=f"Sorry but AI features have been disabled in this server", ephemeral=True)
+            return
         kayomessages.append({"role": "user", "content": f"{prompt}, message sent from user: {interaction.user.name}"})
-        await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`KayoAi is thinking...`<a:loading3:1303768414422040586>")
+        await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`KayoAi is thinking...`<a:loading3:1303768414422040586>", ephemeral=should_be_ephemeral)
         try:
             out = requests.post("http://192.168.2.2:11434/api/chat", json = {"model":model, "messages":kayomessages, "stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
-            output = json.loads(out.text)["message"]["content"].replace("fr*nch", "fr\\*nch")
+            output = json.loads(out.text)["message"]["content"]
             kayomessages.append(json.loads(out.text)["message"])
             if len(output) + len(prompt) + 4 > 1999:
                 genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
@@ -210,7 +230,7 @@ class Ai(commands.Cog):
             else:
                 await interaction.response.send_message(content = f"meow")
         else:
-            await interaction.response.send_message(content = f"No permission!")
+            await interaction.response.send_message(content = f"No permission!", ephemeral=True)
 
     @app_commands.command(description="Flushes my smart toilet at my home :3")
     @app_commands.allowed_installs(guilds = True, users = True)
