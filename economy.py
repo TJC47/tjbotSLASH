@@ -10,7 +10,7 @@ import asyncio
 
 currency = "estrogen"
 
-shopItems={"Mysterious Pill": {"price": 1000000, "pronouns":"a"}, "Gambling Predictor": {"price": 10000, "pronouns": "a"}, "Totally Real And Working Gun": {"price": 10, "pronouns": "a"}, "Coffee": {"price": 4, "pronouns": "a"}}
+shopItems={"Mysterious Pill": {"price": 1000000, "pronouns":"a"}, "Unrig Casino": {"price": 10000, "pronouns": "a"}, "Totally Real And Working Gun": {"price": 10, "pronouns": "a"}, "Coffee": {"price": 4, "pronouns": "a"}}
 
 def update_balance(userid, amount, reason="None"):
     f = open("./save.json")
@@ -80,11 +80,11 @@ class Economy(commands.Cog):
                 if rig > 5:
                     rig = 5
                 predictorthing = ""
-                if "Gambling Predictor" in userinv:
-                    rig = rig -1
+                if "Unrig Casino" in userinv:
+                    rig = 2
                     if rig < 0:
                         rig = 0
-                    predictorthing = "\n-# Your chance of win has been slightly increased because of your **Gambling Predictor**"
+                    predictorthing = "\n-# Your chance of win has been slightly increased because you **unrigged the casino**"
                 if random.randint(1, 1 + rig) == 1:
                     moneydiff = amount + random.randint(0, amount)
                     update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
