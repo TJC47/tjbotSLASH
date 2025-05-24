@@ -8,7 +8,9 @@ import random
 import discord
 import asyncio
 
-currency = "€strogen"
+currency = "estrogen"
+
+shopItems={"Mysterious Pill": {"price": 1000000, "pronouns":"a"}, "Gambling Predictor": {"price": 10000, "pronouns": "a"}, "Totally Real And Working Gun": {"price": 10, "pronouns": "a"}, "Coffee": {"price": 4, "pronouns": "a"}}
 
 def update_balance(userid, amount, reason="None"):
     f = open("./save.json")
@@ -32,6 +34,28 @@ def get_balance(userid):
         economy_save["economy"][str(userid)] = {"money": 0}
     return economy_save["economy"][str(userid)]["money"]
 
+def set_inventory(userid, new):
+    f = open("./save.json")
+    economy_save = json.loads(f.read())
+    f.close()
+    if not str(userid) in economy_save["economy"]:
+        economy_save["economy"][str(userid)] = {"money": 0, "inventory": []}
+    economy_save["economy"][str(userid)]["inventory"] = new
+    f = open("save.json", "w")
+    f.write(json.dumps(economy_save, indent=4))
+    f.close()
+
+def get_inventory(userid):
+    f = open("./save.json")
+    economy_save = json.loads(f.read())
+    f.close()
+    if not str(userid) in economy_save["economy"]:
+        economy_save["economy"][str(userid)] = {"money": 0, "inventory": []}
+    if not "inventory" in economy_save["economy"][str(userid)]:
+        economy_save["economy"][str(userid)]["inventory"] = []
+    return economy_save["economy"][str(userid)]["inventory"]
+
+
 class Economy(commands.Cog):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
@@ -44,30 +68,37 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def gambling(self, interaction: discord.Interaction, amount: int):
+        await interaction.response.send_message(content=f"Let's go gambling!")
+        await asyncio.sleep(1)
         userbalance = get_balance(interaction.user.id)
         userbalance_before = get_balance(interaction.user.id)
+        userinv = get_inventory(interaction.user.id)
         if (not userbalance < amount) and (not amount < 0):
 
-            await interaction.response.send_message(content=f"Let's go gambling!")
             try:
-                await asyncio.sleep(1)
                 rig = round(userbalance / 100)
                 if rig > 5:
                     rig = 5
+                predictorthing = ""
+                if "Gambling Predictor" in userinv:
+                    rig = rig -1
+                    if rig < 0:
+                        rig = 0
+                    predictorthing = "\n-# Your chance of win has been slightly increased because of your **Gambling Predictor**"
                 if random.randint(1, 1 + rig) == 1:
                     moneydiff = amount + random.randint(0, amount)
                     update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
                     userbalance_after = get_balance(interaction.user.id)
-                    await interaction.edit_original_response(content=f"You won `{moneydiff}{currency}`!\n-# WOHOOO!!!!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
+                    await interaction.edit_original_response(content=f"You won `{moneydiff}{currency}`!\n-# WOHOOO!!!!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`{predictorthing}")
                 else:
                     moneydiff = amount
                     update_balance(interaction.user.id, 0 - moneydiff, f"Gambling ({interaction.user.name})")
                     userbalance_after = get_balance(interaction.user.id)
-                    await interaction.edit_original_response(content=f"You lost `{moneydiff}{currency}`!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
+                    await interaction.edit_original_response(content=f"You lost `{moneydiff}{currency}`!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`{predictorthing}")
             except:
                 await interaction.edit_original_response(content=f"there was an error with the database")
         else:
-            await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance}{currency} < {amount}{currency})`")
+            await interaction.edit_original_response(content=f"You dont have enough money for this `({userbalance}{currency} < {amount}{currency})`")
 
 
     @app_commands.command(description="check someones or your balance :3")
@@ -95,7 +126,15 @@ class Economy(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def work(self, interaction: discord.Interaction):
         userbalance_before = get_balance(interaction.user.id)
-        random_money = random.randint(0, 15)
+        userinv = get_inventory(interaction.user.id)
+        coffee = ""
+        wageincrease = 0
+        if "Coffee" in userinv:
+            coffee = "\n-# Your wage has been increased because you had a **Coffee**"
+            wageincrease = 20
+            userinv.remove("Coffee")
+            set_inventory(interaction.user.id, userinv)
+        random_money = random.randint(0 + wageincrease, 15 + wageincrease)
         update_balance(interaction.user.id, random_money, f"Working ({interaction.user.name})")
         wife = ""
         if random.randint(1,100) == 1 and userbalance_before > 105:
@@ -103,7 +142,7 @@ class Economy(commands.Cog):
             wife = f", but your wife went to buy groceries and took `{wifetheftamount}€` without asking you"
             update_balance(interaction.user.id, 0 - wifetheftamount, f"Working (wife) ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.response.send_message(content=f"You went to work and got `{random_money}{currency}`{wife}\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
+        await interaction.response.send_message(content=f"You went to work and got `{random_money}{currency}`{wife}{coffee}\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
 
 
     @app_commands.command(description="Attempt a crime(high risk high reward) :3")
@@ -185,6 +224,51 @@ class Economy(commands.Cog):
         payeebalance_after = get_balance(user.id)
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You successfully paid `{amount}{currency}` to {user.mention}!\n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`\n-# `{user.name} {payeebalance_before}{currency} -> {payeebalance_after}{currency}`")
+
+
+    global shopItems
+    async def shop_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+     return [
+    app_commands.Choice(name = currentmodel,value = currentmodel)
+    for currentmodel in shopItems if current.lower() in currentmodel.lower() # weird autocomplete shit idk how this works
+    ]
+
+    @app_commands.command(description = "Buy something :3")
+    @app_commands.describe(
+        item='Item to buy',
+    )
+    @app_commands.autocomplete(item = shop_ac)
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
+    async def buy(self, interaction: discord.Interaction, item: str):
+        if item in shopItems:
+            userinv = get_inventory(interaction.user.id)
+            userbalance = get_balance(interaction.user.id)
+            if shopItems[item]["price"] > userbalance:
+                await interaction.response.send_message(content = f"""You don't have enough money for this! `({userbalance}{currency} < {shopItems[item]["price"]}{currency})`""")
+            if item in userinv:
+                await interaction.response.send_message(content = f"""You already have {shopItems[item]["pronouns"]} "{item}"!""")
+            userinv.append(item)
+            update_balance(interaction.user.id, -shopItems[item]["price"], f"Purchasing of '{item}' ({interaction.user.name})")
+            set_inventory(interaction.user.id, userinv)
+            await interaction.response.send_message(content = f"""You successfully purchased {shopItems[item]["pronouns"]} "{item}" for {shopItems[item]["price"]}{currency}""")
+        else:
+            await interaction.response.send_message(content = f"That doesn't exist!", ephemeral=True)
+
+    @app_commands.command(description="check your inventory :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def inventory(self, interaction: discord.Interaction):
+            userinv = get_inventory(interaction.user.id)
+            stringedinventory = ""
+            if len(userinv) == 0:
+                await interaction.response.send_message(content=f"Your inventory is empty :pensive:")
+                return
+            
+            for item in userinv:
+                stringedinventory = stringedinventory + f"\n{item}"
+            await interaction.response.send_message(content=f"Your inventory: {stringedinventory}")
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Economy(bot))

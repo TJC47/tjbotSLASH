@@ -33,7 +33,7 @@ class ExecModal(discord.ui.Modal, title = 'Exec this shit'):
         style = discord.TextStyle.long,
         placeholder = 'TOKEN(wont work here)',
         required = True,
-        max_length = 2000,
+        max_length = 4000,
     )
 
     async def on_submit(self, interaction: discord.Interaction):

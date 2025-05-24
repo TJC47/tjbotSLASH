@@ -54,10 +54,11 @@ class Ai(commands.Cog):
         global model # ignore my shitty globals please its just python stuff and it doesnt work without them
         global temperature
         if (type(message.channel) == discord.DMChannel or self.bot.user.mentioned_in(message)) and not self.bot.user == message.author: # executes if the bot is pinged and is not pinged by itself
-            if message.guild.id == 1268365327058599968:
-                return
-            if message.guild.member_count > 200:
-                return
+            if not type(message.channel) == discord.DMChannel:
+                if message.guild.id == 1268365327058599968:
+                    return
+                if message.guild.member_count > 200:
+                    return
             await message.add_reaction("🔃")
             try:
                 requests.get("http://192.168.2.2:8080")
