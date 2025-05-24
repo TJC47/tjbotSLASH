@@ -10,7 +10,7 @@ import asyncio
 
 currency = "estrogen"
 
-shopItems={"Mysterious Pill": {"price": 1000000, "pronouns":"a"}, "Unrig Casino": {"price": 10000, "pronouns": "a"}, "Totally Real And Working Gun": {"price": 10, "pronouns": "a"}, "Coffee": {"price": 4, "pronouns": "a"}}
+shopItems={"Mysterious Pill": {"price": 1000000, "pronouns":"a", "description": "who knows what this does"}, "Unrig Casino": {"price": 10000, "pronouns": "a", "description": "makes your /gambling win chance fixed to 1/3 instead of depending on your balance"}, "Totally Real And Working Gun": {"price": 10, "pronouns": "a", "description": "A totally real gun that totally works"}, "Coffee": {"price": 4, "pronouns": "a", "description": "Increases your wage when you /work"}, "Level Thumbnails Pro Subscription": {"price": 999, "pronouns": "a", "description": f"Level Thumbnails Pro!!!! Buy now!!!!! only 999{currency}"}}
 
 def update_balance(userid, amount, reason="None"):
     f = open("./save.json")
@@ -233,7 +233,7 @@ class Economy(commands.Cog):
     for currentmodel in shopItems if current.lower() in currentmodel.lower() # weird autocomplete shit idk how this works
     ]
 
-    @app_commands.command(description = "Buy something :3")
+    @app_commands.command(description = "Buy something from the shop :3")
     @app_commands.describe(
         item='Item to buy',
     )
@@ -248,12 +248,25 @@ class Economy(commands.Cog):
                 await interaction.response.send_message(content = f"""You don't have enough money for this! `({userbalance}{currency} < {shopItems[item]["price"]}{currency})`""")
             if item in userinv:
                 await interaction.response.send_message(content = f"""You already have {shopItems[item]["pronouns"]} "{item}"!""")
+                return
             userinv.append(item)
             update_balance(interaction.user.id, -shopItems[item]["price"], f"Purchasing of '{item}' ({interaction.user.name})")
             set_inventory(interaction.user.id, userinv)
             await interaction.response.send_message(content = f"""You successfully purchased {shopItems[item]["pronouns"]} "{item}" for {shopItems[item]["price"]}{currency}""")
         else:
             await interaction.response.send_message(content = f"That doesn't exist!", ephemeral=True)
+
+    @app_commands.command(description="view the shop :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def shop(self, interaction: discord.Interaction):
+            userinv = get_inventory(interaction.user.id)
+            userbalance = get_balance(interaction.user.id)
+            stringedshop = ""
+            
+            for item in shopItems:
+                stringedshop = stringedshop + f"""\n-# **{item}** - `{shopItems[item]["price"]}{currency}` - {shopItems[item]["description"]}"""
+            await interaction.response.send_message(content=f"You can buy this at the shop, use /buy to buy your selected product {stringedshop}\nYour Balance: `{userbalance}{currency}`")
 
     @app_commands.command(description="check your inventory :3")
     @app_commands.allowed_installs(guilds=True, users=True)
