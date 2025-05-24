@@ -84,7 +84,7 @@ class Economy(commands.Cog):
                     rig = 2
                     if rig < 0:
                         rig = 0
-                    predictorthing = "\n-# Your chance of win has been slightly increased because you **unrigged the casino**"
+                    predictorthing = "\n-# Your chance of win has been altered (for the good or the bad) because you **unrigged the casino**"
                 if random.randint(1, 1 + rig) == 1:
                     moneydiff = amount + random.randint(0, amount)
                     update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
