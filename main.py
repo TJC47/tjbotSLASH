@@ -64,6 +64,39 @@ class MyClient(commands.Bot):
         await self.load_extension("economy")
 
         activity.start()
+
+    async def on_raw_reaction_add(self, payload): # logging for level thumbnails, not active when bot not in the server, ignorable
+        if payload.guild_id == 1268365327058599968:
+            reactionlogchannel = client.get_channel(1376999667660882011)
+            message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+            embed = discord.Embed()
+            embed.title = "Reaction added"
+            embed.color = discord.Color.green()
+            embed.add_field(name="Emoji", value=f"{payload.emoji}", inline=False)
+            embed.add_field(name="User", value=f"<@{payload.member.id}>({payload.member.name})", inline=False)
+            embed.add_field(name="Channel", value=f"<#{payload.channel_id}>", inline=False)
+            embed.add_field(name="Message", value=f"https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}", inline=False)
+            if not message.content == "":
+                embed.add_field(name="Message Content", value=f"{message.content}", inline=False)
+            await reactionlogchannel.send(embed=embed)
+
+    async def on_raw_reaction_remove(self, payload):
+        if payload.guild_id == 1268365327058599968:
+            reactionlogchannel = client.get_channel(1376999667660882011)
+            message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+            embed = discord.Embed()
+            embed.title = "Reaction removed"
+            embed.color = discord.Color.dark_red()
+            user = await self.fetch_user(payload.user_id)
+            embed.add_field(name="Emoji", value=f"{payload.emoji}", inline=False)
+            embed.add_field(name="User", value=f"<@{user.id}>({user.name})", inline=False)
+            embed.add_field(name="Channel", value=f"<#{payload.channel_id}>", inline=False)
+            embed.add_field(name="Message", value=f"https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}", inline=False)
+            if not message.content == "":
+                embed.add_field(name="Message Content", value=f"{message.content}", inline=False)
+            await reactionlogchannel.send(embed=embed)
+
+
     async def on_message(self, message):
         global model
 
@@ -76,21 +109,21 @@ class MyClient(commands.Bot):
             await self.reload_extension("ai")
             await self.reload_extension("economy")
             await message.channel.send("Reloaded all cogs omg")
-        if message.author.name.startswith("moonstarmaster"):
-            await message.add_reaction("😭")
-        if ("alot" in message.content.lower()) and not message.author.id == self.user.id:
-            await message.add_reaction("⚠️")
-            await message.reply(random.choice(["it's spelt **a lot**, not **alot**. Imagine a parking lot between the two words!", '''it's spelt **a lot**, not **alot**. Remember, you don't spell it "alittle!"''', "it's spelt **a lot**, not **alot**. Remember, lot is a noun!"]))
-        if ("definatly" in message.content.lower() or "definitaly" in message.content.lower() or "definately" in message.content.lower()) and not message.author.id == self.user.id:
-            await message.add_reaction("⚠️")
-            await message.reply("it's spelt **D-E-F-I-N-I-T-E-L-Y**. Remember, there's no A!")
+        #if message.author.name.startswith("moonstarmaster"):
+        #    await message.add_reaction("😭")
+        #if ("alot" in message.content.lower()) and not message.author.id == self.user.id:
+        #    await message.add_reaction("⚠️")
+        #    await message.reply(random.choice(["it's spelt **a lot**, not **alot**. Imagine a parking lot between the two words!", '''it's spelt **a lot**, not **alot**. Remember, you don't spell it "alittle!"''', "it's spelt **a lot**, not **alot**. Remember, lot is a noun!"]))
+        #if ("definatly" in message.content.lower() or "definitaly" in message.content.lower() or "definately" in message.content.lower()) and not message.author.id == self.user.id:
+        #    await message.add_reaction("⚠️")
+        #    await message.reply("it's spelt **D-E-F-I-N-I-T-E-L-Y**. Remember, there's no A!")
         #if ("leb" in message.content.lower()) and not message.author.id == self.user.id:
         #    await message.add_reaction("⚠️")
         #    await message.reply(f"It's spelled **L-R-B**. not leb! Remember, theres no E!\nCorrected text: {message.content.lower().replace('leb', 'lrb')}")
         #elif ("lrb" in message.content.lower()) and not message.author.id == self.user.id:
         #        await message.add_reaction("✅")
-        if message.author.id in reaction_people and random.randint(1,50) == 25:
-            await message.add_reaction(random.choice(["😭", "🔥", "✅", "💔", "❤️", "🏳️‍🌈", "🏳️‍⚧️", "🇷🇴", "🫃", "💀", "🥟"]))
+        #if message.author.id in reaction_people and random.randint(1,50) == 25:
+        #    await message.add_reaction(random.choice(["😭", "🔥", "✅", "💔", "❤️", "🏳️‍🌈", "🏳️‍⚧️", "🇷🇴", "🫃", "💀", "🥟"]))
         #if message.content.lower().startswith("im ") or message.content.lower().startswith("i'm "):
         #    await message.reply(f"Hello {message.content.split(' ', 1)[1]}! I'm not your dad!")
         if message.content == "christmas tree" and is_owner: 
@@ -100,17 +133,17 @@ class MyClient(commands.Bot):
             file = open("log.txt", "a")
             file.write("\n"+"winter(winter): " +message.content.replace("\n","[lb]"))
             file.close()
-        if "<@1045761412489809975>" in message.content:
-            await message.add_reaction("🔃")
-            try:
-                requests.get("http://192.168.2.2:8080")
-                await message.remove_reaction("🔃", client.user)
-                await message.add_reaction("🆗")
-                await asyncio.sleep(5)
-                await message.remove_reaction("🆗", client.user)
-            except:
-                await message.remove_reaction("🔃", client.user)
-                await message.add_reaction("⚠️")
+        #if "<@1045761412489809975>" in message.content:
+        #    await message.add_reaction("🔃")
+        #    try:
+        #        requests.get("http://192.168.2.2:8080")
+        #        await message.remove_reaction("🔃", client.user)
+        #        await message.add_reaction("🆗")
+        #        await asyncio.sleep(5)
+        #        await message.remove_reaction("🆗", client.user)
+        #    except:
+        #        await message.remove_reaction("🔃", client.user)
+        #        await message.add_reaction("⚠️")
         global index
         global temperature
 

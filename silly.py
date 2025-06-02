@@ -10,6 +10,31 @@ from discord.ext import tasks
 import asyncio
 from threading import Thread
 
+meaninglist = [
+    "lasanga",
+    "ovo bolovo",
+    "it means gay",
+    "it means you're cute :3",
+    ":poop:",
+    "transgender",
+    "[REDACTED]",
+    "the silly commands cog",
+    "atarctica",
+    "https://fish.tjcsucht.net",
+    ":fish:",
+    "kam is homosexual",
+    "oh no! the cdc virus removed the answer!",
+    "anyways meow",
+    "cat",
+    ":cat:",
+    ":cat2:",
+    "youre not straight",
+    "youre cool",
+    ":baby:",
+    "fan"
+]
+
+
 class Silly(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -131,6 +156,12 @@ class Silly(commands.Cog):
         thing = f"hewwo {hewwotosay} :3333{disclaimer}"
         await interaction.response.send_message(content=thing)
 
+    @app_commands.command(description="what does your name mean?:3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def meaning(self, interaction: discord.Interaction):
+        thing = random.choice(meaninglist)
+        await interaction.response.send_message(content=thing)
 
     @app_commands.command(description="Uwuwifies a message :3")
     @app_commands.describe(
