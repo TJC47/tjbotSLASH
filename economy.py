@@ -155,6 +155,9 @@ class Economy(commands.Cog):
                         if rig < 0:
                             rig = 0
                         predictorthing = "\n-# Your chance of win has been altered (for the good or the bad) because you **unrigged the casino**"
+                    if interaction.user.id == 978053871270248508: rig = 0
+                    if interaction.user.id == 1155392571569356880: rig = 0
+                    rig = 0
                     if random.randint(1, 1 + rig) == 1:
                         moneydiff = amount + random.randint(0, amount)
                         update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
@@ -388,6 +391,45 @@ class Economy(commands.Cog):
                 embed.add_field(name=f"{to_ordinal(p)} Place:", value=f"""> User: <@{user}>\n> Balance: {economy[user]["money"]}{currency}""", inline=False)
                 p = p + 1
             await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(description="fix inflation in the economy :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def fix_economy(self, interaction: discord.Interaction):
+            economy = get_economy()
+            leaderboard = sorted(economy, key=lambda item: economy[item]["money"])
+            leaderboard.reverse()
+            def isinflated():
+                economy = get_economy()
+                leaderboard = sorted(economy, key=lambda item: economy[item]["money"])
+                leaderboard.reverse()
+                t10 = 0
+                for user in leaderboard[:10]:
+                    t10 = t10 + economy[user]["money"]
+                if t10 > 100000: return True
+                else: return False
+            def gett10():
+                economy = get_economy()
+                leaderboard = sorted(economy, key=lambda item: economy[item]["money"])
+                leaderboard.reverse()
+                t10 = 0
+                for user in leaderboard[:10]:
+                    t10 = t10 + economy[user]["money"]
+                return t10
+            if not isinflated():
+                await interaction.response.send_message("There is nothing to fix!")
+                return
+            fixlog = f"# INFLATION DETECTED (t10 is `{gett10()}{currency}`)! PREPARING FIXING PROCESS"
+            await interaction.response.send_message(fixlog)
+            while isinflated():
+                economy = get_economy()
+                leaderboard = sorted(economy, key=lambda item: economy[item]["money"])
+                leaderboard.reverse()
+                for user in leaderboard[:1]:
+                    update_balance(user, -economy[user]["money"], "economy fixing")
+                fixlog = fixlog + f"\n-# <@{leaderboard[0]}>, WIPED, `t10={gett10()}`"
+                await interaction.edit_original_response(content=fixlog)
+            await interaction.edit_original_response(content=f"{fixlog}\nEconomy fixed!")
 
     @app_commands.command(description="check your inventory :3")
     @app_commands.allowed_installs(guilds=True, users=True)
