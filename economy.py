@@ -107,15 +107,23 @@ def get_inventory(userid):
         economy_save["economy"][str(userid)]["inventory"] = []
     return economy_save["economy"][str(userid)]["inventory"]
 
-def englishplacementnumbers(number):
-    numberthing = "th"
+def to_ordinal(number):
+    ordinal = "th"
+
     if number == 1:
-        numberthing = "st"
+        ordinal = "st"
     if number == 2:
-        numberthing = "nd"
+        ordinal = "nd"
     if number == 3:
-        numberthing = "rd"
-    return f"{number}{numberthing}"
+        ordinal = "rd"
+
+    if number > 20:
+        last_digit = int(str(number)[1:]) # :skull:
+        if last_digit == 1: ordinal = "st"
+        if last_digit == 2: ordinal = "nd"
+        if last_digit == 3: ordinal = "rd"
+
+    return f"{number}{ordinal}"
 
 class Economy(commands.Cog):
     def __init__(self, bot: commands.Bot) :
@@ -368,7 +376,7 @@ class Economy(commands.Cog):
             embed.title = "Economy Leaderboard"
             embed.color = discord.Color.pink()
             try:
-                embed.set_footer(text=f"""Your placement: {englishplacementnumbers(leaderboard.index(str(interaction.user.id))+1)} Place""")
+                embed.set_footer(text=f"""Your placement: {to_ordinal(leaderboard.index(str(interaction.user.id))+1)} Place""")
             except:
                 embed.set_footer(text="You don't have any balance so I can't tell you your leaderboard placement!")
             p = 1
@@ -377,7 +385,7 @@ class Economy(commands.Cog):
             else:
                 c = 3
             for user in leaderboard[:c]:
-                embed.add_field(name=f"{englishplacementnumbers(p)} Place:", value=f"""> User: <@{user}>\n> Balance: {economy[user]["money"]}{currency}""", inline=False)
+                embed.add_field(name=f"{to_ordinal(p)} Place:", value=f"""> User: <@{user}>\n> Balance: {economy[user]["money"]}{currency}""", inline=False)
                 p = p + 1
             await interaction.response.send_message(embed=embed)
 
