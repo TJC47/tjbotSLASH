@@ -147,7 +147,7 @@ class Dev(commands.Cog):
                     await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\nSent Message successfully")
                 else:
                     if prompt == "penis":
-                        await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\nThe penis game has (not) been activated")
+                        await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\nStop the penising")
                     else:
                         await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`Invalid Prompt!`\nDid you misspell something?")
         else:
