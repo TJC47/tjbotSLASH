@@ -456,7 +456,18 @@ class Economy(commands.Cog):
         if amount < 0:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)")
             return
-        winnerid = random.choice(list(get_economy()))
+
+        try:
+            eco = list(get_economy())
+            eco.remove(str(interaction.user.id))
+            winnerid = random.choice(eco)
+        except ValueError: # user is not in economy (probably)
+            await interaction.response.send_message("You dont have any balance so i cant really give away anything")
+            return
+        except IndexError: # no one to give away to
+            await interaction.response.send_message("There's no one you can give this to")
+            return
+
         payeebalance_before = get_balance(winnerid)
         userbalance_before = get_balance(interaction.user.id)
         if userbalance_before < amount:
