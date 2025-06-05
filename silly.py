@@ -182,7 +182,12 @@ class Silly(commands.Cog):
         f.close()
         quotesj = json.loads(quotes)
         selectedquote = random.choice(quotesj)
-        await interaction.response.send_message(content=f'Quote from <@{selectedquote["author_id"]}>: {selectedquote["content"]}')
+        embed = discord.Embed()
+        embed.title = "CDC Quotes"
+        embed.color = discord.Color.pink()
+        embed.add_field(name="Message Author", value=f"""<@{selectedquote["author_id"]}>""", inline=False)
+        embed.add_field(name="Message Content", value=f"""{selectedquote["content"]}""", inline=False)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Silly(bot))

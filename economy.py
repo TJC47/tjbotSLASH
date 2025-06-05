@@ -155,6 +155,7 @@ class Economy(commands.Cog):
                         if rig < 0:
                             rig = 0
                         predictorthing = "\n-# Your chance of win has been altered (for the good or the bad) because you **unrigged the casino**"
+
                     if random.randint(1, 1 + rig) == 1:
                         moneydiff = amount + random.randint(0, amount)
                         update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
@@ -393,6 +394,9 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def fix_economy(self, interaction: discord.Interaction):
+            if not interaction.user.id == self.bot.owner_id:
+                await interaction.response.send_message(f"Sorry! This is <@{self.bot.owner_id}> only, please ask **them** to run this command if really needed")
+                return
             economy = get_economy()
             leaderboard = sorted(economy, key=lambda item: economy[item]["money"])
             leaderboard.reverse()
@@ -403,7 +407,7 @@ class Economy(commands.Cog):
                 t10 = 0
                 for user in leaderboard[:10]:
                     t10 = t10 + economy[user]["money"]
-                if t10 > 100000: return True
+                if t10 > 10000000: return True
                 else: return False
             def gett10():
                 economy = get_economy()
