@@ -107,6 +107,22 @@ def get_inventory(userid):
         economy_save["economy"][str(userid)]["inventory"] = []
     return economy_save["economy"][str(userid)]["inventory"]
 
+def get_cashdrops():
+    f = open("./save.json")
+    economy_save = json.loads(f.read())
+    f.close()
+    return economy_save["cashdrops"]
+
+def set_cashdrops(cashdrops):
+    f = open("./save.json")
+    economy_save = json.loads(f.read())
+    f.close()
+    economy_save["cashdrops"] = cashdrops
+    f = open("save.json", "w")
+    f.write(json.dumps(economy_save, indent=4))
+    f.close()
+
+
 def to_ordinal(number):
     ordinal = "th"
 
@@ -482,6 +498,51 @@ class Economy(commands.Cog):
         payeebalance_after = get_balance(winnerid)
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"Congratulations to <@{winnerid}> for winning `{amount}{currency}`! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`\n-# `giveaway winner {payeebalance_before}{currency} -> {payeebalance_after}{currency}`")
+
+
+    @app_commands.command(description="drop some money :3")
+    @app_commands.describe(
+        amount='amount of currency to drop'
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def drop_cash(self, interaction: discord.Interaction, amount: int):
+        if amount < 0:
+            await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)", ephemeral=True)
+            return
+
+        userbalance_before = get_balance(interaction.user.id)
+        if userbalance_before < amount:
+            await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance_before}{currency} < {amount}{currency})`", ephemeral=True)
+            return
+
+        cashdrops = get_cashdrops()
+        if amount in cashdrops:
+            await interaction.response.send_message(content=f"theres already that money on the ground", ephemeral=True)
+            return
+        cashdrops.append(amount)
+        update_balance(interaction.user.id, -amount, f"cashdrop (remove money from dropper) ({interaction.user.name})")
+        set_cashdrops(cashdrops)
+        userbalance_after = get_balance(interaction.user.id)
+        await interaction.response.send_message(content=f"You dropped `{amount}{currency}`! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`", ephemeral=True)
+
+    @app_commands.command(description="pickup some money :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def pickup_cash(self, interaction: discord.Interaction):
+        userbalance_before = get_balance(interaction.user.id)
+        cashdrops = get_cashdrops()
+        if len(cashdrops) == 0:
+            await interaction.response.send_message(content=f"There's no cash to be found :pensive:")
+            return
+        amount = cashdrops[0]
+        cashdrops.pop(0)
+        set_cashdrops(cashdrops)
+        update_balance(interaction.user.id, amount, f"cashdrop (add money to pickupper) ({interaction.user.name})")
+        userbalance_after = get_balance(interaction.user.id)
+        await interaction.response.send_message(content=f"You picked up `{amount}{currency}`! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`")
+
+
 
 
 

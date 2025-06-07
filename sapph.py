@@ -53,6 +53,20 @@ class Sapph(commands.Cog):
         embed.color = discord.Colour.from_rgb(54, 206, 54)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(description="Newgen someone :3")
+    @app_commands.describe(
+        newgenee='person to newgen',
+        reason='reason'
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def newgen(self, interaction: discord.Interaction, newgenee: discord.User, reason: str='No reason provided'):
+        embed = discord.Embed()
+        embed.add_field(name=f"<:checkmarksapph:1309669307214598265> @{newgenee.name} is a newgen", value="\n> **Reason**: " + reason + "\n> **Duration**: Permanent", inline=False)
+        embed.set_footer(text="le epically trolled")
+        embed.color = discord.Colour.from_rgb(54, 206, 54)
+        await interaction.response.send_message(embed=embed)
+
     @app_commands.command(description="Whatever you want someone :3")
     @app_commands.describe(
         actionee='person to whatever you want',
