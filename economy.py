@@ -55,6 +55,11 @@ shopItems = {
         "price": 10000,
         "pronouns": "a",
         "description": "You won't have to worry about your cash getting stolen again! Now it will be safe!"
+    },
+        "Thigh Highs": {
+        "price": 500,
+        "pronouns": "a pair of",
+        "description": "Yesssss cute femboy thigh highs :333 mrorowweoeworomwoe mweowo SAYESYYE SEGIB GIB GIB"
     }
 }
 
