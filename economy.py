@@ -176,7 +176,9 @@ class Economy(commands.Cog):
                         if rig < 0:
                             rig = 0
                         predictorthing = "\n-# Your chance of win has been altered (for the good or the bad) because you **unrigged the casino**"
-
+                    if userbalance_before > 1000000:
+                        await interaction.edit_original_response(content=f"Nah, you're already too rich, we dont want any more inflation, do we?")
+                        return
                     if random.randint(1, 1 + rig) == 1:
                         moneydiff = amount + random.randint(0, amount)
                         update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
@@ -329,6 +331,9 @@ class Economy(commands.Cog):
         if userbalance_before < amount:
             await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance_before}{currency} < {amount}{currency})`")
             return
+        if payeebalance_before > 1000000:
+            await interaction.response.send_message(content=f"Nah, they're already too rich, we dont want any more inflation, do we?")
+            return
         update_balance(interaction.user.id, -amount, f"Payment (remove money from payer) ({interaction.user.name})")
         update_balance(user.id, amount, f"Payment (credit money to payee) ({user.name})")
         payeebalance_after = get_balance(user.id)
@@ -478,6 +483,8 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def giveaway(self, interaction: discord.Interaction, amount: int):
+        await interaction.response.send_message(content=f"Disabled because winter")
+        return
         if amount < 0:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)")
             return
@@ -522,6 +529,12 @@ class Economy(commands.Cog):
         userbalance_before = get_balance(interaction.user.id)
         if userbalance_before < 1000:
             await interaction.edit_original_response(content=f"I told you to not spam this fucking command `({userbalance_before}{currency} < 1000{currency})`")
+            return
+        if userbalance_before > 1000000:
+            await interaction.edit_original_response(content=f"Nah, you're already too rich, we dont want any more inflation, do we?")
+            return
+        if not len(get_cashdrops()) == 0:
+            await interaction.edit_original_response(content=f"You can not use cashdrops to save yourself money! Please pickup all cash first before proceeding")
             return
         if random.randint(1, 6) == 1:
             userbalance_before = get_balance(interaction.user.id)

@@ -70,6 +70,30 @@ class Ai(commands.Cog):
                 await message.remove_reaction("🔃", self.bot.user)
                 await message.add_reaction("⚠️")
                 return
+            f = open("./save.json")
+            agreed_save = json.loads(f.read())["ai_agreed"]
+            f.close()
+            if not message.author.id in agreed_save:
+                if not "i agree to the terms" in message.content.lower():
+                    await message.reply("""⚠️ You haven't agreed to the Terms yet.
+TJBot AI terms:
+- You may not use TJBot AI to generate illegal material of any sort
+- You may not use TJBot AI in order to harm others
+🔒 Your conversations with TJBot AI will not be used to train AI models
+🔓 Generated content may still be saved on our servers to allow displaying of long outputs and for Quality assurance reasons, aswell as making sure these terms are not violated
+
+Please reply to this message with `I agree to the terms` in order to activate AI features""")
+                else:
+                    agreed_save.append(message.author.id)
+                    f = open("./save.json")
+                    economy_save = json.loads(f.read())
+                    f.close()
+                    economy_save["ai_agreed"] = agreed_save 
+                    f = open("save.json", "w")
+                    f.write(json.dumps(economy_save, indent=4))
+                    f.close()
+                    await message.reply("✅ Terms accepted. You may now use TJBot AI")
+                return
             image = []
             if message.attachments: #stuff used for the images
                 for attachment in message.attachments: #some weird implementation i had to do to get discord.py to read multiple attachments
