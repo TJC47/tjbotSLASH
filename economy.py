@@ -504,6 +504,31 @@ class Economy(commands.Cog):
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"Congratulations to <@{winnerid}> for winning `{amount}{currency}`! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`\n-# `giveaway winner {payeebalance_before}{currency} -> {payeebalance_after}{currency}`")
 
+    @app_commands.command(description="russian roulette (if you lose you get WIPED) :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def russian_roulette(self, interaction: discord.Interaction):
+        userbalance_before = get_balance(interaction.user.id)
+        if userbalance_before < 1000:
+            await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance_before}{currency} < 1000{currency})`")
+            return
+        await interaction.response.send_message(content=f"We are waiting for the result...")
+        await asyncio.sleep(1)
+        await interaction.edit_original_response(content=f".")
+        await asyncio.sleep(1)
+        await interaction.edit_original_response(content=f"..")
+        await asyncio.sleep(1)
+        await interaction.edit_original_response(content=f"...")
+        if random.randint(1, 6) == 1:
+            userbalance_before = get_balance(interaction.user.id)
+            update_balance(interaction.user.id, -userbalance_before, f"Russian roulette, dying ({interaction.user.name})")
+            await interaction.edit_original_response(content=f"You died... Your balance has been ***WIPED***")
+        userbalance_before = get_balance(interaction.user.id)
+        amount = userbalance_before * 2
+        update_balance(interaction.user.id, amount, f"Russian roulette, winning ({interaction.user.name})")
+        userbalance_after = get_balance(interaction.user.id)
+        await interaction.edit_original_response(content=f"You didn't die and won `{amount}{currency}`!!!!!!! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`")
+
 
     @app_commands.command(description="drop some money :3")
     @app_commands.describe(
