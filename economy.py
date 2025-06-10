@@ -519,10 +519,15 @@ class Economy(commands.Cog):
         await interaction.edit_original_response(content=f"..")
         await asyncio.sleep(1)
         await interaction.edit_original_response(content=f"...")
+        userbalance_before = get_balance(interaction.user.id)
+        if userbalance_before < 1000:
+            await interaction.edit_original_response(content=f"I told you to not spam this fucking command `({userbalance_before}{currency} < 1000{currency})`")
+            return
         if random.randint(1, 6) == 1:
             userbalance_before = get_balance(interaction.user.id)
             update_balance(interaction.user.id, -userbalance_before, f"Russian roulette, dying ({interaction.user.name})")
             await interaction.edit_original_response(content=f"You died... Your balance has been ***WIPED***")
+            return
         userbalance_before = get_balance(interaction.user.id)
         amount = userbalance_before * 2
         update_balance(interaction.user.id, amount, f"Russian roulette, winning ({interaction.user.name})")
