@@ -207,7 +207,7 @@ class Economy(commands.Cog):
                 except:
                     await interaction.edit_original_response(content=f"there was an error with the database")
             else:
-                await interaction.edit_original_response(content=f"You dont have enough money for this `({ezread(serbalance)}{currency} < {ezread(amount)}{currency})`")
+                await interaction.edit_original_response(content=f"You dont have enough money for this `({ezread(userbalance)}{currency} < {ezread(amount)}{currency})`")
         except:
             await interaction.edit_original_response(content=f"something VEEEEEEEERY bad happened with the bots dcdodce and you broke it, gerat job, {interaction.user.name}")
 
