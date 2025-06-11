@@ -146,11 +146,21 @@ def to_ordinal(number):
 
     return f"{number}{ordinal}"
 
-def ezread(number): # short function name because this is gonna be used a LOT
+def ezread(number: int): # short function name because this is gonna be used a LOT
     if number >= 1000000000: return f"{str(round(number / 1000000000, ndigits=1))}B"
     elif number >= 1000000: return f"{str(round(number / 1000000, ndigits=1))}M"
     elif number >= 1000: return f"{str(round(number / 1000, ndigits=1))}K"
     else: return f"{str(number)}"
+
+def unpacknumbers(string: str):
+    string = string.lower()
+    try:
+        if string.endswith("k"): return round(float(string.strip("k")) * 1000)
+        elif string.endswith("m"): return round(float(string.strip("m")) * 1000000)
+        elif string.endswith("b"): return round(float(string.strip("b")) * 1000000000)
+        else: return int(string)
+    except:
+        return 0
 
 class Economy(commands.Cog):
     def __init__(self, bot: commands.Bot) :
@@ -163,7 +173,8 @@ class Economy(commands.Cog):
     )
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gambling(self, interaction: discord.Interaction, amount: int):
+    async def gambling(self, interaction: discord.Interaction, amount: str):
+        amount = unpacknumbers(amount)
         await interaction.response.send_message(content=f"<a:loading3:1303768414422040586> Let's go gambling! <a:loading3:1303768414422040586>")
         try:
             await asyncio.sleep(1)
@@ -323,7 +334,8 @@ class Economy(commands.Cog):
     )
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def pay(self, interaction: discord.Interaction, user: discord.User, amount: int):
+    async def pay(self, interaction: discord.Interaction, user: discord.User, amount: str):
+        amount = unpacknumbers(amount)
         if user.id == interaction.user.id:
             await interaction.response.send_message(content=f"You can't pay yourself :bruh:")
             return
@@ -484,7 +496,8 @@ class Economy(commands.Cog):
     )
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def giveaway(self, interaction: discord.Interaction, amount: int):
+    async def giveaway(self, interaction: discord.Interaction, amount: str):
+        amount = unpacknumbers(amount)
         if amount < 0:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)")
             return
@@ -551,7 +564,8 @@ class Economy(commands.Cog):
     )
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def drop_cash(self, interaction: discord.Interaction, amount: int):
+    async def drop_cash(self, interaction: discord.Interaction, amount: str):
+        amount = unpacknumbers(amount)
         if amount < 0:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)", ephemeral=True)
             return
