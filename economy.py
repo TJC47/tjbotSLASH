@@ -146,6 +146,12 @@ def to_ordinal(number):
 
     return f"{number}{ordinal}"
 
+def ezread(number): # short function name because this is gonna be used a LOT
+    if number >= 1000000000: return f"{str(round(number / 1000000000, ndigits=1))}B"
+    elif number >= 1000000: return f"{str(round(number / 1000000, ndigits=1))}M"
+    elif number >= 1000: return f"{str(round(number / 1000, ndigits=1))}K"
+    else: return f"{str(number)}"
+
 class Economy(commands.Cog):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
@@ -181,16 +187,16 @@ class Economy(commands.Cog):
                         moneydiff = amount + random.randint(0, amount)
                         update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
                         userbalance_after = get_balance(interaction.user.id)
-                        await interaction.edit_original_response(content=f":tada: You won `{moneydiff}{currency}`!\n-# WOHOOO!!!!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`{predictorthing}")
+                        await interaction.edit_original_response(content=f":tada: You won `{ezread(moneydiff)}{currency}`!\n-# WOHOOO!!!!\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`{predictorthing}")
                     else:
                         moneydiff = amount
                         update_balance(interaction.user.id, 0 - moneydiff, f"Gambling ({interaction.user.name})")
                         userbalance_after = get_balance(interaction.user.id)
-                        await interaction.edit_original_response(content=f"<:amgry:1269065092461232170> You lost `{moneydiff}{currency}`!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`{predictorthing}")
+                        await interaction.edit_original_response(content=f"<:amgry:1269065092461232170> You lost `{ezread(moneydiff)}{currency}`!\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`{predictorthing}")
                 except:
                     await interaction.edit_original_response(content=f"there was an error with the database")
             else:
-                await interaction.edit_original_response(content=f"You dont have enough money for this `({userbalance}{currency} < {amount}{currency})`")
+                await interaction.edit_original_response(content=f"You dont have enough money for this `({ezread(serbalance)}{currency} < {ezread(amount)}{currency})`")
         except:
             await interaction.edit_original_response(content=f"something VEEEEEEEERY bad happened with the bots dcdodce and you broke it, gerat job, {interaction.user.name}")
 
@@ -206,13 +212,13 @@ class Economy(commands.Cog):
             haha = ""
             if userbalance <= 0:
                 haha = "\n-# theyre broke asf lmao"
-            await interaction.response.send_message(content=f"Balance of {user.mention}: `{userbalance}{currency}`{haha}")
+            await interaction.response.send_message(content=f"Balance of {user.mention}: `{ezread(userbalance)}{currency}, {userbalance}{currency} exact`{haha}")
         else:
             userbalance = get_balance(interaction.user.id)
             haha = ""
             if userbalance <= 0:
                 haha = "\n-# youre broke asf lmao"
-            await interaction.response.send_message(content=f"Your balance: `{userbalance}{currency}`{haha}")
+            await interaction.response.send_message(content=f"Your balance: `{ezread(userbalance)}{currency}, {userbalance}{currency} exact`{haha}")
 
     @app_commands.command(description="Why work in real life when you can do it virtually? :3")
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -242,7 +248,7 @@ class Economy(commands.Cog):
             wife = f", but your wife went to buy groceries and took `{wifetheftamount}€` without asking you"
             update_balance(interaction.user.id, 0 - wifetheftamount, f"Working (wife) ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.response.send_message(content=f":euro: You went to work and got `{random_money}{currency}`{wife}{modifiers}\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
+        await interaction.response.send_message(content=f":euro: You went to work and got `{random_money}{currency}`{wife}{modifiers}\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
 
 
     @app_commands.command(description="Attempt a crime(high risk high reward) :3")
@@ -265,12 +271,12 @@ class Economy(commands.Cog):
                     moneydiff = random.randint(30, 150)
                     update_balance(interaction.user.id, moneydiff, f"Crime ({interaction.user.name})")
                     userbalance_after = get_balance(interaction.user.id)
-                    await interaction.edit_original_response(content=f":moneybag: You successfully managed to commit a crime and got `{moneydiff}{currency}`!{modifier}\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
+                    await interaction.edit_original_response(content=f":moneybag: You successfully managed to commit a crime and got `{moneydiff}{currency}`!{modifier}\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
                 else:
                     moneydiff = random.randint(30, 100)
                     update_balance(interaction.user.id, 0 - moneydiff, f"Crime ({interaction.user.name})")
                     userbalance_after = get_balance(interaction.user.id)
-                    await interaction.edit_original_response(content=f":oncoming_police_car: :police_officer: You got caught and have been fined `{moneydiff}{currency}`!\n-# `{userbalance_before}{currency} -> {userbalance_after}{currency}`")
+                    await interaction.edit_original_response(content=f":oncoming_police_car: :police_officer: You got caught and have been fined `{moneydiff}{currency}`!\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
             except:
                 await interaction.edit_original_response(content=f"there was an error with the database")
         else:
@@ -307,7 +313,7 @@ class Economy(commands.Cog):
         update_balance(interaction.user.id, stealamount, f"Stealing (Credit stolen money) ({interaction.user.name})")
         stealeebalance_after = get_balance(user.id)
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.response.send_message(content=f"You successfully stole `{stealamount}{currency}` from {user.mention}!\n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`\n-# `{user.name} {stealeebalance_before}{currency} -> {stealeebalance_after}{currency}`")
+        await interaction.response.send_message(content=f"You successfully stole `{stealamount}{currency}` from {user.mention}!\n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`\n-# `{user.name} {ezread(stealeebalance_before)}{currency} -> {ezread(stealeebalance_after)}{currency}`")
 
 
     @app_commands.command(description="give currency to someone :3")
@@ -327,14 +333,14 @@ class Economy(commands.Cog):
         payeebalance_before = get_balance(user.id)
         userbalance_before = get_balance(interaction.user.id)
         if userbalance_before < amount:
-            await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance_before}{currency} < {amount}{currency})`")
+            await interaction.response.send_message(content=f"You dont have enough money for this `({ezread(userbalance_before)}{currency} < {ezread(amount)}{currency})`")
             return
 
         update_balance(interaction.user.id, -amount, f"Payment (remove money from payer) ({interaction.user.name})")
         update_balance(user.id, amount, f"Payment (credit money to payee) ({user.name})")
         payeebalance_after = get_balance(user.id)
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.response.send_message(content=f"You successfully paid `{amount}{currency}` to {user.mention}!\n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`\n-# `{user.name} {payeebalance_before}{currency} -> {payeebalance_after}{currency}`")
+        await interaction.response.send_message(content=f"You successfully paid `{ezread(amount)}{currency}` to {user.mention}!\n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`\n-# `{user.name} {ezread(payeebalance_before)}{currency} -> {ezread(payeebalance_after)}{currency}`")
 
 
     global shopItems
@@ -364,7 +370,7 @@ class Economy(commands.Cog):
             userinv.append(item)
             update_balance(interaction.user.id, -shopItems[item]["price"], f"Purchasing of '{item}' ({interaction.user.name})")
             set_inventory(interaction.user.id, userinv)
-            await interaction.response.send_message(content = f"""You successfully purchased {shopItems[item]["pronouns"]} "{item}" for {shopItems[item]["price"]}{currency}""")
+            await interaction.response.send_message(content = f"""You successfully purchased {shopItems[item]["pronouns"]} "{item}" for {ezread(shopItems[item]["price"])}{currency}""")
         else:
             await interaction.response.send_message(content = f"That doesn't exist!", ephemeral=True)
 
@@ -377,12 +383,12 @@ class Economy(commands.Cog):
 
             embed = discord.Embed()
             embed.title = "Shop"
-            embed.set_footer(text=f"Your Balance: {userbalance}{currency}, use /buy to buy your selected product")
+            embed.set_footer(text=f"Your Balance: {ezread(userbalance)}{currency}, use /buy to buy your selected product")
             embed.color = discord.Color.pink()
 
 
             for item in shopItems:
-                embed.add_field(name=f"{item}:", value=f"""> Description: {shopItems[item]["description"]}\n> Price: {shopItems[item]["price"]}{currency}""", inline=False)
+                embed.add_field(name=f"{item}:", value=f"""> Description: {shopItems[item]["description"]}\n> Price: {ezread(shopItems[item]["price"])}{currency}""", inline=False)
             await interaction.response.send_message(embed=embed)
 
     @app_commands.command(description="view the leaderboard :3")
@@ -408,7 +414,7 @@ class Economy(commands.Cog):
             else:
                 c = 3
             for user in leaderboard[:c]:
-                embed.add_field(name=f"{to_ordinal(p)} Place:", value=f"""> User: <@{user}>\n> Balance: {economy[user]["money"]}{currency}""", inline=False)
+                embed.add_field(name=f"{to_ordinal(p)} Place:", value=f"""> User: <@{user}>\n> Balance: {ezread(economy[user]["money"])}{currency}""", inline=False)
                 p = p + 1
             await interaction.response.send_message(embed=embed)
 
@@ -429,7 +435,7 @@ class Economy(commands.Cog):
                 t10 = 0
                 for user in leaderboard[:10]:
                     t10 = t10 + economy[user]["money"]
-                if t10 > 10000000: return True
+                if t10 > 100000000: return True
                 else: return False
             def gett10():
                 economy = get_economy()
@@ -469,7 +475,7 @@ class Economy(commands.Cog):
             embed.color = discord.Color.pink()
 
             for item in userinv:
-                embed.add_field(name=f"{item}:", value=f"""> Description: {shopItems[item]["description"]}\n> MSRP Price: {shopItems[item]["price"]}{currency}""", inline=False)
+                embed.add_field(name=f"{item}:", value=f"""> Description: {shopItems[item]["description"]}\n> MSRP Price: {ezread(shopItems[item]["price"])}{currency}""", inline=False)
             await interaction.response.send_message(embed=embed)
 
     @app_commands.command(description="giveaway some money :3")
@@ -497,13 +503,13 @@ class Economy(commands.Cog):
         payeebalance_before = get_balance(winnerid)
         userbalance_before = get_balance(interaction.user.id)
         if userbalance_before < amount:
-            await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance_before}{currency} < {amount}{currency})`")
+            await interaction.response.send_message(content=f"You dont have enough money for this `({ezread(userbalance_before)}{currency} < {ezread(amount)}{currency})`")
             return
         update_balance(interaction.user.id, -amount, f"giveaway (remove money from giveawayer) ({interaction.user.name})")
         update_balance(winnerid, amount, f"giveaway (credit money to winner)")
         payeebalance_after = get_balance(winnerid)
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.response.send_message(content=f"Congratulations to <@{winnerid}> for winning `{amount}{currency}`! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`\n-# `giveaway winner {payeebalance_before}{currency} -> {payeebalance_after}{currency}`")
+        await interaction.response.send_message(content=f"Congratulations to <@{winnerid}> for winning `{ezread(amount)}{currency}`! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`\n-# `giveaway winner {ezread(payeebalance_before)}{currency} -> {ezread(payeebalance_after)}{currency}`")
 
     @app_commands.command(description="russian roulette (if you lose you get WIPED) :3")
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -536,7 +542,7 @@ class Economy(commands.Cog):
         amount = userbalance_before * 1
         update_balance(interaction.user.id, amount, f"Russian roulette, winning ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.edit_original_response(content=f"You didn't die and won `{amount}{currency}`!!!!!!! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`")
+        await interaction.edit_original_response(content=f"You didn't die and won `{ezread(amount)}{currency}`!!!!!!! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
 
 
     @app_commands.command(description="drop some money :3")
@@ -552,7 +558,7 @@ class Economy(commands.Cog):
 
         userbalance_before = get_balance(interaction.user.id)
         if userbalance_before < amount:
-            await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance_before}{currency} < {amount}{currency})`", ephemeral=True)
+            await interaction.response.send_message(content=f"You dont have enough money for this `({ezread(userbalance_before)}{currency} < {ezread(amount)}{currency})`", ephemeral=True)
             return
 
         cashdrops = get_cashdrops()
@@ -563,7 +569,7 @@ class Economy(commands.Cog):
         update_balance(interaction.user.id, -amount, f"cashdrop (remove money from dropper) ({interaction.user.name})")
         set_cashdrops(cashdrops)
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.response.send_message(content=f"You dropped `{amount}{currency}`! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`", ephemeral=True)
+        await interaction.response.send_message(content=f"You dropped `{ezread(amount)}{currency}`! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`", ephemeral=True)
 
     @app_commands.command(description="pickup some money :3")
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -579,7 +585,7 @@ class Economy(commands.Cog):
         set_cashdrops(cashdrops)
         update_balance(interaction.user.id, amount, f"cashdrop (add money to pickupper) ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.response.send_message(content=f"You picked up `{amount}{currency}`! \n-# `{interaction.user.name} {userbalance_before}{currency} -> {userbalance_after}{currency}`")
+        await interaction.response.send_message(content=f"You picked up `{ezread(amount)}{currency}`! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
 
 
 
