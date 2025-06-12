@@ -198,7 +198,10 @@ def to_ordinal(number):
     return f"{number}{ordinal}"
 
 def ezread(number: int): # short function name because this is gonna be used a LOT
-    if number >= 1000000000000: return f"{str(round(number / 1000000000000, ndigits=1))}T"
+    if number >= 1000000000000000000000: return f"{str(round(number / 1000000000000000000000, ndigits=1))}SEP"
+    elif number >= 1000000000000000000: return f"{str(round(number / 1000000000000000000, ndigits=1))}SEX"
+    elif number >= 1000000000000000: return f"{str(round(number / 1000000000000000, ndigits=1))}Q"
+    elif number >= 1000000000000: return f"{str(round(number / 1000000000000, ndigits=1))}T"
     elif number >= 1000000000: return f"{str(round(number / 1000000000, ndigits=1))}B"
     elif number >= 1000000: return f"{str(round(number / 1000000, ndigits=1))}M"
     elif number >= 1000: return f"{str(round(number / 1000, ndigits=1))}K"
@@ -211,6 +214,9 @@ def unpacknumbers(string: str):
         elif string.endswith("m"): return round(float(string.strip("m")) * 1000000)
         elif string.endswith("b"): return round(float(string.strip("b")) * 1000000000)
         elif string.endswith("t"): return round(float(string.strip("t")) * 1000000000000)
+        elif string.endswith("q"): return round(float(string.strip("q")) * 1000000000000000)
+        elif string.endswith("sex"): return round(float(string.strip("sex")) * 1000000000000000000)
+        elif string.endswith("sep"): return round(float(string.strip("sep")) * 1000000000000000000000)
         else: return int(string)
     except:
         return 0
@@ -309,7 +315,16 @@ class Economy(commands.Cog):
             modifiers = modifiers + "\n-# Your wage is buffed even more because you have a **CEO Position**"
             wageincrease = wageincrease + 10000
             morerandom = morerandom + 1000
-        random_money = random.randint(0 + wageincrease, 15 + wageincrease + morerandom)*wagemultiplier
+        dropped = False
+        if random.randint(1,100) == 1:
+            modifiers = modifiers + "\n# UH OH! YOU ACCIDENTALLY DROPPED SOME OF YOUR INCOME ON THE WAY HOME! USE `/pickup_cash` TO PICK IT UP"
+            wagemultiplier = wagemultiplier * 0.5
+            dropped = True
+        random_money = round(random.randint(0 + wageincrease, 15 + wageincrease + morerandom)*wagemultiplier)
+        if dropped:
+            cashdrops = get_cashdrops()
+            cashdrops.append(random_money)
+            set_cashdrops(cashdrops)
         update_balance(interaction.user.id, random_money, f"Working ({interaction.user.name})")
         wife = ""
         if random.randint(1,100) == 1 and userbalance_before > 105:
