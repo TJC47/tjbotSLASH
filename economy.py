@@ -198,7 +198,9 @@ def to_ordinal(number):
     return f"{number}{ordinal}"
 
 def ezread(number: int): # short function name because this is gonna be used a LOT
-    if number >= 1000000000000000000000: return f"{str(round(number / 1000000000000000000000, ndigits=1))}SEP"
+    if number >= 1000000000000000000000000000: return f"{str(round(number / 1000000000000000000000000000, ndigits=1))}TWITTER"
+    elif number >= 1000000000000000000000000: return f"{str(round(number / 1000000000000000000000000, ndigits=1))}X"
+    elif number >= 1000000000000000000000: return f"{str(round(number / 1000000000000000000000, ndigits=1))}SEP"
     elif number >= 1000000000000000000: return f"{str(round(number / 1000000000000000000, ndigits=1))}SEX"
     elif number >= 1000000000000000: return f"{str(round(number / 1000000000000000, ndigits=1))}Q"
     elif number >= 1000000000000: return f"{str(round(number / 1000000000000, ndigits=1))}T"
@@ -217,6 +219,8 @@ def unpacknumbers(string: str):
         elif string.endswith("q"): return round(float(string.strip("q")) * 1000000000000000)
         elif string.endswith("sex"): return round(float(string.strip("sex")) * 1000000000000000000)
         elif string.endswith("sep"): return round(float(string.strip("sep")) * 1000000000000000000000)
+        elif string.endswith("x"): return round(float(string.strip("x")) * 1000000000000000000000000)
+        elif string.endswith("twitter"): return round(float(string.strip("twitter")) * 1000000000000000000000000000)
         else: return int(string)
     except:
         return 0
