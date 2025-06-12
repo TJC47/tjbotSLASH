@@ -216,7 +216,7 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                 should_be_ephemeral = True
         if "bots" in interaction.channel.name:
             should_be_ephemeral = False
-        if interaction.guild.id == 1268366668384440352:
+        if interaction.guild.id == 1268365327058599968:
             await interaction.response.send_message(content=f"Sorry but AI features have been disabled in this server", ephemeral=True)
             return
         kayomessages.append({"role": "user", "content": f"{prompt}, message sent from user: {interaction.user.name}"})

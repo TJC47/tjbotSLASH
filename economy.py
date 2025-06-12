@@ -11,11 +11,6 @@ import asyncio
 currency = "estrogen"
 
 shopItems = {
-    "Mysterious Pill": {
-        "price": 1000000,
-        "pronouns": "a",
-        "description": "who knows what this does"
-    },
     "Unrig Casino": {
         "price": 10000,
         "pronouns": "a",
@@ -46,6 +41,11 @@ shopItems = {
         "pronouns": "a",
         "description": "A job that pays more money, self explanatory"
     },
+    "CEO Position": {
+        "price": 1000000,
+        "pronouns": "a",
+        "description": "literally get money for sitting around and drinking coffee all day"
+    },
         "Coffee Machine": {
         "price": 6000,
         "pronouns": "a",
@@ -60,8 +60,38 @@ shopItems = {
         "price": 500,
         "pronouns": "a pair of",
         "description": "Yesssss cute femboy thigh highs :333 mrorowweoeworomwoe mweowo SAYESYYE SEGIB GIB GIB"
+    },
+        "Pearphone 11 Pro Max Ultra HD 16k Mini Slim": {
+        "price": 100000000000000,
+        "pronouns": "a",
+        "description": "The most expensive brick you can buy, does literally nothing"
     }
 }
+
+passivesIndex = {
+    "Money Printer": {
+        "name": "Money Printer",
+        "per_second": 1,
+        "pronouns": "a",
+        "description": "Woah, now we're getting into the spicy stuff",
+        "price": 100000
+    },
+    "Oil Pump": {
+        "name": "Oil Pump",
+        "per_second": 1000,
+        "pronouns": "an",
+        "description": "YOU FOUND OIILLL???????? WOAHHHHH, SHUT UP AND TAKE MY MONEY",
+        "price": 1000000
+    },
+        "MrBeast Burger Restaurant": {
+        "name": "MrBeast Burger Restaurant",
+        "per_second": 1000000000,
+        "pronouns": "a",
+        "description": "GO TO MRBEAST BURGER, WHERE MONEY GETS THROWN AROUND!!!!!!!!!",
+        "price": 1000000000000
+    }
+}
+
 
 def update_balance(userid, amount, reason="None"):
     f = open("./save.json")
@@ -112,6 +142,27 @@ def get_inventory(userid):
         economy_save["economy"][str(userid)]["inventory"] = []
     return economy_save["economy"][str(userid)]["inventory"]
 
+def set_passives(userid, new):
+    f = open("./save.json")
+    economy_save = json.loads(f.read())
+    f.close()
+    if not str(userid) in economy_save["economy"]:
+        economy_save["economy"][str(userid)] = {"money": 0, "passives": {}}
+    economy_save["economy"][str(userid)]["passives"] = new
+    f = open("save.json", "w")
+    f.write(json.dumps(economy_save, indent=4))
+    f.close()
+
+def get_passives(userid):
+    f = open("./save.json")
+    economy_save = json.loads(f.read())
+    f.close()
+    if not str(userid) in economy_save["economy"]:
+        economy_save["economy"][str(userid)] = {"money": 0, "passives": {}}
+    if not "passives" in economy_save["economy"][str(userid)]:
+        economy_save["economy"][str(userid)]["passives"] = {}
+    return economy_save["economy"][str(userid)]["passives"]
+
 def get_cashdrops():
     f = open("./save.json")
     economy_save = json.loads(f.read())
@@ -147,7 +198,8 @@ def to_ordinal(number):
     return f"{number}{ordinal}"
 
 def ezread(number: int): # short function name because this is gonna be used a LOT
-    if number >= 1000000000: return f"{str(round(number / 1000000000, ndigits=1))}B"
+    if number >= 1000000000000: return f"{str(round(number / 1000000000000, ndigits=1))}T"
+    elif number >= 1000000000: return f"{str(round(number / 1000000000, ndigits=1))}B"
     elif number >= 1000000: return f"{str(round(number / 1000000, ndigits=1))}M"
     elif number >= 1000: return f"{str(round(number / 1000, ndigits=1))}K"
     else: return f"{str(number)}"
@@ -158,6 +210,7 @@ def unpacknumbers(string: str):
         if string.endswith("k"): return round(float(string.strip("k")) * 1000)
         elif string.endswith("m"): return round(float(string.strip("m")) * 1000000)
         elif string.endswith("b"): return round(float(string.strip("b")) * 1000000000)
+        elif string.endswith("t"): return round(float(string.strip("t")) * 1000000000000)
         else: return int(string)
     except:
         return 0
@@ -240,6 +293,7 @@ class Economy(commands.Cog):
         modifiers = ""
         wageincrease = 0
         wagemultiplier = 1
+        morerandom = 0
         if "Coffee" in userinv:
             modifiers = modifiers + "\n-# Your wage has been increased because you had a **Coffee**"
             wagemultiplier = wagemultiplier + 1
@@ -251,7 +305,11 @@ class Economy(commands.Cog):
         if "Better Paying Job" in userinv:
             modifiers = modifiers + "\n-# Your wage is buffed because you have a **Better Paying Job**"
             wageincrease = wageincrease + 100
-        random_money = random.randint(0 + wageincrease, 15 + wageincrease)*wagemultiplier
+        if "CEO Position" in userinv:
+            modifiers = modifiers + "\n-# Your wage is buffed even more because you have a **CEO Position**"
+            wageincrease = wageincrease + 10000
+            morerandom = morerandom + 1000
+        random_money = random.randint(0 + wageincrease, 15 + wageincrease + morerandom)*wagemultiplier
         update_balance(interaction.user.id, random_money, f"Working ({interaction.user.name})")
         wife = ""
         if random.randint(1,100) == 1 and userbalance_before > 105:
@@ -259,7 +317,7 @@ class Economy(commands.Cog):
             wife = f", but your wife went to buy groceries and took `{wifetheftamount}€` without asking you"
             update_balance(interaction.user.id, 0 - wifetheftamount, f"Working (wife) ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
-        await interaction.response.send_message(content=f":euro: You went to work and got `{random_money}{currency}`{wife}{modifiers}\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
+        await interaction.response.send_message(content=f":euro: You went to work and got `{ezread(random_money)}{currency}`{wife}{modifiers}\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
 
 
     @app_commands.command(description="Attempt a crime(high risk high reward) :3")
@@ -374,7 +432,7 @@ class Economy(commands.Cog):
             userinv = get_inventory(interaction.user.id)
             userbalance = get_balance(interaction.user.id)
             if shopItems[item]["price"] > userbalance:
-                await interaction.response.send_message(content = f"""You don't have enough money for this! `({userbalance}{currency} < {shopItems[item]["price"]}{currency})`""")
+                await interaction.response.send_message(content = f"""You don't have enough money for this! `({ezread(userbalance)}{currency} < {ezread(shopItems[item]["price"])}{currency})`""")
                 return
             if item in userinv:
                 await interaction.response.send_message(content = f"""You already have {shopItems[item]["pronouns"]} "{item}"!""")
@@ -402,6 +460,71 @@ class Economy(commands.Cog):
             for item in shopItems:
                 embed.add_field(name=f"{item}:", value=f"""> Description: {shopItems[item]["description"]}\n> Price: {ezread(shopItems[item]["price"])}{currency}""", inline=False)
             await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(description="show passives :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def passives(self, interaction: discord.Interaction):
+            userpassives = get_passives(interaction.user.id)
+            userbalance = get_balance(interaction.user.id)
+
+            embed = discord.Embed()
+            embed.title = "Passives information"
+            embed.set_footer(text=f"Your Balance: {ezread(userbalance)}{currency}, use /buy_passive to buy a passive")
+            embed.color = discord.Color.pink()
+
+
+            for item in passivesIndex:
+                embed.add_field(name=f"{item}:", value=f"""> Description: {passivesIndex[item]["description"]}\n> Price: {ezread(passivesIndex[item]["price"])}{currency}\n> Active: {item in userpassives}\n> {currency}/s: {ezread(passivesIndex[item]["per_second"])}""", inline=False)
+            await interaction.response.send_message(embed=embed)
+
+    async def passive_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+     return [
+    app_commands.Choice(name = currentmodel,value = currentmodel)
+    for currentmodel in passivesIndex if current.lower() in currentmodel.lower() # weird autocomplete shit idk how this works
+    ]
+
+    @app_commands.command(description = "Buy a passive :3")
+    @app_commands.describe(
+        item='Passive to buy',
+    )
+    @app_commands.autocomplete(item = passive_ac)
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
+    async def buy_passive(self, interaction: discord.Interaction, item: str):
+        if item in passivesIndex:
+            userinv = get_passives(interaction.user.id)
+            userbalance = get_balance(interaction.user.id)
+            if passivesIndex[item]["price"] > userbalance:
+                await interaction.response.send_message(content = f"""You don't have enough money for this! `({ezread(userbalance)}{currency} < {ezread(passivesIndex[item]["price"])}{currency})`""")
+                return
+            if item in userinv:
+                await interaction.response.send_message(content = f"""You already have {passivesIndex[item]["pronouns"]} "{item}"!""")
+                return
+            tempitem = passivesIndex[item]
+            tempitem["last_used"] = round(time.time())
+            userinv[item] = tempitem
+            update_balance(interaction.user.id, -passivesIndex[item]["price"], f"Purchasing of '{item}' ({interaction.user.name})")
+            set_passives(interaction.user.id, userinv)
+            await interaction.response.send_message(content = f"""You successfully purchased {passivesIndex[item]["pronouns"]} "{item}" (passive) for {ezread(passivesIndex[item]["price"])}{currency}""")
+        else:
+            await interaction.response.send_message(content = f"That passive doesn't exist!", ephemeral=True)
+
+    @app_commands.command(description = "Collect your money generated from your passives :3")
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
+    async def collect_passive_money(self, interaction: discord.Interaction):
+        userinv = get_passives(interaction.user.id)
+        userbalance_before = get_balance(interaction.user.id)
+        moneydiff = 0
+        for item in userinv:
+            perSecond = userinv[item]["per_second"]
+            moneydiff = moneydiff + perSecond * (round(time.time()) - userinv[item]["last_used"])
+            userinv[item]["last_used"] = round(time.time())
+        set_passives(interaction.user.id, userinv)
+        update_balance(interaction.user.id, moneydiff, f"Collecting money from passives ({interaction.user.name})")
+        userbalance_after = get_balance(interaction.user.id)
+        await interaction.response.send_message(content=f":euro: You have earned `{ezread(moneydiff)}{currency}` from your passives!\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
 
     @app_commands.command(description="view the leaderboard :3")
     @app_commands.describe(
@@ -447,7 +570,7 @@ class Economy(commands.Cog):
                 t10 = 0
                 for user in leaderboard[:10]:
                     t10 = t10 + economy[user]["money"]
-                if t10 > 100000000: return True
+                if t10 > 9873426756928365897236000000000: return True
                 else: return False
             def gett10():
                 economy = get_economy()
@@ -549,7 +672,9 @@ class Economy(commands.Cog):
         if random.randint(1, 6) == 1:
             userbalance_before = get_balance(interaction.user.id)
             update_balance(interaction.user.id, -userbalance_before, f"Russian roulette, dying ({interaction.user.name})")
-            await interaction.edit_original_response(content=f"You died... Your balance has been ***WIPED***")
+            #set_inventory(interaction.user.id, [])
+            #set_passives(interaction.user.id, {})
+            await interaction.edit_original_response(content=f"💥🔫 You died... Your balance has been ***WIPED***")
             return
         userbalance_before = get_balance(interaction.user.id)
         amount = userbalance_before * 1
@@ -582,6 +707,7 @@ class Economy(commands.Cog):
         cashdrops.append(amount)
         update_balance(interaction.user.id, -amount, f"cashdrop (remove money from dropper) ({interaction.user.name})")
         set_cashdrops(cashdrops)
+        print(f"{interaction.user.name} dropped {amount}{currency}!!!")
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You dropped `{ezread(amount)}{currency}`! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`", ephemeral=True)
 
