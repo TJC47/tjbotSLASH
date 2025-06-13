@@ -2,3 +2,5 @@ venv*
 *.sensitive
 token.*
 .venv*
+itemlist.json
+passivelist.json

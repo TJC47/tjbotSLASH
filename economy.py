@@ -10,108 +10,15 @@ import asyncio
 
 currency = "estrogen"
 
-shopItems = {
-    "Unrig Casino": {
-        "price": 10000,
-        "pronouns": "a",
-        "description": "makes your /gambling win chance fixed to 1/2 instead of depending on your balance"
-    },
-    "Totally Real And Working Gun": {
-        "price": 10,
-        "pronouns": "a",
-        "description": "A totally real gun that totally works (Allows you to escape the police when committing a crime)"
-    },
-    "Coffee": {
-        "price": 4,
-        "pronouns": "a",
-        "description": "Increases your wage when you /work"
-    },
-    "Level Thumbnails Pro Subscription": {
-        "price": 999,
-        "pronouns": "a",
-        "description": f"Level Thumbnails Pro!!!! Buy now!!!!! only 999{currency}!"
-    },
-    "Cute Kitty :3": {
-        "price": 60,
-        "pronouns": "a",
-        "description": "Awww :3 a cute kitty :3 come here let me pet you :3 *mrrroww* :3"
-    },
-    "Better Paying Job": {
-        "price": 1000,
-        "pronouns": "a",
-        "description": "A job that pays more money, self explanatory"
-    },
-    "CEO Position": {
-        "price": 1000000,
-        "pronouns": "a",
-        "description": "literally get money for sitting around and drinking coffee all day"
-    },
-        "Coffee Machine": {
-        "price": 6000,
-        "pronouns": "a",
-        "description": "Automatically makes Coffee when you go to work"
-    },
-        "Debit Card": {
-        "price": 10000,
-        "pronouns": "a",
-        "description": "You won't have to worry about your cash getting stolen again! Now it will be safe!"
-    },
-        "Thigh Highs": {
-        "price": 500,
-        "pronouns": "a pair of",
-        "description": "Yesssss cute femboy thigh highs :333 mrorowweoeworomwoe mweowo SAYESYYE SEGIB GIB GIB"
-    },
-        "Pearphone 11 Pro Max Ultra HD 16k Mini Slim": {
-        "price": 100000000000000,
-        "pronouns": "a",
-        "description": "The most expensive brick you can buy, does literally nothing"
-    }
-}
+f = open("itemlist.json")
+fi = f.read()
+f.close()
+shopItems = json.loads(fi)
 
-passivesIndex = {
-    "Money Printer": {
-        "name": "Money Printer",
-        "per_second": 1,
-        "pronouns": "a",
-        "description": "Woah, now we're getting into the spicy stuff",
-        "price": 100000
-    },
-    "Oil Pump": {
-        "name": "Oil Pump",
-        "per_second": 1000,
-        "pronouns": "an",
-        "description": "YOU FOUND OIILLL???????? WOAHHHHH, SHUT UP AND TAKE MY MONEY",
-        "price": 1000000
-    },
-        "MrBeast Burger Restaurant": {
-        "name": "MrBeast Burger Restaurant",
-        "per_second": 1000000000,
-        "pronouns": "a",
-        "description": "GO TO MRBEAST BURGER, WHERE MONEY GETS THROWN AROUND!!!!!!!!!",
-        "price": 1000000000000
-    },
-        "Tesla LLC": {
-        "name": "Tesla LLC",
-        "per_second": 100000000000,
-        "pronouns": "a",
-        "description": "oOOOhhhhHHH car Drive By iteself wOWOOWWWWw",
-        "price": 100000000000000
-    },
-        "Pyramid Scheme": {
-        "name": "Pyramid Scheme",
-        "per_second": 50000000000,
-        "pronouns": "a",
-        "description": "get those essential oils",
-        "price": 60000000000000
-    },
-        "Canada": {
-        "name": "Canada",
-        "per_second": 1000000000000,
-        "pronouns": "the entirety (cant spell) of",
-        "description": "Where leb and ske23 live",
-        "price": 1000000000000000
-    }
-}
+f = open("passivelist.json")
+fi = f.read()
+f.close()
+passivesIndex = json.loads(fi)
 
 
 def update_balance(userid, amount, reason="None"):
