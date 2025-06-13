@@ -89,6 +89,27 @@ passivesIndex = {
         "pronouns": "a",
         "description": "GO TO MRBEAST BURGER, WHERE MONEY GETS THROWN AROUND!!!!!!!!!",
         "price": 1000000000000
+    },
+        "Tesla LLC": {
+        "name": "Tesla LLC",
+        "per_second": 100000000000,
+        "pronouns": "a",
+        "description": "oOOOhhhhHHH car Drive By iteself wOWOOWWWWw",
+        "price": 100000000000000
+    },
+        "Pyramid Scheme": {
+        "name": "Pyramid Scheme",
+        "per_second": 50000000000,
+        "pronouns": "a",
+        "description": "get those essential oils",
+        "price": 60000000000000
+    },
+        "Canada": {
+        "name": "Canada",
+        "per_second": 1000000000000,
+        "pronouns": "the entirety (cant spell)",
+        "description": "Where leb and ske23 live",
+        "price": 1000000000000000
     }
 }
 
