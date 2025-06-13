@@ -107,7 +107,7 @@ passivesIndex = {
         "Canada": {
         "name": "Canada",
         "per_second": 1000000000000,
-        "pronouns": "the entirety (cant spell)",
+        "pronouns": "the entirety (cant spell) of",
         "description": "Where leb and ske23 live",
         "price": 1000000000000000
     }
