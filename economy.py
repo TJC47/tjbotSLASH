@@ -166,6 +166,9 @@ class ConfrimDeleteModal(discord.ui.Modal, title = 'ARE YOU ABSOLUTELY SURE?'):
     async def on_submit(self, interaction: discord.Interaction):
         if self.prompt.value == "DELETE ALL MY DATA":
             await interaction.response.send_message(content = f"YOUR DATA HAS BEEN ***DELETED*** IRREVERSIBLY")
+            set_inventory(interaction.user.id,[])
+            set_passives(interaction.user.id,[])
+            update_balance(interaction.user.id,-get_balance(interaction.user.id),f"Data Deletion ({interaction.user.name})")
         else:
             await interaction.response.send_message(content = f"DELETION PROCESS CANCELED")
 
@@ -404,10 +407,12 @@ class Economy(commands.Cog):
 
     global shopItems
     async def shop_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-     return [
-    app_commands.Choice(name = currentmodel,value = currentmodel)
-    for currentmodel in shopItems if current.lower() in currentmodel.lower() # weird autocomplete shit idk how this works
-    ]
+        choices = []
+        for item in shopItems:
+            if current.lower() in item.lower() and item not in get_inventory(interaction.user.id):
+                choices.append(app_commands.Choice(name = item,value = item))
+
+        return choices
 
     @app_commands.command(description = "Buy something from the shop :3")
     @app_commands.describe(
@@ -468,10 +473,13 @@ class Economy(commands.Cog):
             await interaction.response.send_message(embed=embed)
 
     async def passive_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-     return [
-    app_commands.Choice(name = currentmodel,value = currentmodel)
-    for currentmodel in passivesIndex if current.lower() in currentmodel.lower() # weird autocomplete shit idk how this works
-    ]
+        choices = []
+
+        for passive in passivesIndex:
+            if current.lower() in passive.lower() and passive not in get_passives(interaction.user.id):
+                choices.append(app_commands.Choice(name = passive,value = passive))
+
+        return choices
 
     @app_commands.command(description = "Buy a passive :3")
     @app_commands.describe(
