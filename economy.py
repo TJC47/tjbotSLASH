@@ -166,8 +166,8 @@ class ConfrimDeleteModal(discord.ui.Modal, title = 'ARE YOU ABSOLUTELY SURE?'):
     async def on_submit(self, interaction: discord.Interaction):
         if self.prompt.value == "DELETE ALL MY DATA":
             await interaction.response.send_message(content = f"YOUR DATA HAS BEEN ***DELETED*** IRREVERSIBLY")
-            set_inventory(interaction.user.id,[])
-            set_passives(interaction.user.id,[])
+            set_inventory(interaction.user.id, [])
+            set_passives(interaction.user.id, {})
             update_balance(interaction.user.id,-get_balance(interaction.user.id),f"Data Deletion ({interaction.user.name})")
         else:
             await interaction.response.send_message(content = f"DELETION PROCESS CANCELED")
@@ -666,7 +666,7 @@ class Economy(commands.Cog):
         if not len(get_cashdrops()) == 0:
             await interaction.edit_original_response(content=f"You can not use cashdrops to save yourself money! Please pickup all cash first before proceeding")
             return
-        if random.randint(1, 6) == 1 or True: # redacted
+        if random.randint(1, 6) == 1 or False: # redacted
             userbalance_before = get_balance(interaction.user.id)
             update_balance(interaction.user.id, -userbalance_before, f"Russian roulette, dying ({interaction.user.name})")
             #set_inventory(interaction.user.id, [])
