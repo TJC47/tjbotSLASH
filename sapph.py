@@ -53,6 +53,20 @@ class Sapph(commands.Cog):
         embed.color = discord.Colour.from_rgb(54, 206, 54)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(description="Pet someone :3")
+    @app_commands.describe(
+        petee='person to pet',
+        reason='reason'
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def pet(self, interaction: discord.Interaction, petee: discord.User, reason: str='No reason provided'):
+        embed = discord.Embed()
+        embed.add_field(name=f"<:checkmarksapph:1309669307214598265> @{petee.name} has been pet :3", value="\n> **Reason**: " + reason + "\n> **Duration**: mrowww :3", inline=False)
+        embed.set_footer(text="prrrr :3")
+        embed.color = discord.Colour.from_rgb(54, 206, 54)
+        await interaction.response.send_message(embed=embed)
+
     @app_commands.command(description="Newgen someone :3")
     @app_commands.describe(
         newgenee='person to newgen',
