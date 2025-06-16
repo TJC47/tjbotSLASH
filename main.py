@@ -129,6 +129,20 @@ class MyClient(commands.Bot):
         if message.content == "christmas tree" and is_owner: 
             await self.tree.sync()
             await message.channel.send("synced da command tree")
+        if message.content == "add mee6":
+            await message.channel.send("I'm better than that bastard")
+        if message.content.lower() == "germany" or message.content.lower() == "deutschland":
+            await message.reply("https://tenor.com/view/germany-german-german-astolfo-astolfo-anime-gif-24696067")
+        if message.content.lower() == "boykisser":
+            await message.reply("https://tenor.com/view/boykisser-i-smell-a-boykisser-gif-11265875781434974934")
+        if message.content.lower() == "thinking space ii":
+            await message.reply("https://tenor.com/view/geometry-dash-thinking-space-ii-gif-7371072964598933034")
+        if message.content.lower() == "russia":
+            await message.reply("https://tenor.com/view/osu-russia-russian-flag-astolfo-trap-gif-1817140826952635251")
+        if message.content.lower() == "romania":
+            await message.reply("https://tenor.com/view/romania-romania-anime-average-romania-gif-13561544966710741659")
+        if random.randint(1,10000) == 1:
+            await message.reply("or pvp boss")
         if message.author.name.lower() == "winter._i":
             file = open("log.txt", "a")
             file.write("\n"+"winter(winter): " +message.content.replace("\n","[lb]"))

@@ -153,6 +153,22 @@ def unpacknumbers(string: str):
     except:
         return 0
 
+
+class ConfrimDeleteModal(discord.ui.Modal, title = 'ARE YOU ABSOLUTELY SURE?'):
+    prompt = discord.ui.TextInput(
+        label = f'ARE YOU SURE THAT YOU WANT TO DELETE?',
+        style = discord.TextStyle.long,
+        placeholder = 'TYPE "DELETE ALL MY DATA" HERE TO CONFIRM',
+        required = True,
+        max_length = 100,
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        if self.prompt.value == "DELETE ALL MY DATA":
+            await interaction.response.send_message(content = f"YOUR DATA HAS BEEN ***DELETED*** IRREVERSIBLY")
+        else:
+            await interaction.response.send_message(content = f"DELETION PROCESS CANCELED")
+
 class Economy(commands.Cog):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
@@ -186,7 +202,7 @@ class Economy(commands.Cog):
                         predictorthing = "\n-# Your chance of win has been altered (for the good or the bad) because you **unrigged the casino**"
 
                     if random.randint(1, 1 + rig) == 1:
-                        moneydiff = amount + random.randint(0, amount)
+                        moneydiff = round(1* amount + random.randint(0, amount))
                         update_balance(interaction.user.id, moneydiff, f"Gambling ({interaction.user.name})")
                         userbalance_after = get_balance(interaction.user.id)
                         await interaction.edit_original_response(content=f":tada: You won `{ezread(moneydiff)}{currency}`!\n-# WOHOOO!!!!\n-# `{ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`{predictorthing}")
@@ -358,6 +374,32 @@ class Economy(commands.Cog):
         payeebalance_after = get_balance(user.id)
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You successfully paid `{ezread(amount)}{currency}` to {user.mention}!\n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`\n-# `{user.name} {ezread(payeebalance_before)}{currency} -> {ezread(payeebalance_after)}{currency}`")
+
+
+    @app_commands.command(description="pay someone as someone else :3")
+    @app_commands.describe(
+        payer='person to take money from',
+        user='person to give currency to',
+        amount='amount of currency to give'
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def owner_pay(self, interaction: discord.Interaction, payer: discord.User, user: discord.User, amount: str):
+        if not interaction.user.id == self.bot.owner_id:
+            await interaction.response.send_message(content=f"This is bot owner only!")
+            return
+        amount = unpacknumbers(amount)
+        if user.id == payer.id:
+            await interaction.response.send_message(content=f"You can't pay yourself :bruh:")
+            return
+        payeebalance_before = get_balance(user.id)
+        userbalance_before = get_balance(payer.id)
+
+        update_balance(payer.id, -amount, f"Payment (remove money from payer) ({payer.name})")
+        update_balance(user.id, amount, f"Payment (credit money to payee) ({user.name})")
+        payeebalance_after = get_balance(user.id)
+        userbalance_after = get_balance(payer.id)
+        await interaction.response.send_message(content=f"You successfully paid `{ezread(amount)}{currency}` to {user.mention}!\n-# `{payer.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`\n-# `{user.name} {ezread(payeebalance_before)}{currency} -> {ezread(payeebalance_after)}{currency}`")
 
 
     global shopItems
@@ -616,7 +658,7 @@ class Economy(commands.Cog):
         if not len(get_cashdrops()) == 0:
             await interaction.edit_original_response(content=f"You can not use cashdrops to save yourself money! Please pickup all cash first before proceeding")
             return
-        if random.randint(1, 6) == 1:
+        if random.randint(1, 6) == 1 or True: # redacted
             userbalance_before = get_balance(interaction.user.id)
             update_balance(interaction.user.id, -userbalance_before, f"Russian roulette, dying ({interaction.user.name})")
             #set_inventory(interaction.user.id, [])
@@ -624,7 +666,7 @@ class Economy(commands.Cog):
             await interaction.edit_original_response(content=f"💥🔫 You died... Your balance has been ***WIPED***")
             return
         userbalance_before = get_balance(interaction.user.id)
-        amount = userbalance_before * 1
+        amount = round(userbalance_before * 1)
         update_balance(interaction.user.id, amount, f"Russian roulette, winning ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
         await interaction.edit_original_response(content=f"You didn't die and won `{ezread(amount)}{currency}`!!!!!!! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
@@ -670,11 +712,22 @@ class Economy(commands.Cog):
         amount = cashdrops[0]
         cashdrops.pop(0)
         set_cashdrops(cashdrops)
+        print(interaction.user.name)
         update_balance(interaction.user.id, amount, f"cashdrop (add money to pickupper) ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You picked up `{ezread(amount)}{currency}`! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
 
-
+    @app_commands.command(description = "delete all your money, items, etc. IRREVERSIBLY :3")
+    @app_commands.describe(
+        confirm='do you REALLY want to IRREVERSIBLY delete?',
+    )
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
+    async def reset_own_money(self, interaction: discord.Interaction, confirm: bool = False):
+        if confirm:
+            await interaction.response.send_modal(ConfrimDeleteModal())
+        else:
+            await interaction.response.send_message(content=f"No Confirmation provided")
 
 
 
