@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 import requests
 import time
 import json
@@ -184,10 +184,19 @@ class ConfrimDeleteModal(discord.ui.Modal, title = 'ARE YOU ABSOLUTELY SURE?'):
         else:
             await interaction.response.send_message(content = f"DELETION PROCESS CANCELED")
 
+worknerf = {}
+
+@tasks.loop(seconds=60)
+async def activity():
+    global worknerf
+    worknerf = {}
+
 class Economy(commands.Cog):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
 
+    async def setup_hook(self):
+        activity.start()
 
     @app_commands.command(description="All or nothing (not rigged) :3")
     @app_commands.describe(
@@ -257,12 +266,21 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def work(self, interaction: discord.Interaction):
+        global worknerf
+        if str(interaction.user.id) in worknerf:
+            if worknerf[str(interaction.user.id)] >= 3:
+                await interaction.response.send_message(content=f":warning: Ratelimited, please try again later")
+                return
+        else:
+            worknerf[str(interaction.user.id)] = 0
         userbalance_before = get_balance(interaction.user.id)
         userinv = get_inventory(interaction.user.id)
         modifiers = ""
         wageincrease = 0
         wagemultiplier = 1
         morerandom = 0
+        if userbalance_before < 150:
+            wagemultiplier = wagemultiplier + 0.2
         if "cof" in userinv:
             modifiers = modifiers + "\n-# Your wage has been increased because you had a **Coffee**"
             wagemultiplier = wagemultiplier + 1
@@ -270,7 +288,7 @@ class Economy(commands.Cog):
             set_inventory(interaction.user.id, userinv)
         elif "cm" in userinv:
             modifiers = modifiers + "\n-# Your wage has been increased because you had a **Coffee** (Automatically Brewed Through Your Coffee Machine)"
-            wagemultiplier = wagemultiplier + 1
+            wagemultiplier = wagemultiplier + 0.9
         if "bpj" in userinv:
             modifiers = modifiers + "\n-# Your wage is buffed because you have a **Better Paying Job**"
             wageincrease = wageincrease + 100
@@ -278,6 +296,9 @@ class Economy(commands.Cog):
             modifiers = modifiers + "\n-# Your wage is buffed even more because you have a **CEO Position**"
             wageincrease = wageincrease + 10000
             morerandom = morerandom + 1000
+        if random.randint(1,20) == 1:
+            modifiers = modifiers + "\n-# Your got twice your wage because you **worked good enough**"
+            wagemultiplier = wagemultiplier + 1
         dropped = False
         if random.randint(1,100) == 1:
             modifiers = modifiers + "\n# UH OH! YOU ACCIDENTALLY DROPPED SOME OF YOUR INCOME ON THE WAY HOME! USE `/pickup_cash` TO PICK IT UP"
@@ -289,6 +310,7 @@ class Economy(commands.Cog):
             cashdrops.append(random_money)
             set_cashdrops(cashdrops)
         update_balance(interaction.user.id, random_money, f"Working ({interaction.user.name})")
+        worknerf[str(interaction.user.id)] = worknerf[str(interaction.user.id)] + 1
         wife = ""
         if random.randint(1,100) == 1 and userbalance_before > 105:
             wifetheftamount = random.randint(95,105)
