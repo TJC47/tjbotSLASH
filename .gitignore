@@ -2,5 +2,8 @@ venv*
 *.sensitive
 token.*
 .venv*
+
+# dynamic files
 itemlist.json
 passivelist.json
+counter.json

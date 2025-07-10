@@ -61,7 +61,7 @@ class Ai(commands.Cog):
                     return
             await message.add_reaction("🔃")
             try:
-                requests.get("http://192.168.2.2:8080")
+                requests.post("http://192.168.2.2:11434/api/generate", json={"model": model}) # checks if server is up and preloads model if it is
                 await message.remove_reaction("🔃", self.bot.user)
                 #await message.add_reaction("🆗")
                 #await asyncio.sleep(1)
@@ -158,7 +158,7 @@ Please reply to this message with `I agree to the terms` in order to activate AI
 
 
     global models
-    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b"] # all the available models the bot can use
+    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b", "gemma3n"] # all the available models the bot can use
     async def model_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
      return [
     app_commands.Choice(name = currentmodel,value = currentmodel)
@@ -251,9 +251,14 @@ Please reply to this message with `I agree to the terms` in order to activate AI
             if model_override in models:
                 global model
                 model = model_override
-                await interaction.response.send_message(content = f"Changed model to {model_override}")
+                await interaction.response.send_message(content = f"Changed model to {model_override}\n-# preloading model for faster response times")
+                try:
+                    requests.post("http://192.168.2.2:11434/api/generate", json={"model": model}) # preloads the model for faster response times
+                    await interaction.edit_original_response(content = f"Changed model to {model_override}\n-# preloaded!")
+                except:
+                    await interaction.edit_original_response(content = f"Changed model to {model_override}\n-# could not preload model, this may be because the server is offline")
             else:
-                await interaction.response.send_message(content = f"meow")
+                await interaction.response.send_message(content = f"This model is not in the list of available models, please try another model.")
         else:
             await interaction.response.send_message(content = f"No permission!", ephemeral=True)
 

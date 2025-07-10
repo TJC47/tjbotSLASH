@@ -11,6 +11,7 @@ import base64
 from enum import Enum
 import sys
 import re
+import json
 
 f = open("token.sensitive")
 TOKEN = f.readline()
@@ -99,7 +100,8 @@ class MyClient(commands.Bot):
 
     async def on_message(self, message):
         global model
-
+        if message.author == self.user:
+            return
         is_owner = await self.is_owner(message.author)
         if message.content == "bleh" and is_owner: 
             await self.reload_extension("silly")
@@ -129,6 +131,72 @@ class MyClient(commands.Bot):
         if message.content == "christmas tree" and is_owner: 
             await self.tree.sync()
             await message.channel.send("synced da command tree")
+
+        words_mod_broken = ([
+            "mod",
+            "thumbnail",
+            "images"
+        ],
+        [
+            "broken",
+            "not showing",
+            "down",
+            "isnt",
+            "isn't",
+            "not",
+            "dont",
+            "doesnt",
+            "don't",
+            "doesn't",
+            "arent",
+            "aren't",
+        ])
+        
+        words_how_submit = ([
+            "submit",
+            "add",
+            "how",
+        ],
+        [
+            "thumbnail",
+            "submission"
+        ])
+
+        antikeywords = [
+            "crappy",
+            "counter",
+            "anarchy"
+        ]
+
+        proceed_with_counting = True
+
+        for x in antikeywords:
+            if x.lower() in message.content.lower():
+                proceed_with_counting = False
+        
+        if proceed_with_counting:
+            for x in words_mod_broken[0]:
+                if x.lower() in message.content.lower():
+                    for y in words_mod_broken[1]:
+                        if y.lower() in message.content.lower():
+                            with open("counter.json", "r") as f:
+                                counter_file = json.load(f)
+                            counter_file["counter_not_work"] = counter_file["counter_not_work"] + 1
+                            with open("counter.json", "w") as f:
+                                f.write(json.dumps(counter_file, indent=4))
+                            await message.add_reaction("📝")
+
+            for x in words_how_submit[0]:
+                if x.lower() in message.content.lower():
+                    for y in words_how_submit[1]:
+                        if y.lower() in message.content.lower():
+                            with open("counter.json", "r") as f:
+                                counter_file = json.load(f)
+                            counter_file["counter_how_to_submit"] = counter_file["counter_how_to_submit"] + 1
+                            with open("counter.json", "w") as f:
+                                f.write(json.dumps(counter_file, indent=4))
+                            await message.add_reaction("📝")
+
         #if message.content == "add mee6":
         #    await message.channel.send("I'm better than that bastard")
         #if message.content.lower() == "germany" or message.content.lower() == "deutschland":

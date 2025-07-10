@@ -7,14 +7,17 @@ import json
 import random
 import discord
 import asyncio
+import string
 
 updateinfo = """# Current Update and status
 # NEXT MAJOR UPDATE: DERMUK REBALANCING UPDATE
 ## AFTER: GROW A TJBOT UPDATE
 ### AFTER THE AFTER: ORANG BOT COLLAB???!!!
 
-# PROGRESS: [----------] 20% I finally opened vscode eta: <t:1751047200:R> 
+# PROGRESS: [----------] 60% guys its happening eta: <t:0:R> 
 """
+
+
 
 currency = "estrogen"
 
@@ -28,8 +31,13 @@ fi = f.read()
 f.close()
 passivesIndex = json.loads(fi)
 
+global writeq
+writeq = []
 
 def update_balance(userid, amount, reason="None"):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -42,22 +50,34 @@ def update_balance(userid, amount, reason="None"):
     f = open("economy.log", "a")
     f.write(f"[{userid}] ({amount}) -> {economy_save['economy'][str(userid)]['money'] - amount}{currency} -> {economy_save['economy'][str(userid)]['money']}{currency} (Reason: {reason})\n")
     f.close()
+    writeq.remove(actionid)
 
 def get_balance(userid):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
     if not str(userid) in economy_save["economy"]:
         economy_save["economy"][str(userid)] = {"money": 0}
+    writeq.remove(actionid)
     return economy_save["economy"][str(userid)]["money"]
 
 def get_economy():
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
+    writeq.remove(actionid)
     return economy_save["economy"]
 
 def set_inventory(userid, new):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -67,8 +87,12 @@ def set_inventory(userid, new):
     f = open("save.json", "w")
     f.write(json.dumps(economy_save, indent=4))
     f.close()
+    writeq.remove(actionid)
 
 def get_inventory(userid):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -76,9 +100,13 @@ def get_inventory(userid):
         economy_save["economy"][str(userid)] = {"money": 0, "inventory": {}}
     if not "inventory" in economy_save["economy"][str(userid)]:
         economy_save["economy"][str(userid)]["inventory"] = {}
+    writeq.remove(actionid)
     return economy_save["economy"][str(userid)]["inventory"]
 
 def set_passives(userid, new):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -88,8 +116,12 @@ def set_passives(userid, new):
     f = open("save.json", "w")
     f.write(json.dumps(economy_save, indent=4))
     f.close()
+    writeq.remove(actionid)
 
 def get_passives(userid):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -97,15 +129,52 @@ def get_passives(userid):
         economy_save["economy"][str(userid)] = {"money": 0, "passives": {}}
     if not "passives" in economy_save["economy"][str(userid)]:
         economy_save["economy"][str(userid)]["passives"] = {}
+    writeq.remove(actionid)
     return economy_save["economy"][str(userid)]["passives"]
 
-def get_cashdrops():
+def set_misc(userid, new):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
+    if not str(userid) in economy_save["economy"]:
+        economy_save["economy"][str(userid)] = {"money": 0, "misc": {}}
+    economy_save["economy"][str(userid)]["misc"] = new
+    f = open("save.json", "w")
+    f.write(json.dumps(economy_save, indent=4))
+    f.close()
+    writeq.remove(actionid)
+
+def get_misc(userid):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
+    f = open("./save.json")
+    economy_save = json.loads(f.read())
+    f.close()
+    if not str(userid) in economy_save["economy"]:
+        economy_save["economy"][str(userid)] = {"money": 0, "misc": {}}
+    if not "misc" in economy_save["economy"][str(userid)]:
+        economy_save["economy"][str(userid)]["misc"] = {}
+    writeq.remove(actionid)
+    return economy_save["economy"][str(userid)]["misc"]
+
+def get_cashdrops():
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
+    f = open("./save.json")
+    economy_save = json.loads(f.read())
+    f.close()
+    writeq.remove(actionid)
     return economy_save["cashdrops"]
 
 def set_cashdrops(cashdrops):
+    actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+    writeq.append(actionid)
+    while not writeq[0] == actionid: print("waiting in q to write")
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -113,6 +182,7 @@ def set_cashdrops(cashdrops):
     f = open("save.json", "w")
     f.write(json.dumps(economy_save, indent=4))
     f.close()
+    writeq.remove(actionid)
 
 
 def to_ordinal(number):
@@ -178,24 +248,49 @@ class ConfrimDeleteModal(discord.ui.Modal, title = 'ARE YOU ABSOLUTELY SURE?'):
     async def on_submit(self, interaction: discord.Interaction):
         if self.prompt.value == "DELETE ALL MY DATA":
             await interaction.response.send_message(content = f"YOUR DATA HAS BEEN ***DELETED*** IRREVERSIBLY")
-            set_inventory(interaction.user.id, [])
+            set_inventory(interaction.user.id, {})
             set_passives(interaction.user.id, {})
             update_balance(interaction.user.id,-get_balance(interaction.user.id),f"Data Deletion ({interaction.user.name})")
         else:
             await interaction.response.send_message(content = f"DELETION PROCESS CANCELED")
 
-worknerf = {}
+global ratelimit
+ratelimit = {}
+global lastratelimitreset
+lastratelimitreset = round(time.time())
 
 @tasks.loop(seconds=60)
 async def activity():
-    global worknerf
-    worknerf = {}
+        global ratelimit
+        global lastratelimitreset
+        ratelimit = {}
+        lastratelimitreset = round(time.time())
+        print("reset i think")
+
+
+async def do_ratelimit(interaction: discord.Interaction):
+        global ratelimit
+        if str(interaction.user.id) in ratelimit:
+            higher= 0
+            userinv = get_inventory(interaction.user.id)
+            if "higher_rate_limit" in userinv:
+                higher = 5 
+            if ratelimit[str(interaction.user.id)] >= 5 + higher:
+                await interaction.response.send_message(content=f":warning: Ratelimited 3:<, please try again <t:{lastratelimitreset+60}:R>")
+                return True
+            else:
+                ratelimit[str(interaction.user.id)] = ratelimit[str(interaction.user.id)] + 1
+                return False
+        else:
+            ratelimit[str(interaction.user.id)] = 1
+            return False
 
 class Economy(commands.Cog):
+
+
+
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
-
-    async def setup_hook(self):
         activity.start()
 
     @app_commands.command(description="All or nothing (not rigged) :3")
@@ -206,6 +301,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def gambling(self, interaction: discord.Interaction, amount: str):
         amount = unpacknumbers(amount)
+        if await do_ratelimit(interaction): return
         await interaction.response.send_message(content=f"<a:loading3:1303768414422040586> Let's go gambling! <a:loading3:1303768414422040586>")
         try:
             await asyncio.sleep(1)
@@ -266,15 +362,16 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def work(self, interaction: discord.Interaction):
-        global worknerf
-        if str(interaction.user.id) in worknerf:
-            if worknerf[str(interaction.user.id)] >= 3:
-                await interaction.response.send_message(content=f":warning: Ratelimited, please try again later")
-                return
-        else:
-            worknerf[str(interaction.user.id)] = 0
         userbalance_before = get_balance(interaction.user.id)
         userinv = get_inventory(interaction.user.id)
+        if await do_ratelimit(interaction): return
+
+        usermisc = get_misc(interaction.user.id)
+        if "work_count" not in usermisc:
+            usermisc["work_count"] = 0
+        usermisc["work_count"] = usermisc["work_count"] + 1
+        set_misc(interaction.user.id, usermisc)
+
         modifiers = ""
         wageincrease = 0
         wagemultiplier = 1
@@ -310,7 +407,6 @@ class Economy(commands.Cog):
             cashdrops.append(random_money)
             set_cashdrops(cashdrops)
         update_balance(interaction.user.id, random_money, f"Working ({interaction.user.name})")
-        worknerf[str(interaction.user.id)] = worknerf[str(interaction.user.id)] + 1
         wife = ""
         if random.randint(1,100) == 1 and userbalance_before > 105:
             wifetheftamount = random.randint(95,105)
@@ -328,6 +424,7 @@ class Economy(commands.Cog):
         userbalance_before = get_balance(interaction.user.id)
         userinv = get_inventory(interaction.user.id)
         modifier = ""
+        if await do_ratelimit(interaction): return
         if not userbalance < 0:
             await interaction.response.send_message(content=f"<a:loading2:1296923111177850931> Committing Crime... <a:loading2:1296923111177850931>")
             try:
@@ -360,6 +457,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def steal(self, interaction: discord.Interaction, user: discord.User):
+        if await do_ratelimit(interaction): return
         if user.id == interaction.user.id:
             await interaction.response.send_message(content=f"You can't steal from yourself :bruh:")
             return
@@ -380,6 +478,11 @@ class Economy(commands.Cog):
         stealamount = random.randint(0, round(randmax))
         update_balance(user.id, -stealamount, f"Stealing (Remove stolen money from stealee) ({user.name})")
         update_balance(interaction.user.id, stealamount, f"Stealing (Credit stolen money) ({interaction.user.name})")
+        usermisc = get_misc(interaction.user.id)
+        if "stolen_total" not in usermisc:
+            usermisc["stolen_total"] = 0
+        usermisc["stolen_total"] = usermisc["stolen_total"] + stealamount
+        set_misc(interaction.user.id, usermisc)
         stealeebalance_after = get_balance(user.id)
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You successfully stole `{stealamount}{currency}` from {user.mention}!\n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`\n-# `{user.name} {ezread(stealeebalance_before)}{currency} -> {ezread(stealeebalance_after)}{currency}`")
@@ -394,6 +497,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def pay(self, interaction: discord.Interaction, user: discord.User, amount: str):
         amount = unpacknumbers(amount)
+        if await do_ratelimit(interaction): return
         if user.id == interaction.user.id:
             await interaction.response.send_message(content=f"You can't pay yourself :bruh:")
             return
@@ -482,6 +586,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def shop(self, interaction: discord.Interaction):
+            if await do_ratelimit(interaction): return
             userinv = get_inventory(interaction.user.id)
             userbalance = get_balance(interaction.user.id)
 
@@ -499,6 +604,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def passives(self, interaction: discord.Interaction):
+            if await do_ratelimit(interaction): return
             userpassives = get_passives(interaction.user.id)
             userbalance = get_balance(interaction.user.id)
 
@@ -555,6 +661,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds = True, users = True)
     @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def collect_passive_money(self, interaction: discord.Interaction):
+        if await do_ratelimit(interaction): return
         userinv = get_passives(interaction.user.id)
         userbalance_before = get_balance(interaction.user.id)
         moneydiff = 0
@@ -632,6 +739,9 @@ class Economy(commands.Cog):
                 leaderboard.reverse()
                 for user in leaderboard[:1]:
                     update_balance(user, -economy[user]["money"], "economy fixing")
+                    usermisc = get_misc(user)
+                    usermisc["hasbeenwiped"] = True
+                    set_misc(user, usermisc)
                 fixlog = fixlog + f"\n-# <@{leaderboard[0]}>, WIPED, `t10={gett10()}`"
                 await interaction.edit_original_response(content=fixlog)
             await interaction.edit_original_response(content=f"{fixlog}\nEconomy fixed!")
@@ -640,6 +750,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def inventory(self, interaction: discord.Interaction):
+            if await do_ratelimit(interaction): return
             userinv = get_inventory(interaction.user.id)
 
             if len(userinv) == 0:
@@ -661,6 +772,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def giveaway(self, interaction: discord.Interaction, amount: str):
+        if await do_ratelimit(interaction): return
         amount = unpacknumbers(amount)
         if amount < 0:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)")
@@ -692,6 +804,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def russian_roulette(self, interaction: discord.Interaction):
+        if await do_ratelimit(interaction): return
         userbalance_before = get_balance(interaction.user.id)
         if userbalance_before < 1000:
             await interaction.response.send_message(content=f"You dont have enough money for this `({userbalance_before}{currency} < 1000{currency})`")
@@ -731,6 +844,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def drop_cash(self, interaction: discord.Interaction, amount: str):
+        if await do_ratelimit(interaction): return
         amount = unpacknumbers(amount)
         if amount < 0:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)", ephemeral=True)
@@ -756,6 +870,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def pickup_cash(self, interaction: discord.Interaction):
+        if await do_ratelimit(interaction): return
         userbalance_before = get_balance(interaction.user.id)
         cashdrops = get_cashdrops()
         if len(cashdrops) == 0:
@@ -766,8 +881,106 @@ class Economy(commands.Cog):
         set_cashdrops(cashdrops)
         print(interaction.user.name)
         update_balance(interaction.user.id, amount, f"cashdrop (add money to pickupper) ({interaction.user.name})")
+        usermisc = get_misc(interaction.user.id)
+        if "total_pickup" not in usermisc:
+            usermisc["total_pickup"] = 0
+        usermisc["total_pickup"] = usermisc["total_pickup"] + amount
+        set_misc(interaction.user.id, usermisc)
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You picked up `{ezread(amount)}{currency}`! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
+
+    @app_commands.command(description="view your medals :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def medals(self, interaction: discord.Interaction):
+            if await do_ratelimit(interaction): return
+
+            medalinv = {} # medals will be calculated everytime the command is run
+
+            userinv = get_inventory(interaction.user.id)
+            userpassives = get_passives(interaction.user.id)
+            userbalance = get_balance(interaction.user.id)
+            usermisc = get_misc(interaction.user.id)
+
+            if interaction.user.id == 729671931359395940: # geming
+                medalinv["geming"] = {
+                    "name": "Being Cis and Aroace",
+                    "description": "A medal for the best geming person who is Cis and Aroace, awarded to Cis and Aroace"
+                }
+
+            if len(userpassives) > 0:
+                medalinv["ttgafk"] = {
+                    "name": "Time to go AFK!",
+                    "description": "Buy your first passive"
+                }
+
+            if "hasbeenwiped" in usermisc and usermisc["hasbeenwiped"]:
+                medalinv["wiped"] = {
+                    "name": "Economy inflater",
+                    "description": "get wiped once"
+                }
+            
+            if "dc" in userinv:
+                medalinv["dc"] = {
+                    "name": "No",
+                    "description": "Prevent stealing by having a debit card"
+                }
+
+            if "work_count" in usermisc and usermisc["work_count"] >= 1000:
+                medalinv["workeroftheyear"] = {
+                    "name": "Worker of the year",
+                    "description": "Work 1000+ times in total"
+                }
+
+            if userbalance >= unpacknumbers("10BSKY"):
+                medalinv["touchgrass"] = {
+                    "name": "Maybe try touching grass?",
+                    "description": f"get 10+ BSKY{currency}"
+                }
+
+            if "iscool" in usermisc and usermisc["iscool"]:
+                medalinv["very cool"] = {
+                    "name": "a very cool medal",
+                    "description": "a very cool medal awarded to very cool people"
+                }
+
+            if "stolen_total" in usermisc and usermisc["stolen_total"] >= 100:
+                medalinv["thief1"] = {
+                    "name": "Thief",
+                    "description": "steal 100 in total from someone!"
+                }
+
+            if "stolen_total" in usermisc and usermisc["stolen_total"] >= 1000:
+                medalinv["thief2"] = {
+                    "name": "Thief II",
+                    "description": "steal 1000 in total from someone!"
+                }
+
+            if "stolen_total" in usermisc and usermisc["stolen_total"] >= 3000:
+                medalinv["thief3"] = {
+                    "name": "Thief",
+                    "description": "steal 3k in total from someone!"
+                }
+
+            if "total_pickup" in usermisc and usermisc["total_pickup"] >= 1000000:
+                medalinv["pikcup"] = {
+                    "name": "Street Life",
+                    "description": f"pickup 1 million+ {currency} in total"
+                }
+
+
+
+            if len(medalinv) == 0:
+                await interaction.response.send_message(content=f"You don't have any medals :pensive:")
+                return
+
+            embed = discord.Embed()
+            embed.title = "Your Medals"
+            embed.color = discord.Color.pink()
+
+            for item in medalinv:
+                embed.add_field(name=f"""{medalinv[item]["name"]}""", value=f"""> {medalinv[item]["description"]}""", inline=False)
+            await interaction.response.send_message(embed=embed)
 
     @app_commands.command(description = "delete all your money, items, etc. IRREVERSIBLY :3")
     @app_commands.describe(

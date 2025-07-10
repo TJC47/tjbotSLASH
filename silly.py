@@ -189,5 +189,15 @@ class Silly(commands.Cog):
         embed.add_field(name="Message Content", value=f"""{selectedquote["content"]}""", inline=False)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(description="Get annoyage counter statistics :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def annoyagecounter(self, interaction: discord.Interaction):
+        with open("counter.json", "r") as f:
+            counter_file = json.loads(f.read())
+        await interaction.response.send_message(content=f"""Counter why does the mod not work: {counter_file["counter_not_work"]}
+Counter how to add a thumbnail: {counter_file["counter_how_to_submit"]}
+Counter rickrolled: {counter_file["counter_rickrolled"]}""")
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Silly(bot))
