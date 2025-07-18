@@ -6,7 +6,9 @@ import time
 import json
 import random
 import discord
+import logging
 
+logger = logging.getLogger("tjbot.useful")
 
 class Useful(commands.Cog):
     def __init__(self, bot: commands.Bot) :

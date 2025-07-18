@@ -8,7 +8,9 @@ import random
 import discord
 import hashlib
 import base64
+import logging
 
+logger = logging.getLogger("tjbot.ai")
 
 authorized_users = ["tjc472", "justcallmeama", "arcticwoof", "winter._i", "skepper23", "500lrb"] # authorized users for /changemodel
 global model
@@ -98,12 +100,12 @@ Please reply to this message with `I agree to the terms` in order to activate AI
             if message.attachments: #stuff used for the images
                 for attachment in message.attachments: #some weird implementation i had to do to get discord.py to read multiple attachments
                     attachment_content = await attachment.read()
-                    print(f"message has {len(message.attachments)} amount of attachments")
+                    logger.info(f"message has {len(message.attachments)} amount of attachments")
                     
                     if attachment.content_type.startswith("image/"):
                         image.append(base64.b64encode(attachment_content).decode("utf-8"))
                     else:
-                        print(f"unable to append attachment idk as it isnt an image, instead is a {attachment.content_type}") # chunk isnt defined bruh
+                        logger.warning(f"unable to append attachment idk as it isnt an image, instead is a {attachment.content_type}") # chunk isnt defined bruh
 
             msg = message.content.replace(f"<@{self.bot.user.id}>", "").strip() # remove the mention of the bot itself in the message to prevent ai confusion
             if message.channel.id not in pinged_messages:
@@ -114,7 +116,7 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                 async with message.channel.typing():
                     #try:
                     #        censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3","prompt":f"The message is ```{msg}``` sent by a user named {message.author.name}","stream":False, "system":censorshit}).text)["response"]
-                    #        print(censorresult)
+                    #        logger.info(censorresult)
                     #        if censorresult == "inappropriate":
                     #            await message.add_reaction("🗿")
                     #except:
@@ -127,9 +129,9 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                             censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":output, "stream":False, "system":censorshit}).text)["response"]
                         else:
                             censorresult = "very appropriate"
-                        print(censorresult)
+                        logger.info(censorresult)
                         if censorresult == "inappropriate":
-                            print(output)
+                            logger.warning(output)
                             output="[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic, this message is also visible to the AI]"
                     except:
                         output = "An error occured (eric reference)"

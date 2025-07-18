@@ -7,6 +7,9 @@ import random
 import discord
 from io import StringIO
 from contextlib import redirect_stdout
+import logging
+
+logger = logging.getLogger("tjbot.dev")
 
 class EvalModal(discord.ui.Modal, title = 'Eval this shit'):
     prompt = discord.ui.TextInput(
@@ -183,6 +186,12 @@ class Dev(commands.Cog):
             else:
                 await interaction.response.send_message(content = "if you say please maybe")
 
+    @app_commands.command(description = "funny :3")
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
+    async def funny(self, interaction: discord.Interaction):
+        logger.info(interaction.user.id) # LEB bot reference
+        await interaction.response.send_message(content = "a")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Dev(bot))

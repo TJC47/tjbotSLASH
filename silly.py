@@ -9,6 +9,10 @@ import discord
 from discord.ext import tasks
 import asyncio
 from threading import Thread
+import logging
+
+logger = logging.getLogger("tjbot.silly")
+
 
 meaninglist = [
     "lasanga",
@@ -139,7 +143,7 @@ class Silly(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def hewwo(self, interaction: discord.Interaction, user: discord.User=None):
         disclaimer = ""
-        if interaction.user.id == 1143416222772367370:
+        if interaction.user.id == 1273790168129601558:
             disclaimer = " hi moonstar im just riding amas meat trust"
         if user:
             hewwotosay = user.name

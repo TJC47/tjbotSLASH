@@ -10,8 +10,26 @@ import hashlib
 import base64
 from enum import Enum
 import sys
-import re
 import json
+import gdapilib
+import logging
+from LEBlogger import init
+import os
+import threading
+import code
+
+
+init()
+logger = logging.getLogger("tjbot")
+
+
+RESET = "\033[0m"
+YELLOW = "\033[33m"
+GREEN = "\033[32m"
+RED = "\033[31m"
+CYAN = "\033[36m"
+GRAY = "\033[90m"
+MAGENTA = "\033[35m"
 
 f = open("token.sensitive")
 TOKEN = f.readline()
@@ -56,14 +74,12 @@ class MyClient(commands.Bot):
         help_command=None)                                                                                   # no help command, we are
     async def setup_hook(self):
 
-
-        await self.load_extension("silly")
-        await self.load_extension("sapph")
-        await self.load_extension("dev")
-        await self.load_extension("useful")
-        await self.load_extension("ai")
-        await self.load_extension("economy")
-
+        with open("cogs.json", "r") as f:
+            cogfile = json.loads(f.read())
+        for cogname in cogfile["active_cogs"]:
+            logger.info(f"Loading cog '{cogname}'")
+            await self.load_extension(cogname)
+        logger.info("Loaded all cogs")
         activity.start()
 
     async def on_raw_reaction_add(self, payload): # logging for level thumbnails, not active when bot not in the server, ignorable
@@ -103,14 +119,17 @@ class MyClient(commands.Bot):
         if message.author == self.user:
             return
         is_owner = await self.is_owner(message.author)
-        if message.content == "bleh" and is_owner: 
-            await self.reload_extension("silly")
-            await self.reload_extension("sapph")
-            await self.reload_extension("dev")
-            await self.reload_extension("useful")
-            await self.reload_extension("ai")
-            await self.reload_extension("economy")
-            await message.channel.send("Reloaded all cogs omg")
+        if message.content == "bleh" and is_owner:
+            logtext = f"{YELLOW}Reloading all cogs...{RESET}"
+            logmessage = await message.channel.send(content=f"```ansi\n{logtext}```")
+            with open("cogs.json", "r") as f:
+                cogfile = json.loads(f.read())
+            for cogname in cogfile["active_cogs"]:
+                await self.reload_extension(cogname)
+                logtext = logtext + f"\n{CYAN}Reloaded cog '{GREEN}{cogname}{CYAN}'!{RESET}"
+                await logmessage.edit(content=f"```ansi\n{logtext}```")
+            logtext = logtext + f"""\n{GREEN}Reloaded {YELLOW}{len(cogfile["active_cogs"])}{GREEN} cogs!{RESET}"""
+            await logmessage.edit(content=f"```ansi\n{logtext}```")
         #if message.author.name.startswith("moonstarmaster"):
         #    await message.add_reaction("😭")
         #if ("alot" in message.content.lower()) and not message.author.id == self.user.id:
@@ -169,6 +188,8 @@ class MyClient(commands.Bot):
         ]
 
         proceed_with_counting = True
+
+        if message.author.bot: proceed_with_counting = False
 
         for x in antikeywords:
             if x.lower() in message.content.lower():
@@ -237,6 +258,26 @@ intents = discord.Intents.all()
 client = MyClient(intents=intents)
 
 
+
+
+@client.tree.command(description="Reloads all cogs :3")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def reload_cogs(interaction: discord.Interaction):
+            is_owner = await client.is_owner(interaction.user)
+            if is_owner:
+                await interaction.response.send_message("Reloading all cogs...")
+                logger.debug("Reloading all cogs, triggered by owner")
+                with open("cogs.json", "r") as f:
+                    cogfile = json.loads(f.read())
+                for cogname in cogfile["active_cogs"]:
+                    await client.reload_extension(cogname)
+                    logger.info(f"Reloaded cog '{cogname}'!")
+
+                await interaction.edit_original_response(content=f"""Reloaded all {len(cogfile["active_cogs"])} cogs!""")
+            else:
+                await interaction.response.send_message("nuh uh")
+
 @client.tree.command(description="Still in development. Don't use this command. :3")
 @app_commands.describe(
     username='Your GD username'
@@ -256,9 +297,15 @@ async def link(interaction: discord.Interaction, username: str):
 async def verify(interaction: discord.Interaction, username: str):
     verifystring = hashlib.sha256(base64.b64encode(f'{username}+{interaction.user.id}'.lower().encode('ascii'))).hexdigest()
     output = f":warning: Your account could not be linked! Are you sure you posted the comment to the correct level and it contains ONLY the following string? ```{verifystring}``` If this issue persist please contact the developer."
-    time.sleep(1)
     await interaction.response.send_message(content=f"<a:loading:1296920573787504680> One second! <a:loading:1296920573787504680>\nWe are fetching some comments from the Geometry Dash server!!\n(as always ROBTOP GET BETTER SERVERS)", ephemeral=False)
-    time.sleep(5)
+    level = gdapilib.Level(128)
+    comments_on_level = level.get_comments(gdapilib.ApiHandler())
+    verified = False
+    for comment in comments_on_level:
+        if comment.author_name == username and comment.comment == verifystring:
+            verified = True
+            break
+    if verified: output = f":white_check_mark: Found comment! Linking is not programmed yet but I found you!"
     await interaction.edit_original_response(content=f"-# This feature is still work in progress and currently does *NOT* work.\n{output}")
 
 
@@ -270,16 +317,59 @@ async def statuses_gen_login(interaction: discord.Interaction):
     token = f"{hashlib.sha256(base64.b64encode(f'{interaction.user.id}+{STATUSES_SECRET}+{salt}'.lower().encode('ascii'))).hexdigest()};{salt}"
     await interaction.response.send_message(content=f"Your new token is ```{token}```\n# DO NOT SHARE THIS WITH ANYONE, TREAT THIS LIKE YOUR PASSWORD", ephemeral=True)
 
+reset = "\x1b[0m"
+
+b = [
+  '\033[38;2;127;0;255m', 
+  '\033[38;2;140;0;255m', 
+  '\033[38;2;150;0;255m', 
+  '\033[38;2;164;0;255m', 
+  '\033[38;2;176;0;255m', 
+  '\033[38;2;201;0;255m',
+  '\033[38;2;213;0;255m',
+  '\033[38;2;225;0;255m'
+]
+
+goog = f"""
+{b[0]}  _   _ _           _      _____ _                _____ _    _ {reset}
+{b[1]} | | (_) |         | |    / ____| |        /\    / ____| |  | |{reset}
+{b[2]} | |_ _| |__   ___ | |_  | (___ | |       /  \  | (___ | |__| |{reset}
+{b[3]} | __| | '_ \ / _ \| __|  \___ \| |      / /\ \  \___ \|  __  |{reset}
+{b[4]} | |_| | |_) | (_) | |_   ____) | |____ / ____ \ ____) | |  | |{reset}
+{b[5]}  \__| |_.__/ \___/ \__| |_____/|______/_/    \_\_____/|_|  |_|{reset}
+{b[6]}    _/ |                                                       {reset}
+{b[7]}   |__/    {reset}"""
+print(goog)
+logger.debug(f"if this text is colored your terminal supports truecolor -> {b[0]}meow{reset}")
+logger.debug(f"Current TERM variable -> {os.environ['TERM']}")
 
 
-print("""
-  _   _ _           _      _____ _                _____ _    _ 
- | | (_) |         | |    / ____| |        /\    / ____| |  | |
- | |_ _| |__   ___ | |_  | (___ | |       /  \  | (___ | |__| |
- | __| | '_ \ / _ \| __|  \___ \| |      / /\ \  \___ \|  __  |
- | |_| | |_) | (_) | |_   ____) | |____ / ____ \ ____) | |  | |
-  \__| |_.__/ \___/ \__| |_____/|______/_/    \_\_____/|_|  |_|
-    _/ |                                                       
-   |__/    """)
+def start_console(local_vars=None):
+  banner = ""
+  logger.debug("Interactive Python Console is Active. Ctrl+D to exit.")
+  # import rlcompleter
+  import readline
+  code.interact(banner=banner, local=local_vars or globals())
+
+def restart():
+  logger.warning("Manual restart triggered.")
+  os.execvp("python", ["python", "main.py"])
+
+async def reload_cogs_as():
+    logger.info("Reloading all cogs...")
+    with open("cogs.json", "r") as f:
+        cogfile = json.loads(f.read())
+    for cogname in cogfile["active_cogs"]:
+        await client.reload_extension(cogname)
+        logger.info(f"Reloaded cog '{cogname}'!")
+    logger.info(f"""Reloaded all {len(cogfile["active_cogs"])} cogs!""")
+
+def reload_cogs():
+    asyncio.run(reload_cogs_as())
+
+# def reloadit():
+#   reload_extension()
+
+threading.Thread(target=start_console, args=(locals(),), daemon=True).start()
 
 client.run(TOKEN)

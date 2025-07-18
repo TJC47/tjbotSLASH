@@ -8,13 +8,15 @@ import random
 import discord
 import asyncio
 import string
+import logging
+
+logger = logging.getLogger("tjbot.economy")
 
 updateinfo = """# Current Update and status
-# NEXT MAJOR UPDATE: DERMUK REBALANCING UPDATE
-## AFTER: GROW A TJBOT UPDATE
+# NEXT MAJOR UPDATE: GROW A TJBOT UPDATE
 ### AFTER THE AFTER: ORANG BOT COLLAB???!!!
 
-# PROGRESS: [----------] 60% guys its happening eta: <t:0:R> 
+# PROGRESS: [----------] 100% DERMUKO REBALABNCE UPDATE RELEASEDeta: <t:0:R> 
 """
 
 
@@ -37,7 +39,7 @@ writeq = []
 def update_balance(userid, amount, reason="None"):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -55,7 +57,7 @@ def update_balance(userid, amount, reason="None"):
 def get_balance(userid):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -67,7 +69,7 @@ def get_balance(userid):
 def get_economy():
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -77,7 +79,7 @@ def get_economy():
 def set_inventory(userid, new):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -92,7 +94,7 @@ def set_inventory(userid, new):
 def get_inventory(userid):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -106,7 +108,7 @@ def get_inventory(userid):
 def set_passives(userid, new):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -121,7 +123,7 @@ def set_passives(userid, new):
 def get_passives(userid):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -135,7 +137,7 @@ def get_passives(userid):
 def set_misc(userid, new):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -150,7 +152,7 @@ def set_misc(userid, new):
 def get_misc(userid):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -164,7 +166,7 @@ def get_misc(userid):
 def get_cashdrops():
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -174,7 +176,7 @@ def get_cashdrops():
 def set_cashdrops(cashdrops):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
-    while not writeq[0] == actionid: print("waiting in q to write")
+    while not writeq[0] == actionid: pass
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -265,7 +267,6 @@ async def activity():
         global lastratelimitreset
         ratelimit = {}
         lastratelimitreset = round(time.time())
-        print("reset i think")
 
 
 async def do_ratelimit(interaction: discord.Interaction):
@@ -862,7 +863,7 @@ class Economy(commands.Cog):
         cashdrops.append(amount)
         update_balance(interaction.user.id, -amount, f"cashdrop (remove money from dropper) ({interaction.user.name})")
         set_cashdrops(cashdrops)
-        print(f"{interaction.user.name} dropped {amount}{currency}!!!")
+        logger.info(f"{interaction.user.name} dropped {amount}{currency}!!!")
         userbalance_after = get_balance(interaction.user.id)
         await interaction.response.send_message(content=f"You dropped `{ezread(amount)}{currency}`! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`", ephemeral=True)
 
@@ -879,7 +880,7 @@ class Economy(commands.Cog):
         amount = cashdrops[0]
         cashdrops.pop(0)
         set_cashdrops(cashdrops)
-        print(interaction.user.name)
+        logger.info(interaction.user.name)
         update_balance(interaction.user.id, amount, f"cashdrop (add money to pickupper) ({interaction.user.name})")
         usermisc = get_misc(interaction.user.id)
         if "total_pickup" not in usermisc:
