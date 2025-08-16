@@ -19,8 +19,8 @@ import threading
 import code
 
 
-init()
-logger = logging.getLogger("tjbot")
+init(10)
+logger = logging.getLogger("tjbot.main")
 
 
 RESET = "\033[0m"
@@ -205,7 +205,6 @@ class MyClient(commands.Bot):
                             counter_file["counter_not_work"] = counter_file["counter_not_work"] + 1
                             with open("counter.json", "w") as f:
                                 f.write(json.dumps(counter_file, indent=4))
-                            await message.add_reaction("📝")
 
             for x in words_how_submit[0]:
                 if x.lower() in message.content.lower():
@@ -216,7 +215,6 @@ class MyClient(commands.Bot):
                             counter_file["counter_how_to_submit"] = counter_file["counter_how_to_submit"] + 1
                             with open("counter.json", "w") as f:
                                 f.write(json.dumps(counter_file, indent=4))
-                            await message.add_reaction("📝")
 
         #if message.content == "add mee6":
         #    await message.channel.send("I'm better than that bastard")
@@ -232,6 +230,7 @@ class MyClient(commands.Bot):
         #    await message.reply("https://tenor.com/view/romania-romania-anime-average-romania-gif-13561544966710741659")
         if random.randint(1,10000) == 1:
             await message.reply("or pvp boss")
+
         if message.author.name.lower() == "winter._i":
             file = open("log.txt", "a")
             file.write("\n"+"winter(winter): " +message.content.replace("\n","[lb]"))
@@ -260,7 +259,7 @@ client = MyClient(intents=intents)
 
 
 
-@client.tree.command(description="Reloads all cogs :3")
+@client.tree.command(description="Reloads all cogs (owner only) :3")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 async def reload_cogs(interaction: discord.Interaction):
@@ -275,6 +274,18 @@ async def reload_cogs(interaction: discord.Interaction):
                     logger.info(f"Reloaded cog '{cogname}'!")
 
                 await interaction.edit_original_response(content=f"""Reloaded all {len(cogfile["active_cogs"])} cogs!""")
+            else:
+                await interaction.response.send_message("nuh uh")
+
+@client.tree.command(description="Restart the bot (owner only) :3")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def restart_bot(interaction: discord.Interaction):
+            is_owner = await client.is_owner(interaction.user)
+            if is_owner:
+                logger.warning("Manual restart triggered.")
+                await interaction.response.send_message("bai bai")
+                os.execvp("python", ["python", "main.py"])
             else:
                 await interaction.response.send_message("nuh uh")
 
@@ -372,4 +383,4 @@ def reload_cogs():
 
 threading.Thread(target=start_console, args=(locals(),), daemon=True).start()
 
-client.run(TOKEN)
+client.run(TOKEN)#, log_handler=None)

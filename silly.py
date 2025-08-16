@@ -107,6 +107,13 @@ class Silly(commands.Cog):
 || o |||| o |||| o |||| o |||| o |||| o |||| o |||| o ||
 || o |||| o |||| o |||| o |||| o |||| o |||| o |||| o ||""")
 
+
+    @app_commands.command(description="leb :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def leb(self, interaction: discord.Interaction):
+        await interaction.response.send_message(content=f"""It's spelled L-R-B!!!!!!!!!""")
+
     @app_commands.command(description="Checks if someone uses fooycord :3")
     @app_commands.describe(
         user='the id of the user'

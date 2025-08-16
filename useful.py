@@ -7,6 +7,11 @@ import json
 import random
 import discord
 import logging
+from mutagen.mp3 import MP3
+import asyncio
+import urllib.request
+import subprocess
+import os
 
 logger = logging.getLogger("tjbot.useful")
 
@@ -88,6 +93,45 @@ class Useful(commands.Cog):
         await interaction.response.send_message(content=f"Your link has been shortened! Available under https://de-1.tjcsucht.net/ulink/{generated}")
  
 
+
+    @app_commands.command(description="plays a music :3")
+    @app_commands.describe(
+        filename='name of the filename',
+        yt_dlp='use yt dlp to download file?'
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def play(self, interaction: discord.Interaction, filename: str, yt_dlp: bool = False):
+        inputfilename = filename
+        await interaction.response.send_message(content=f"Media Will be played soon")
+        if yt_dlp and not interaction.user.id == self.bot.owner_id:
+            await interaction.edit_original_response(content=f"sorry, yt-dlp is only allowed to be used by the bot owner")
+            return
+        if filename.startswith("http") and yt_dlp:
+            await interaction.edit_original_response(content=f"Downloading `{filename}` with yt-dlp...")
+            if os.path.exists("tempaudio.mp3"): os.remove("tempaudio.mp3")
+            subprocess.run(["yt-dlp", "-o", "tempaudio.mp3", "--extract-audio", "--audio-format", "mp3", filename])
+            if not os.path.exists("tempaudio.mp3"):
+                await interaction.edit_original_response(content=f"Error downloading file `{filename}`")
+                return
+            #urllib.request.urlretrieve(filename, "tempaudio.mp3")
+
+            filename = "tempaudio.mp3"
+            await interaction.edit_original_response(content=f"Downloaded `{inputfilename}` with yt-dlp!")
+        if interaction.guild.voice_client:
+            if interaction.guild.voice_client.is_connected():
+                vc = interaction.guild.voice_client
+            else:
+                await interaction.edit_original_response(content=f"joining")
+                vc = await interaction.channel.connect() 
+        else:
+            await interaction.edit_original_response(content=f"joining")
+            vc = await interaction.channel.connect() 
+        if vc.is_playing():
+            vc.stop()
+        vc.play(discord.FFmpegPCMAudio(filename))
+        await interaction.edit_original_response(content = f"playing {inputfilename}")
+ 
 
 
 async def setup(bot: commands.Bot):

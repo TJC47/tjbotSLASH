@@ -905,8 +905,8 @@ class Economy(commands.Cog):
 
             if interaction.user.id == 729671931359395940: # geming
                 medalinv["geming"] = {
-                    "name": "Being Cis and Aroace",
-                    "description": "A medal for the best geming person who is Cis and Aroace, awarded to Cis and Aroace"
+                    "name": "Being Lesbian and Trans",
+                    "description": "A medal for the best geming person who is Lesbian and trans, awarded to the Lesbian and Trans"
                 }
 
             if len(userpassives) > 0:

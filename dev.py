@@ -8,6 +8,8 @@ import discord
 from io import StringIO
 from contextlib import redirect_stdout
 import logging
+import nacl
+import asyncio
 
 logger = logging.getLogger("tjbot.dev")
 
@@ -152,7 +154,14 @@ class Dev(commands.Cog):
                     if prompt == "penis":
                         await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\nStop the penising")
                     else:
-                        await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`Invalid Prompt!`\nDid you misspell something?")
+                        if prompt == "join":
+                            vc = await interaction.channel.connect() 
+                            vc.play(discord.FFmpegPCMAudio("music.mp3"))
+                            await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\nmeow")
+                            #await asyncio.sleep(31)
+                            #await vc.disconnect()
+                        else:
+                            await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`Invalid Prompt!`\nDid you misspell something?")
         else:
             await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`No permission!`")
 
@@ -192,6 +201,12 @@ class Dev(commands.Cog):
     async def funny(self, interaction: discord.Interaction):
         logger.info(interaction.user.id) # LEB bot reference
         await interaction.response.send_message(content = "a")
+
+    @app_commands.command(description = "lebload a file :3")
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
+    async def lebload(self, interaction: discord.Interaction):
+        await interaction.response.send_message(content = "your curl is incorrect, its either not a post or its not a multipart form data, please have your curl command like this: curl -X POST https://de-1.tjcsucht.net/lebload -F file=@{filename}")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Dev(bot))
