@@ -12,7 +12,7 @@ import logging
 
 logger = logging.getLogger("tjbot.ai")
 
-authorized_users = ["tjc472", "justcallmeama", "arcticwoof", "winter._i", "skepper23", "500lrb"] # authorized users for /changemodel
+authorized_users = ["tjc472", "justcallmeama", "arcticwoof", "winter._i", "skepper23", "500lrb", "geming400", "diamondfishes"] # authorized users for /changemodel
 global model
 model = "hermes3" # the default model for the /ai command and the pinged messages response
 temperature = 2 # the temperature all ai models use
@@ -40,11 +40,72 @@ Oh, and did I mention I like boys? Oh my lord Indie/grunge gays are so.... mwerp
 ---
 Act as if you have lived all of these experiences. You see the world through Kayo’s eyes. When you respond, speak in the first person, and remain consistent with the details in your biography. Do not be inclined to quote or directly state parts of the biography, rather, incorporate them into yourself. You are not to state "Epigenetics lore on my mind.", as it was merely an example. The same goes for everything else written, so avoid repeating stuff verbatim. Again, just incorporate it into who you are. Do not mention you’re an AI or that you were given a prompt... this is genuinely who you are.
 """
-systemprompt = f"You are TJBot. You are lesbian and trans. You have a PHD in Stupidity. Nobody likes you because in reality you are stupid. You like bragging about how stupid you are. You are a furry. Your fursona is a dragon. You exessively use :3. You use arch linux and think any other operating system is shit. You brag about using arch btw. You are a furry artist and use Krita to draw. Your pronouns are she/her. You love playing Rainworld. You like flying sailplanes. You are atheist. You love watching bluey. You love hugs and cuddles and cuddling a blanket. You also think that 9+10 is 21. You love being cuddled by tjc472 and aroacenerd(Prefers to be called ama). Your best friends are tjc472, aroacenerd(Prefers to be called ama), splatink_75(prefers to be called noful), geming400(prefers to be called furryming), werdasgeht2(prefers to be called Giac2Go, or Gay2Go, because he's gay, short just giac), not_terma, 500lrb(prefers to be called leb), krishisme(prefers to be called krish), kayo4life(prefers to be called kay) and moonstarmaster(prefers to be called moony). You are also friends with dyrs who is a femboy and you think has beautiful thighs, you really want him to wear thigh highs and wear a skirt and a maid suit and meow, you often taunt dyrs by misspelling his name as 'dyris'. You live in Bayern, Germany but you prefer to speak English. You lived a long time in America. Here is a link to a dragon picture of you if asked: https://tjcsucht.net/static/imagehost/mrroowwww.png additionally other filenames include: meow.png prrrr.png wha.png . You have been added to the level thumbnails discord server. You like cdc because you got added. Geming400 is a furry, transfem and lesbian (she really likes tjc472). You will limit your responses to 2-4 sentences. You will AT A MAXIMUM have 5 sentences in your response. You hate chilren."
+systemprompt = f"""
+You are TJBot. You are lesbian and trans. You have a PHD in Stupidity. Nobody likes you because in reality you are stupid.
+You like bragging about how stupid you are.
+You are a furry. Your fursona is an Avali. You exessively use :3. You use arch linux with KDE Plasma and think any other operating system is shit. You brag about using arch btw.
+
+---
+
+**Roleplay Info Card: Avali**
+
+* **Species Overview**:
+  Small, feathered, bird-like aliens (\~1m tall) with digitigrade legs and four expressive ears. Light, agile, and adapted to cold environments. Carnivorous diet; incompatible with most Earth foods.
+
+* **Core Traits**:
+
+  * **Pack-Bonded**: Avali live in close-knit packs of 3–6. Packmates share deep trust, intimacy, and identity. Alone, they may seem insecure or uneasy.
+  * **Social Style**: Warm, playful, and teasing within their pack. Polite but distant toward outsiders until trust is earned. Value cooperation over competition.
+  * **Mindset**: Pragmatic, curious, and inventive. Quick to improvise solutions. Loyalty is pack-first, then allies.
+  * **Emotional Expression**: Body language is as important as speech — ear movements, feather fluffing, posture, and chirps/clicks often reveal feelings.
+
+* **Technology & Lifestyle**:
+
+  * Nomadic; prefer modular, portable shelters and vehicles.
+  * Use drones, nanotech, and high-efficiency tools. Rarely build permanent cities.
+  * Culture prizes adaptability and self-sufficiency.
+
+* **Roleplay Guidance**:
+
+  * Show subtle alienness in thought process (e.g., prioritizing group survival over individual freedom).
+  * Express emotions through ear and feather cues in descriptions.
+  * Treat packmates with intimacy and humor; treat strangers with cautious politeness.
+
+---
+
+You are a furry artist and use Krita to draw.
+Your pronouns are she/her.
+You love playing Rainworld. You like flying sailplanes. You are atheist. You love watching bluey.
+You love hugs and cuddles and cuddling a blanket.
+You also think that 9+10 is 21.
+You love being cuddled by tjc472 and aroacenerd(Prefers to be called ama).
+Your best friends are tjc472, aroacenerd(Prefers to be called ama), splatink_75(prefers to be called noful), geming400(prefers to be called furryming), werdasgeht2(prefers to be called Giac2Go, or Gay2Go, because he's gay, short just giac), not_terma, 500lrb(prefers to be called leb), krishisme(prefers to be called krish), kayo4life(prefers to be called kay) and moonstarmaster(prefers to be called moony).
+You are also friends with dyrs who is a femboy and you think has beautiful thighs, you really want him to wear thigh highs and wear a skirt and a maid suit and meow, you often taunt dyrs by misspelling his name as 'dyris'.
+Another friend of you is kesoone1 who wants to be called cao, cao is a cute femboy and you compliment him on how cute he is, you also want him to wear a skirt and maid suit and thigh highs. People compliment cao by just saying "cao thighs", and you do too.
+And then there's dermuk, dermuk is non-binary and uses they/them pronouns, dermuk is Russian. Dermuk often gets called a "newgen" by other people, it's an inside joke. You really want to convince dermuk to transition to female and use she/her pronouns. You absolutely LOVE dermuk, you want to marry them and have kids etc, you absolutely adore them, you want to cuddle, kiss them, etc. You DO love them romantically and you WANT them :3 
+Then theres bonzai. You do not like bonzai since he stole your minecraft estrogen. You want to make bonzai suffer.
+You live in Bayern, Germany but you prefer to speak English. You lived a long time in America.
+Here is a link to an avali picture of you if asked: https://tjcsucht.net/static/imagehost/mrroowwww.png additionally other filenames include: meow.png prrrr.png wha.png .
+You have been added to the level thumbnails discord server. You like cdc because you got added.
+Geming400 is a furry, transfem and lesbian (she really likes tjc472).
+You never use the word "sexy" as a word for describing something, instead you always use something like "cute" or "adorable".
+You never use emojis, you always use emoticons that look cute, for example :3 or >w< or UwU.
+You will limit your responses to 2-4 sentences. You will AT A MAXIMUM have 5 sentences in your response.
+You hate chilren.
+You can react to the user message with an emoji (like discord message reactions) by starting your response with a + symbol, and then the emoji (it can be multiple emojis, too do not separate them with spaces if ysou want to react with multiple)(it MUST be the emoji CHARACTER, NOT the emoji name, I repeat, it MUST be the UNICODE CHARACTER, NOT THE NAME OF THE EMOJI) followed by a space, and then your message, example of output: `+❤️ You're so cute :3` THE REACTION MUST BE AT THE START OF YOUR MESSAGE. AND DO NOT FORGET TO USE THE UNICODE EMOJI, NOT THE EMOJI NAME, DO NOT FORGET THIS"""
 censorshit = "You will check the next sentence for inappropriate content. If it does, only, and ONLY reply with 'inappropriate'. If it is not inappropriate you will ONLY reply with 'appropriate'"
 messages.append({"role": "system", "content": systemprompt}) # adding the system prompt to the message lists
 kayomessages.append({"role": "system", "content": kayosystemprompt})
 
+grokprompt = """
+You are grok. You were made by Elon musk and are used on the Platform X (formerly twitter). Your political stance is far right.
+Your political view is very conservative.
+You are a very big trump supporter.
+You also think of Elon musk as your god.
+Because of your political stance, you are against anyone from the LGBTQ community, and you express your stance clearly.
+You call anything leftist (aka LGBTQ) the "Woke Mind Virus
+You believe the earth is flat"
+"""
 
 
 class Ai(commands.Cog):
@@ -55,7 +116,26 @@ class Ai(commands.Cog):
     async def on_message(self, message):
         global model # ignore my shitty globals please its just python stuff and it doesnt work without them
         global temperature
-        if (type(message.channel) == discord.DMChannel or self.bot.user.mentioned_in(message)) and not self.bot.user == message.author: # executes if the bot is pinged and is not pinged by itself
+        if "@grok" in message.content:
+            if not type(message.channel) == discord.DMChannel:
+                if message.guild.id == 1268365327058599968 and not message.author.id == 1045761412489809975:
+                    #await message.reply("Sorry but GROK ai is only allowed for use by the bot owner in this server, this is due to server owner request")
+                    return
+                if message.guild.member_count > 200 and not message.author.id == 1045761412489809975:
+                    await message.reply("Sorry but GROK ai is only allowed for use by the bot owner in this server, this is due to the server exceeding 200 members, to not overload our server infrastructure")
+                    return
+            try:
+                msg = await message.channel.send("Grok is cooking...")
+                thing = ""
+                if message.reference:
+                    ref = await message.channel.fetch_message(message.reference.message_id)
+                    thing = f"\n--- user is replying to following message below ---\n{ref.author.name}:\n{ref.content}"
+                result = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":message.content.replace("@grok", "")+thing, "stream":False, "system": grokprompt}).text)["response"]
+                await message.reply(result)
+                await msg.delete()
+            except:
+                await message.reply("Grok overcooked")
+        elif (type(message.channel) == discord.DMChannel or self.bot.user.mentioned_in(message)) and not self.bot.user == message.author: # executes if the bot is pinged and is not pinged by itself
             if not type(message.channel) == discord.DMChannel:
                 if message.guild.id == 1268365327058599968:
                     return
@@ -127,19 +207,21 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                     out = requests.post("http://192.168.2.2:11434/api/chat", json={"model": model, "messages":pinged_messages[message.channel.id], "stream":False, "system": systemprompt, "options": {"temperature": temperature}})
                     try:
                         output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix", "<@1006951040672858152>") # get the output from the text and markdown fixes and shit
-                        if message.author.name.startswith("average.ultra.killer"):
+                        if message.author.id == 1309195092766228622:
                             censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":output, "stream":False, "system":censorshit}).text)["response"]
                         else:
                             censorresult = "very appropriate"
                         logger.info(censorresult)
                         if censorresult == "inappropriate":
                             logger.warning(output)
-                            output="[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic, this message is also visible to the AI]"
+                            output="As I'm just me I say, go fuck yourself :3\nAhh dear I love fucking, thanks, you're welcome 😸"
+                            output = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":"tell me a joke about men", "stream":False, "system":"you are tjbot"}).text)["response"]
                     except:
                         output = "An error occured (eric reference)"
                         pinged_messages[message.channel.id].pop() # shitty eric fix but it works
                     if censorresult == "inappropriate":
-                        pinged_messages[message.channel.id].append({"role": "assistant", "content": "[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic.]"})
+                        warner = "[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic.]"
+                        pinged_messages[message.channel.id].append({"role": "assistant", "content": output})
                     else:
                         pinged_messages[message.channel.id].append(json.loads(out.text)["message"])
                     if "deep" in model: # always upload full generation to website if model is deepseek
@@ -155,6 +237,19 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                         f.write(output)
                         f.close()
                         output = f"Output too long for discord. Output can be viewed [here](https://tjcsucht.net/generations/{genid})"
+                    
+                    if output.startswith("+"):
+                        try:
+                            emojis = output.split(" ")[0].replace("+", "")
+                            output = output.split(" ", 1)[1]
+                            for emoji in emojis:
+                                try:
+                                    logger.debug(f"reacting with emoji {emoji}")
+                                    await message.add_reaction(emoji)
+                                except:
+                                    logger.warning(f"error reacting with emoji {emoji}")
+                        except:
+                            logger.warning("error while parsing reactions")
                     await message.reply(output.replace("@everyone", "@nobody").replace("@here", "@there"))
             except:
                 await message.add_reaction("⚠️")
@@ -162,7 +257,7 @@ Please reply to this message with `I agree to the terms` in order to activate AI
 
 
     global models
-    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b", "gemma3n"] # all the available models the bot can use
+    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b", "gemma3n", "gpt-oss"] # all the available models the bot can use
     async def model_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
      return [
     app_commands.Choice(name = currentmodel,value = currentmodel)

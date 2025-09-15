@@ -68,7 +68,7 @@ class MyClient(commands.Bot):
         super().__init__(
         command_prefix='t!',                                                                                # required, you can change it to an empty string also, doesnt do anything
         intents=discord.Intents.all(),                                                                                    # intents, this is in the bot already
-        activity=discord.CustomActivity(name='"womp womp bro" 💀'),                                                  # you can ignore this
+        activity=discord.CustomActivity(name='birb time :3'),                                                  # you can ignore this
         allowed_contexts=app_commands.AppCommandContext(guild=True, dm_channel=True, private_channel=True), # same with this
         allowed_installs=app_commands.AppInstallationType(guild=True, user=True),                           # and this
         help_command=None)                                                                                   # no help command, we are
@@ -231,7 +231,7 @@ class MyClient(commands.Bot):
         if random.randint(1,10000) == 1:
             await message.reply("or pvp boss")
 
-        if message.author.name.lower() == "winter._i":
+        if message.author.name.lower() == "winter._l":
             file = open("log.txt", "a")
             file.write("\n"+"winter(winter): " +message.content.replace("\n","[lb]"))
             file.close()

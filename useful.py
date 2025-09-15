@@ -91,7 +91,50 @@ class Useful(commands.Cog):
         f.write(json.dumps(redirectlist, indent=4))
         f.close()
         await interaction.response.send_message(content=f"Your link has been shortened! Available under https://de-1.tjcsucht.net/ulink/{generated}")
- 
+
+
+    @app_commands.command(description="Checks if various services are up :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def check_services(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        ltofficial = "🔃 Queued for check"
+        ltlegacythumbs = "🔃 Queued for check"
+        ltanarchy = "🔃 Queued for check"
+        tjcsucht = "🔃 Queued for check"
+        tjcsuchtdirect = "🔃 Queued for check"
+        async def update_message(interaction: discord.Interaction, official, legacy, anarchy, website, direct):
+            response_string = f"""# Status checker
+> Level Thumbnails: {official}
+> Legacy Thumbnails: {legacy}
+> Anarchy Thumbnails: {anarchy}
+> TJC Website: {website}
+> TJC Website (no cf): {direct}"""
+            await interaction.edit_original_response(content=response_string)
+        async def check_server(url):
+            try:
+                res = requests.get(url)
+                if str(res.status_code).startswith("2") or str(res.status_code).startswith("3"):
+                    return "✅ Online"
+                else: return "❌ Not working"
+            except: return "❌ Not working"
+        ltofficial = "🔃 Checking..."
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        ltofficial = await check_server("https://levelthumbs.prevter.me/")
+        ltlegacythumbs = "🔃 Checking..."
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        ltlegacythumbs = await check_server("https://tjcsucht.net/levelthumbs/1.png")
+        ltanarchy = "🔃 Checking..."
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        ltanarchy = await check_server("https://tjcsucht.net/anarchy/1")
+        tjcsucht = "🔃 Checking..."
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        tjcsucht = await check_server("https://tjcsucht.net")
+        tjcsuchtdirect = "🔃 Checking..."
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        tjcsuchtdirect = await check_server("https://de-1.tjcsucht.net/")
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+
 
 
     @app_commands.command(description="plays a music :3")
@@ -103,6 +146,8 @@ class Useful(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def play(self, interaction: discord.Interaction, filename: str, yt_dlp: bool = False):
         inputfilename = filename
+        if filename.startswith("./leb/"):
+            filename = filename.replace("./leb/", "https://de-1.tjcsucht.net/leb/", 1)
         await interaction.response.send_message(content=f"Media Will be played soon")
         if yt_dlp and not interaction.user.id == self.bot.owner_id:
             await interaction.edit_original_response(content=f"sorry, yt-dlp is only allowed to be used by the bot owner")
@@ -123,16 +168,33 @@ class Useful(commands.Cog):
                 vc = interaction.guild.voice_client
             else:
                 await interaction.edit_original_response(content=f"joining")
-                vc = await interaction.channel.connect() 
+                if interaction.user.voice:
+                    vc = await interaction.user.voice.channel.connect()
+                else:
+                    vc = await interaction.channel.connect() 
         else:
             await interaction.edit_original_response(content=f"joining")
-            vc = await interaction.channel.connect() 
+            if interaction.user.voice:
+                vc = await interaction.user.voice.channel.connect()
+            else:
+                vc = await interaction.channel.connect() 
         if vc.is_playing():
             vc.stop()
         vc.play(discord.FFmpegPCMAudio(filename))
         await interaction.edit_original_response(content = f"playing {inputfilename}")
- 
 
-
+    @app_commands.command(description="leaves a vc :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def leave(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        if interaction.guild.voice_client:
+            if interaction.guild.voice_client.is_connected():
+                await interaction.guild.voice_client.disconnect()
+                await interaction.edit_original_response(content = f"aw")
+            else:
+                await interaction.edit_original_response(content = f"meh")
+        else:
+            await interaction.edit_original_response(content = f"meh")
 async def setup(bot: commands.Bot):
     await bot.add_cog(Useful(bot))

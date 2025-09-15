@@ -73,7 +73,7 @@ class Dev(commands.Cog):
     @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def dev(self, interaction: discord.Interaction, prompt: str):
         await interaction.response.send_message(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n<a:loading2:1296923111177850931>`Please wait... Running checks...`")
-        if True: #interaction.user.name == "tjc472":
+        if interaction.user.name == "tjc472":
             if prompt == "q":
                 await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
                 f = open("log.txt")
