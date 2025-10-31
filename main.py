@@ -17,7 +17,7 @@ from LEBlogger import init
 import os
 import threading
 import code
-
+import datetime
 
 init(10)
 logger = logging.getLogger("tjbot.main")
@@ -89,12 +89,13 @@ class MyClient(commands.Bot):
             embed = discord.Embed()
             embed.title = "Reaction added"
             embed.color = discord.Color.green()
-            embed.add_field(name="Emoji", value=f"{payload.emoji}", inline=False)
-            embed.add_field(name="User", value=f"<@{payload.member.id}>({payload.member.name})", inline=False)
-            embed.add_field(name="Channel", value=f"<#{payload.channel_id}>", inline=False)
-            embed.add_field(name="Message", value=f"https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}", inline=False)
+            embed.add_field(name="", value=f"""> **Emoji:** {payload.emoji}
+> **User:** @{payload.member.name} (<@{payload.member.id}>)
+> **Channel:** <#{payload.channel_id}>
+> **Message:** https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}""", inline=False)
+            embed.timestamp = datetime.datetime.now()
             if not message.content == "":
-                embed.add_field(name="Message Content", value=f"{message.content}", inline=False)
+                embed.add_field(name="Message", value=f"{message.content}", inline=False)
             await reactionlogchannel.send(embed=embed)
 
     async def on_raw_reaction_remove(self, payload):
@@ -105,12 +106,13 @@ class MyClient(commands.Bot):
             embed.title = "Reaction removed"
             embed.color = discord.Color.dark_red()
             user = await self.fetch_user(payload.user_id)
-            embed.add_field(name="Emoji", value=f"{payload.emoji}", inline=False)
-            embed.add_field(name="User", value=f"<@{user.id}>({user.name})", inline=False)
-            embed.add_field(name="Channel", value=f"<#{payload.channel_id}>", inline=False)
-            embed.add_field(name="Message", value=f"https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}", inline=False)
+            embed.add_field(name="", value=f"""> **Emoji:** {payload.emoji}
+> **User:** @{user.name} (<@{user.id}>)
+> **Channel:** <#{payload.channel_id}>
+> **Message:** https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}""", inline=False)
+            embed.timestamp = datetime.datetime.now()
             if not message.content == "":
-                embed.add_field(name="Message Content", value=f"{message.content}", inline=False)
+                embed.add_field(name="Message", value=f"{message.content}", inline=False)
             await reactionlogchannel.send(embed=embed)
 
 
@@ -235,6 +237,10 @@ class MyClient(commands.Bot):
             file = open("log.txt", "a")
             file.write("\n"+"winter(winter): " +message.content.replace("\n","[lb]"))
             file.close()
+        if message.author.id == 729671931359395940:
+            file = open("geminglog.txt", "a")
+            file.write("\n"+"geming(geming): " +message.content.replace("\n","[lb]"))
+            file.close()
         #if "<@1045761412489809975>" in message.content:
         #    await message.add_reaction("🔃")
         #    try:
@@ -248,7 +254,23 @@ class MyClient(commands.Bot):
         #        await message.add_reaction("⚠️")
         global index
         global temperature
-
+        if message.content.startswith(r"s\!ban"):
+            if message.channel.permissions_for(message.author).ban_members or message.author.id == 1045761412489809975:
+                await message.add_reaction("<a:loading:1332808438396358777>")
+                embed = discord.Embed()
+                embed.timestamp = datetime.datetime.now()
+                if message.reference:
+                    ref = await message.channel.fetch_message(message.reference.message_id)
+                    usermention = ref.author.mention
+                else:
+                    usermention = message.content.split(' ', 1)[1]
+                embed.add_field(name=f"", value=f"<:checkmarksapph:1309669307214598265> {usermention} banned\n> **Reason:** No reason provided\n> **Duration:** Permanent", inline=False)
+                embed.color = discord.Colour.from_rgb(54, 206, 54)
+                try:
+                    await message.delete()
+                except:
+                    await message.reply(":warning: TJBot does not have the `manage messages` permission needed for this command! Please grant TJBot the permission and try again.")
+                await message.channel.send(embed=embed)
         if message.content=="!a":
             await message.channel.send(f"Total: {str(index)} | Minutes: {str(round(minute/60,ndigits=3))} | Result: {str(round((index*60)/minute, ndigits=3))}")
 
