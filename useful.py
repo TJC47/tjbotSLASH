@@ -75,6 +75,88 @@ class Useful(commands.Cog):
                 await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
         await interaction.edit_original_response(content=f"-# Quote from {quoteduser}:\n{quotedmessage}")
 
+    @app_commands.command(description="Sends a random gif/link that winter sent once :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    async def wintergif(self, interaction: discord.Interaction):
+        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random  gif:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
+        f = open("log.txt")
+        quotes = f.read()
+        f.close()
+        quotes = quotes.split("\n")
+        f = open("quoteblacklist.txt")
+        quoteblacklist = f.read()
+        f.close()
+        quoteblacklist = quoteblacklist.split("\n")
+        search = True
+        searchattempts = 0
+        while search:
+            try:
+                quote = random.choice(quotes)
+                quoteduser = quote.split(": ")[0]
+                quotedmessage = quote.split(": ")[1].replace("@everyone", "").replace("@here", "").replace("[lb]", "\n")
+                if quoteduser.split("(", 1)[0] in quoteblacklist or not (quotedmessage.startswith("https://tenor.com") or quotedmessage.startswith("https://cdn.discordapp.com")):
+                    search = True
+                else:
+                    search = False
+            except:
+                pass
+            searchattempts = searchattempts + 1
+            if searchattempts > 50000000:
+                search = False
+                quotedmessage = "`No Quote found(Timed out)`"
+                quoteduser = "`Error`"
+            if searchattempts == 10000000:
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
+            if searchattempts == 20000000:
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
+            if searchattempts == 30000000:
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
+            if searchattempts == 40000000:
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
+        await interaction.edit_original_response(content=f"-# Gif from {quoteduser}:\n{quotedmessage}\n-# Found in {searchattempts} iterations")
+
+
+    @app_commands.command(description="Sends a random gif/link that geming sent once :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    async def geminggif(self, interaction: discord.Interaction):
+        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random  gif:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
+        f = open("geminglog.txt")
+        quotes = f.read()
+        f.close()
+        quotes = quotes.split("\n")
+        f = open("quoteblacklist.txt")
+        quoteblacklist = f.read()
+        f.close()
+        quoteblacklist = quoteblacklist.split("\n")
+        search = True
+        searchattempts = 0
+        while search:
+            try:
+                quote = random.choice(quotes)
+                quoteduser = quote.split(": ")[0]
+                quotedmessage = quote.split(": ")[1].replace("@everyone", "").replace("@here", "").replace("[lb]", "\n")
+                if quoteduser.split("(", 1)[0] in quoteblacklist or not (quotedmessage.startswith("https://tenor.com") or quotedmessage.startswith("https://cdn.discordapp.com")):
+                    search = True
+                else:
+                    search = False
+            except:
+                pass
+            searchattempts = searchattempts + 1
+            if searchattempts > 50000000:
+                search = False
+                quotedmessage = "`No Quote found(Timed out)`"
+                quoteduser = "`Error`"
+            if searchattempts == 10000000:
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
+            if searchattempts == 20000000:
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
+            if searchattempts == 30000000:
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
+            if searchattempts == 40000000:
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
+        await interaction.edit_original_response(content=f"-# Gif from {quoteduser}:\n{quotedmessage}\n-# Found in {searchattempts} iterations")
+
+
     @app_commands.command(description="Shortens a link :3")
     @app_commands.describe(
         link='Link to shorten'
@@ -183,10 +265,10 @@ class Useful(commands.Cog):
         vc.play(discord.FFmpegPCMAudio(filename))
         await interaction.edit_original_response(content = f"playing {inputfilename}")
 
-    @app_commands.command(description="leaves a vc :3")
+    @app_commands.command(description="leaves a vc 3:<")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def leave(self, interaction: discord.Interaction):
+    async def fuckoff(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.guild.voice_client:
             if interaction.guild.voice_client.is_connected():

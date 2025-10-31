@@ -527,7 +527,7 @@ class Economy(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def owner_pay(self, interaction: discord.Interaction, payer: discord.User, user: discord.User, amount: str):
-        if not interaction.user.id == self.bot.owner_id:
+        if not (interaction.user.id == self.bot.owner_id or interaction.user.id == 729671931359395940):
             await interaction.response.send_message(content=f"This is bot owner only!")
             return
         amount = unpacknumbers(amount)
