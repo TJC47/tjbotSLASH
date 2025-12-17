@@ -9,11 +9,62 @@ import discord
 import logging
 from mutagen.mp3 import MP3
 import asyncio
+import aiohttp
 import urllib.request
 import subprocess
 import os
 
 logger = logging.getLogger("tjbot.useful")
+
+
+_session: aiohttp.ClientSession | None = None
+
+async def _get_session() -> aiohttp.ClientSession:
+    global _session
+    if _session is None or _session.closed:
+        _session = aiohttp.ClientSession()
+    return _session
+
+class AsyncResponse:
+    """Minimal requests.Response-like object"""
+    def __init__(self, status: int, text: str, url: str, headers: dict):
+        self.status_code = status
+        self.status = status
+        self.text = text
+        self.url = url
+        self.headers = headers
+
+    def json(self):
+        return json.loads(self.text)
+
+async def async_get(url, **kwargs):
+    session = await _get_session()
+    timeout = kwargs.pop("timeout", None)
+    if timeout is not None:
+        timeout = aiohttp.ClientTimeout(total=timeout)
+    async with session.get(url, timeout=timeout, **kwargs) as resp:
+        text = await resp.text()
+        return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
+
+async def async_get_data(url, **kwargs):
+    session = await _get_session()
+    timeout = kwargs.pop("timeout", None)
+    if timeout is not None:
+        timeout = aiohttp.ClientTimeout(total=timeout)
+    async with session.get(url, timeout=timeout, **kwargs) as resp:
+        text = await resp.text()
+        return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
+
+async def async_post(url, **kwargs):
+    session = await _get_session()
+    timeout = kwargs.pop("timeout", None)
+    if timeout is not None:
+        timeout = aiohttp.ClientTimeout(total=timeout)
+    async with session.post(url, timeout=timeout, **kwargs) as resp:
+        text = await resp.text()
+        return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
+
+
 
 class Useful(commands.Cog):
     def __init__(self, bot: commands.Bot) :
@@ -154,6 +205,8 @@ class Useful(commands.Cog):
                 await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
             if searchattempts == 40000000:
                 await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
+        if interaction.user.id == 729671931359395940:
+            quotedmessage = "https://cdn.discordapp.com/attachments/1288959602897195120/1433118969169973390/watermark.gif?ex=691de58c&is=691c940c&hm=bdaf46041c5895bbd20407dafcd0eb00702415bdd80f4225509c5146936475da&"
         await interaction.edit_original_response(content=f"-# Gif from {quoteduser}:\n{quotedmessage}\n-# Found in {searchattempts} iterations")
 
 
@@ -190,7 +243,7 @@ class Useful(commands.Cog):
 > Level Thumbnails: {official}
 > Legacy Thumbnails: {legacy}
 > Anarchy Thumbnails: {anarchy}
-> TJC Website: {website}
+> TJC Website (cloudflare): {website}
 > TJC Website (no cf): {direct}"""
             await interaction.edit_original_response(content=response_string)
         async def check_server(url):
@@ -198,8 +251,8 @@ class Useful(commands.Cog):
                 res = requests.get(url)
                 if str(res.status_code).startswith("2") or str(res.status_code).startswith("3"):
                     return "✅ Online"
-                else: return "❌ Not working"
-            except: return "❌ Not working"
+                else: return f"❌ Not working: Error {res.status_code}"
+            except Exception as err: return f"❌ Not working: {err}, {type(err)}"
         ltofficial = "🔃 Checking..."
         await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
         ltofficial = await check_server("https://levelthumbs.prevter.me/")
@@ -211,7 +264,7 @@ class Useful(commands.Cog):
         ltanarchy = await check_server("https://tjcsucht.net/anarchy/1")
         tjcsucht = "🔃 Checking..."
         await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
-        tjcsucht = await check_server("https://tjcsucht.net")
+        tjcsucht = await check_server("https://random.tjcsucht.net")
         tjcsuchtdirect = "🔃 Checking..."
         await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
         tjcsuchtdirect = await check_server("https://de-1.tjcsucht.net/")
@@ -269,6 +322,7 @@ class Useful(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def fuckoff(self, interaction: discord.Interaction):
+        if not interaction.user.id == 1045761412489809975: await interaction.response.send_message(content="no fuck you")
         await interaction.response.defer()
         if interaction.guild.voice_client:
             if interaction.guild.voice_client.is_connected():

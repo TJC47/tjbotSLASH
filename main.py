@@ -22,6 +22,47 @@ import datetime
 init(10)
 logger = logging.getLogger("tjbot.main")
 
+actions = {
+    "ban": "banned",
+    "mute": "muted",
+    "warn": "warned",
+    "kick": "kicked",
+    "unban": "unbanned",
+    "unmute": "unmuted",
+    "unkick": "unkicked",
+    "unwarn": "unwarned",
+    "cliff": "thrown off a fucking cliff",
+    "torture": "tortured",
+    "neck": "got their neck twisted till they fucking died",
+    "kill": "killed",
+    "explode": "exploded",
+    "muta": "mutad",
+    "bam": "bammed",
+    "warm": "warmed",
+    "nuke": "nuked",
+    "bigshot": "now has a chance to be a [[BIG SHOT]]",
+    "van": "has been thrown in a suspicious van",
+    "demote": "demoted", # do NOT run this command on tjc
+    "promote": "promoted",
+    "smash": "smashed (AS IN DESTROYED YOU PERVERTED FUCK)",
+    "cdc": "put in a cdc disk ca- *gets shot*",
+    "tropicalmeow": "<a:KingPat:1277609556142456952>ed",
+    "dod": "died due to the cause of death", # <------ CREDIT TO MOONSTAR FOR THIS IDEA
+    "dieofdeath": "died of death",
+    "boop": "booped",
+    "bean": "beaned",
+    "dermute": "dermuted",
+    "dermote": "dermoted",
+    "nullscape": """nullsca- 
+
+CBF DETECTED, LOSER!
+
+CLICK BETWEEN FRAMES IS ILLEGITIMATE AND WILL NOT BE ALLOWED FOR USE IN TJBOT. PLEASE DISABLE THE MOD IN ORDER TO CONTINUE PLAYING.
+""",
+    "mart....slide!": "Mart. The Waterimp: Hi! I am Mart. The Waterimp! I don't know what i should say..."
+}
+
+cool_people = [1045761412489809975, 1266819400913387611, 998995432132853891, 1240083891432194181]
 
 RESET = "\033[0m"
 YELLOW = "\033[33m"
@@ -42,6 +83,12 @@ f.close()
 authorized_users = ["tjc472", "justcallmeama", "arcticwoof", "winter._i", "skepper23"]
 model = "hermes3"
 temperature = 2
+
+global stupidlist
+stupidlist = [1420615995088834560]
+
+global heatlist
+heatlist = {}
 
 index = 0
 minute = 0
@@ -116,7 +163,7 @@ class MyClient(commands.Bot):
             await reactionlogchannel.send(embed=embed)
 
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         global model
         if message.author == self.user:
             return
@@ -218,29 +265,30 @@ class MyClient(commands.Bot):
                             with open("counter.json", "w") as f:
                                 f.write(json.dumps(counter_file, indent=4))
 
-        #if message.content == "add mee6":
-        #    await message.channel.send("I'm better than that bastard")
-        #if message.content.lower() == "germany" or message.content.lower() == "deutschland":
-        #    await message.reply("https://tenor.com/view/germany-german-german-astolfo-astolfo-anime-gif-24696067")
-        #if message.content.lower() == "boykisser":
-        #    await message.reply("https://tenor.com/view/boykisser-i-smell-a-boykisser-gif-11265875781434974934")
-        #if message.content.lower() == "thinking space ii":
-        #    await message.reply("https://tenor.com/view/geometry-dash-thinking-space-ii-gif-7371072964598933034")
-        #if message.content.lower() == "russia":
-        #    await message.reply("https://tenor.com/view/osu-russia-russian-flag-astolfo-trap-gif-1817140826952635251")
-        #if message.content.lower() == "romania":
-        #    await message.reply("https://tenor.com/view/romania-romania-anime-average-romania-gif-13561544966710741659")
-        if random.randint(1,10000) == 1:
-            await message.reply("or pvp boss")
+        dofunny = True
 
-        if message.author.name.lower() == "winter._l":
-            file = open("log.txt", "a")
-            file.write("\n"+"winter(winter): " +message.content.replace("\n","[lb]"))
-            file.close()
-        if message.author.id == 729671931359395940:
-            file = open("geminglog.txt", "a")
-            file.write("\n"+"geming(geming): " +message.content.replace("\n","[lb]"))
-            file.close()
+        if not type(message.channel) == discord.DMChannel:
+            if message.guild.id == 1268365327058599968:
+                dofunny = False
+            if message.guild.member_count > 200:
+                dofunny = False
+
+        if dofunny:
+            if message.content == "add mee6":
+                await message.channel.send("I'm better than that bastard")
+            if message.content.lower() == "germany" or message.content.lower() == "deutschland":
+                await message.reply("https://tenor.com/view/germany-german-german-astolfo-astolfo-anime-gif-24696067")
+            if message.content.lower() == "boykisser":
+                await message.reply("https://tenor.com/view/boykisser-i-smell-a-boykisser-gif-11265875781434974934")
+            if message.content.lower() == "thinking space ii":
+                await message.reply("https://tenor.com/view/geometry-dash-thinking-space-ii-gif-7371072964598933034")
+            #if message.content.lower() == "russia":
+            #    await message.reply("https://tenor.com/view/osu-russia-russian-flag-astolfo-trap-gif-1817140826952635251")
+            if message.content.lower() == "romania":
+                await message.reply("https://tenor.com/view/romania-romania-anime-average-romania-gif-13561544966710741659")
+            if random.randint(1,10000) == 1:
+                await message.reply("or pvp boss")
+
         #if "<@1045761412489809975>" in message.content:
         #    await message.add_reaction("🔃")
         #    try:
@@ -254,23 +302,144 @@ class MyClient(commands.Bot):
         #        await message.add_reaction("⚠️")
         global index
         global temperature
-        if message.content.startswith(r"s\!ban"):
-            if message.channel.permissions_for(message.author).ban_members or message.author.id == 1045761412489809975:
-                await message.add_reaction("<a:loading:1332808438396358777>")
-                embed = discord.Embed()
-                embed.timestamp = datetime.datetime.now()
-                if message.reference:
-                    ref = await message.channel.fetch_message(message.reference.message_id)
-                    usermention = ref.author.mention
-                else:
-                    usermention = message.content.split(' ', 1)[1]
-                embed.add_field(name=f"", value=f"<:checkmarksapph:1309669307214598265> {usermention} banned\n> **Reason:** No reason provided\n> **Duration:** Permanent", inline=False)
-                embed.color = discord.Colour.from_rgb(54, 206, 54)
-                try:
+
+        if message.guild:
+            if message.guild.id == 1268365327058599968:
+                if message.content.count("https://") >= 3 and not "meow, not a scammer" in message.content:
+                    role = discord.utils.find(lambda r: r.name == 'Scam Automod Bypass', message.guild.roles)
+                    if role in message.author.roles:
+                        return
                     await message.delete()
-                except:
-                    await message.reply(":warning: TJBot does not have the `manage messages` permission needed for this command! Please grant TJBot the permission and try again.")
-                await message.channel.send(embed=embed)
+                    if not message.author.id in stupidlist:
+                        stupidlist.append(message.author.id)
+                        await message.channel.send(":warning: Having 3 or more links in your message is not permitted, this is due to scammers sending image links to spam our server. You will be automatically **timed out** for 1 minute, but if this was a mistake one of your moderators will likely remove this timeout soon.\n-# tip: include `meow, not a scammer` in your message to not get flagged, even if your message has 3 or more links!")
+                        try:
+                            await message.author.timeout(datetime.timedelta(minutes=1))
+                            await message.channel.send("<:checkmarksapph:1309669307214598265> User timed out!")
+                        except:
+                            await message.channel.send(":warning: Could not timeout user")
+                        alertschannel = client.get_channel(1268706892876873949)
+                        embed = discord.Embed()
+                        embed.title = "Potential Scam detected"
+                        embed.color = discord.Color.dark_red()
+                        user = message.author
+                        embed.add_field(name="", value=f"""> **User:** @{user.name} (<@{user.id}>)
+    > **Channel:** <#{message.channel.id}>""", inline=False)
+                        embed.timestamp = datetime.datetime.now()
+                        if not message.content == "":
+                            embed.add_field(name="Message", value=f"{message.content}", inline=False)
+                        await alertschannel.send(embed=embed, content="<@&1289357103688847400>")
+                        await alertschannel.send(content=f"Please manually kick this user by copying this message")
+                        await alertschannel.send(content=f"```text\ns!kick {message.author.id} Scam / Hacked account detected. Please factory reset your pc and change all your passwords.```")
+
+            if message.guild.id == 1268365327058599968:
+                def add_heat(userid, amount, messageid, channelid):
+                    if not str(userid) in heatlist:
+                        heatlist[str(userid)] = []
+                    heatlist[str(userid)].append({"amount": amount, "message_id": messageid, "channel_id": channelid, "time_added": time.time()})
+                def get_heat(userid):
+                    if not str(userid) in heatlist: return 0
+                    heat = 0
+                    for heatreason in heatlist[str(userid)]:
+                        if time.time() - heatreason["time_added"] < 60:
+                            heat = heat + heatreason["amount"]
+                    return heat
+                if "https://" in message.content: add_heat(message.author.id, message.content.count("https://") * 150, message.id, message.channel.id)
+                if "steam" in message.content and "gift" in message.content: add_heat(message.author.id, 200, message.id, message.channel.id)
+                if "discord.gg" in message.content: add_heat(message.author.id, 200, message.id, message.channel.id)
+
+                if get_heat(message.author.id) >= 500:
+                    await message.add_reaction("⚠️")
+                    await message.add_reaction("🔥")
+                if get_heat(message.author.id) >= 1000:
+                    if not message.author.id in stupidlist:
+                        role = discord.utils.find(lambda r: r.name == 'Scam Automod Bypass', message.guild.roles)
+                        if role in message.author.roles:
+                            return
+                        stupidlist.append(message.author.id)
+                        await message.channel.send(":warning: You have been flagged for being a scammer. You will be automatically **timed out** for 1 minute, but if this was a mistake one of your moderators will likely remove this timeout soon.")
+                        try:
+                            await message.author.timeout(datetime.timedelta(minutes=1))
+                            await message.channel.send("<:checkmarksapph:1309669307214598265> User timed out!")
+                        except:
+                            await message.channel.send(":warning: Could not timeout user")
+                        alertschannel = client.get_channel(1268706892876873949)
+                        embed = discord.Embed()
+                        embed.title = f"Potential Scam detected ({get_heat(message.author.id)}/1000 suspicion)"
+                        embed.color = discord.Color.dark_red()
+                        user = message.author
+                        embed.add_field(name="", value=f"""> **User:** @{user.name} (<@{user.id}>)
+        > **Channel:** <#{message.channel.id}>""", inline=False)
+                        embed.timestamp = datetime.datetime.now()
+                        if not message.content == "":
+                            embed.add_field(name="Last Message (last before trigger)", value=f"{message.content}", inline=False)
+                        await alertschannel.send(embed=embed, content="<@&1289357103688847400>")
+                        await alertschannel.send(content=f"Please manually kick this user by copying this message")
+                        await alertschannel.send(content=f"```text\ns!kick {message.author.id} Scam / Hacked account detected. Please factory reset your pc and change all your passwords.```")
+                        message_ids = []
+                        mmmessage = await alertschannel.send(content=f"<a:loading:1332808438396358777> Attempting to delete all scam messages...")
+                        try:
+                            while not len(heatlist[str(message.author.id)]) == 0: 
+                                for heatreason in heatlist[str(message.author.id)]:
+                                    channel = await message.guild.fetch_channel(heatreason["channel_id"])
+                                    message = await channel.fetch_message(heatreason["message_id"])
+                                    await message.delete()
+                                    heatlist[str(message.author.id)].remove(heatreason)
+                            await mmmessage.edit(content=f"<:checkmarksapph:1309669307214598265> Scam messages deleted!")
+                        except:
+                            await alertschannel.send(content=f":x: that somehow failed")
+                
+
+
+                        
+
+
+            if message.content.startswith(r"st!actions"):
+                string1 = ""
+                for i in actions:
+                    string1 = string1 + f"\n> `s\\!{i}` -> {actions[i]}"
+                await message.reply(f"All Sapphire actions:\n-# Backslash MUST be included for it to register, non inclusion could cause unwanted consequences!{string1}")
+            if message.content.startswith(r"s\!"):
+                if message.channel.permissions_for(message.author).ban_members or message.author.id in cool_people:
+                    actionid = message.content.split(" ")[0].replace(r"s\!", "")
+                    if actionid in actions:
+                        action = actions[actionid]
+                    else: return
+                    await message.add_reaction("<a:loading:1332808438396358777>")
+                    await asyncio.sleep(3)
+                    if message.reference:
+                        ref = await message.channel.fetch_message(message.reference.message_id)
+                        usermention = ref.author.mention
+                        reason = message.content.split(" ", 1)[1] if len(message.content.split(" "))>=2 else "No reason provided"
+                    else:
+                        usermention = message.content.split(' ', 2)[1] if len(message.content.split(" "))>=3 else message.content.split(' ', 1)[1]
+                        reason = message.content.split(" ", 2)[2] if len(message.content.split(" "))>=3 else "No reason provided"
+                    if actionid == "demote" and ("1045761412489809975" in usermention or "tjc" in usermention):
+                        await message.add_reaction("❌")
+                        return
+                    embed = discord.Embed()
+                    embed.timestamp = datetime.datetime.now()
+                    embed.add_field(name=f"", value=f"""<:checkmarksapph:1309669307214598265> {usermention} {action}\n> **Reason:** {reason}\n> **Duration:** Permanent""", inline=False)
+                    embed.color = discord.Colour.from_rgb(54, 206, 54)
+                    try:
+                        await message.delete()
+                    except:
+                        await message.send(":warning: TJBot does not have the `manage messages` permission needed for this command! Please grant TJBot the permission and try again.")
+                        return
+                    try:
+                        temp_webhook = await message.channel.create_webhook(name="TJBot-temp-webhook")
+                    except:
+                        await message.channel.send(":warning: TJBot does not have the `create webhooks` permission needed for this command! Please grant TJBot the permission and try again.")
+                        return
+
+                    await temp_webhook.send(embed=embed, username="geode sdk" if message.guild.id == 1268365327058599968 else "Sapphire", avatar_url="https://de-1.tjcsucht.net/leb/LwB8-37e0fb2dcf8d219aa92bf02f47ea60eb.webp", wait=True)
+                    try:
+                        # temp_webhook might not exist if exception raised earlier
+                        if 'temp_webhook' in locals() and temp_webhook:
+                            await temp_webhook.delete()
+                    except :
+                        await message.send(":warning: Webhook could not be deleted")
+                
         if message.content=="!a":
             await message.channel.send(f"Total: {str(index)} | Minutes: {str(round(minute/60,ndigits=3))} | Result: {str(round((index*60)/minute, ndigits=3))}")
 
@@ -337,7 +506,8 @@ async def verify(interaction: discord.Interaction, username: str):
     for comment in comments_on_level:
         if comment.author_name == username and comment.comment == verifystring:
             verified = True
-            break
+            
+
     if verified: output = f":white_check_mark: Found comment! Linking is not programmed yet but I found you!"
     await interaction.edit_original_response(content=f"-# This feature is still work in progress and currently does *NOT* work.\n{output}")
 

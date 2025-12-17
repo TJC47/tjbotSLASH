@@ -11,3 +11,17 @@ cogs.json
 
 # the seeecreet
 LEBlogger.py
+
+# othjer stuff
+
+__pycache__/
+*.log
+*.mp3
+
+# local save files
+*.json
+*.bak
+*.ytdl
+temp
+*.txt
+output

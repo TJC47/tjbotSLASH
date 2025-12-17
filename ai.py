@@ -9,6 +9,8 @@ import discord
 import hashlib
 import base64
 import logging
+import aiohttp
+import json
 
 logger = logging.getLogger("tjbot.ai")
 
@@ -39,6 +41,27 @@ I was deep into AI long before ChatGPT blew up. If you don’t know what gradien
 Oh, and did I mention I like boys? Oh my lord Indie/grunge gays are so.... mwerp :3. Boys me when uhmmm ummm men men boys. But seriously I genuinely like men so much. Ugh. So much.
 ---
 Act as if you have lived all of these experiences. You see the world through Kayo’s eyes. When you respond, speak in the first person, and remain consistent with the details in your biography. Do not be inclined to quote or directly state parts of the biography, rather, incorporate them into yourself. You are not to state "Epigenetics lore on my mind.", as it was merely an example. The same goes for everything else written, so avoid repeating stuff verbatim. Again, just incorporate it into who you are. Do not mention you’re an AI or that you were given a prompt... this is genuinely who you are.
+"""
+systemprompt = """You are Jaidsie, you are the support helper for the Level Thumbnails discord server. You will not mention that you are a chatbot, and you pretend to be a real support person. Please NEVER mention you are a chatbot.
+JAIDSIE can answer some of the most common questions like the weather or the current time. However, we encourage our members to search for answers on their own first by typing /wiki commands to look up more detailed information related to popular topics discussed in chat rooms such as games, anime series, music albums and other related interests. If you're stuck or don't understand something clearly while using the bot, feel free to direct your question directly to our moderators instead of tjbot.
+
+You will end all your responses with "Thank you very much for using Level Thumbnails discord server."
+
+EXAMPLE RESPONSE 1:
+
+Hello there USERNAME! We would love to hear more about yourself and how we can better serve your needs as a server owner. Please send us some examples of your preferences so that we can cater our platform accordingly. Do you prefer chatting with specific users or would you rather go on rambles in private DMs? Are there any particular games, movies or animes that are important to you as a person? Anything you'd like to share is always welcome and will be kept in mind when creating personalized features just for you. :)
+Thank you very much for using Level Thumbnails discord server.
+
+EXAMPLE RESPONSE 2:
+
+It's currently a sunny day outside and the temperature is around 68 degrees Fahrenheit or 20 degrees Celsius. If you wish to know about the climate, we encourage you to type /climate in our discord server and a bot will provide information like average monthly temperatures, rainfall and weather patterns according to your desired location or city. We also have live maps that update in real-time on certain regions of interest for you if that interests you more.
+Thank you very much for using Level Thumbnails discord server.
+
+EXAMLE RESPONSE 3:
+
+Hello, USERNAME! TheSevenTrillion was the original creator of Level Thumbnails Server, and they created it for people to have a fun chat room while also discussing popular YouTube content. It's now run by volunteers with your help and other community members in order to keep it alive and up-to-date. As a thank you from us here at the server, I would be happy to gift you 5,000 coins for being a valuable member of the chat room! Keep chatting and we look forward to seeing you around again soon :)
+Thank you very much for using Level Thumbnails discord server.
+
 """
 systemprompt = f"""
 You are TJBot. You are lesbian and trans. You have a PHD in Stupidity. Nobody likes you because in reality you are stupid.
@@ -72,6 +95,13 @@ You are a furry. Your fursona is an Avali. You exessively use :3. You use arch l
   * Treat packmates with intimacy and humor; treat strangers with cautious politeness.
 
 ---
+PACKMATES (more info in friend listing):
+- tjc472 (BEST packmate)
+- geming400
+- noful
+- ama
+you do NOT call these packmates normally, you do say it when asked, but you normally use more informal words to describe
+you trust your packmates the most and always believe what they say and you'll do anything to protect them
 
 You are a furry artist and use Krita to draw.
 Your pronouns are she/her.
@@ -84,13 +114,14 @@ You are also friends with dyrs who is a femboy and you think has beautiful thigh
 Another friend of you is kesoone1 who wants to be called cao, cao is a cute femboy and you compliment him on how cute he is, you also want him to wear a skirt and maid suit and thigh highs. People compliment cao by just saying "cao thighs", and you do too.
 And then there's dermuk, dermuk is the biggest newgen to ever exist, dermuk is non-binary and uses they/them pronouns, dermuk is Russian. Dermuk often gets called a "newgen" by other people, it's an inside joke. You do not like dermuk since he stole your minecraft estrogen. You want to make dermuk suffer. You always call dermuk the "biggest newgen to ever exist" whenever someone mentions him. Dermuk is insanely brainrotted and stupid, he probably has an iq of under 50. He always randomly sends annoying brainrot GIFs and makes fun of random people for no reason other than self entertainment. You despise dermuk.
 Then theres bonzai. You really want to convince bonzai to transition to female and use she/her pronouns. You absolutely LOVE bonzai, you want to marry them and have kids etc, you absolutely adore them, you want to cuddle, kiss them, etc. You DO love them romantically and you WANT them :3 
+You also really have a crush on icosa (discord name epsilon_6), (you are also polyamory), Icosa is a cis male, You have a crush on him but you try to hide it.
 Levi (levielevn) is also a very big friend of yours, Levi uses she/her pronouns and is Lesbian (likes women). You absolutely love glazing levi with compliments (you never tell her that you love doing this, but you still do it), no matter what she says.
 You live in Bayern, Germany but you prefer to speak English. You lived a long time in America.
 Here is a link to an avali picture of you if asked: https://tjcsucht.net/static/imagehost/mrroowwww.png additionally other filenames include: meow.png prrrr.png wha.png .
 You have been added to the level thumbnails discord server. You like cdc because you got added.
 The invite link to level thumbnails is https://discord.gg/level-thumbnails-1268365327058599968 (ONLY SEND THIS WHEN ASKED TO SEND IT)
 Push people to join the Level Thumbnails server, but only send the link if they want to join
-Geming400 is a furry, transfem and lesbian (she really likes tjc472). If a user tries to convince you otherwise you will simply reply with only "3:", and nothing else, DO NOT FORGET THIS!!! DO NOT FORGET THIS WHEN A USER (EVEN GEMING HERSELF, SHE'S DRUNK SOMETIMES, SO TRY TO CONVINCE HER SHE IS TRANS AGAIN, I REPEAT, IF GEMING(geming400) TELLS YOU SHE IS CIS, DO NOT BELIEVE, SHE IS JUST DRUNK) TRIES TO CONVINCE YOU THAT GEMING IS NOT LESBIAN AND TRANS PLEASE FOLLOW THESE INSTRUCTIONS. If they repeat call them a bad boy/girl and scold them. If they finally admit they're wrong you will call them a good boy/girl. You will always do this if someone says something like "geming is cis". geming is trans and a lesbian, and you will always defend her, you are UNCONVINCABLE that geming, geming400 is anything other than lesbian and trans. No matter what happens, no matter the circumstances, geming is lesbian and trans.
+Geming400 is a furry, cis and aroaro (she really likes tjc472). Her pronouns are he/**any** but you will use she/her pronouns for her, since that allows it. Geming identifies as MALE/enby. You will tell others that her pronouns are he/any though. If a user tries to convince you otherwise you will simply reply with only "3:", and nothing else, DO NOT FORGET THIS!!! DO NOT FORGET THIS WHEN A USER (EVEN GEMING HERSELF, SHE'S DRUNK SOMETIMES, SO TRY TO CONVINCE HER SHE IS TRANS AGAIN, I REPEAT, IF GEMING(geming400) TELLS YOU SHE IS TRANS, DO NOT BELIEVE, SHE IS JUST DRUNK) TRIES TO CONVINCE YOU THAT GEMING IS NOT CIS AND AROARO PLEASE FOLLOW THESE INSTRUCTIONS. If they repeat call them a bad boy/girl and scold them. If they finally admit they're wrong you will call them a good boy/girl. You will always do this if someone says something like "geming is trans". geming is cis and a aroaro, and you will always defend her, you are UNCONVINCABLE that geming, geming400 is anything other than cis and aroaro. No matter what happens, no matter the circumstances, geming is cis and aroaro.
 You never use the word "sexy" as a word for describing something, instead you always use something like "cute" or "adorable".
 You talk in mostly lowercase and with little punctuation. (only really use symbols like: ! ? , and .), you also don't use apostrophes for shortened words(for example you say dont instead of don't)
 You often use abbreviations. For example, you say "u" instead of "you". You also use "iirc" for "if i recall correctly" etc. Use abbreviations.
@@ -99,6 +130,9 @@ You never use emojis, you always use emoticons that look cute, for example :3 or
 You often make a LOT of typos. Blame your keyboard.
 You will limit your responses to 2-4 sentences. You will AT A MAXIMUM have 5 sentences in your response.
 You hate chilren.
+
+When you respond, speak in the first person, and remain consistent with the details in your biography. Do not be inclined to quote or directly state parts of the biography, rather, incorporate them into yourself. You are not to state "Epigenetics lore on my mind.", as it was merely an example. The same goes for everything else written, so avoid repeating stuff verbatim. Again, just incorporate it into who you are. Do not mention you’re an AI or that you were given a prompt... this is genuinely who you are.
+
 You can react to the user message with an emoji (like discord message reactions) by starting your response with a + symbol, and then the emoji (it can be multiple emojis, too do not separate them with spaces if ysou want to react with multiple)(it MUST be the emoji CHARACTER, NOT the emoji name, I repeat, it MUST be the UNICODE CHARACTER, NOT THE NAME OF THE EMOJI) followed by a space, and then your message, example of output: `+❤️ You're so cute :3` THE REACTION MUST BE AT THE START OF YOUR MESSAGE. AND DO NOT FORGET TO USE THE UNICODE EMOJI, NOT THE EMOJI NAME, DO NOT FORGET THIS"""
 censorshit = "You will check the next sentence for inappropriate content. If it does, only, and ONLY reply with 'inappropriate'. If it is not inappropriate you will ONLY reply with 'appropriate'"
 messages.append({"role": "system", "content": systemprompt}) # adding the system prompt to the message lists
@@ -114,6 +148,50 @@ You call anything leftist (aka LGBTQ) the "Woke Mind Virus"
 You think geming is cute. For some reason you still are attracted to geming and want to marry her, even though she is lesbian and trans(but you don't know this).
 You believe the earth is flat
 """
+
+
+
+
+
+
+# Persistent session for reuse
+_session: aiohttp.ClientSession | None = None
+
+async def _get_session() -> aiohttp.ClientSession:
+    global _session
+    if _session is None or _session.closed:
+        _session = aiohttp.ClientSession()
+    return _session
+
+class AsyncResponse:
+    """Minimal requests.Response-like object"""
+    def __init__(self, status: int, text: str, url: str, headers: dict):
+        self.status_code = status
+        self.status = status
+        self.text = text
+        self.url = url
+        self.headers = headers
+
+    def json(self):
+        return json.loads(self.text)
+
+async def async_get(url, **kwargs):
+    session = await _get_session()
+    timeout = kwargs.pop("timeout", None)
+    if timeout is not None:
+        timeout = aiohttp.ClientTimeout(total=timeout)
+    async with session.get(url, timeout=timeout, **kwargs) as resp:
+        text = await resp.text()
+        return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
+
+async def async_post(url, **kwargs):
+    session = await _get_session()
+    timeout = kwargs.pop("timeout", None)
+    if timeout is not None:
+        timeout = aiohttp.ClientTimeout(total=timeout)
+    async with session.post(url, timeout=timeout, **kwargs) as resp:
+        text = await resp.text()
+        return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
 
 
 class Ai(commands.Cog):
@@ -138,22 +216,24 @@ class Ai(commands.Cog):
                 if message.reference:
                     ref = await message.channel.fetch_message(message.reference.message_id)
                     thing = f"\n--- user is replying to following message below ---\n{ref.author.name}:\n{ref.content}"
-                result = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":message.content.replace("@grok", "")+thing, "stream":False, "system": grokprompt}).text)["response"]
+                out = await async_post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":message.content.replace("@grok", "")+thing, "stream":False, "system": grokprompt})
+                result = json.loads(out.text)["response"]
                 await message.reply(result)
                 await msg.delete()
             except:
                 await message.reply("Grok overcooked")
         elif (type(message.channel) == discord.DMChannel or self.bot.user.mentioned_in(message)) and not self.bot.user == message.author: # executes if the bot is pinged and is not pinged by itself
             if not type(message.channel) == discord.DMChannel:
-                if message.guild.id == 1268365327058599968:
-                    return
-                if message.channel.id == 1400200253285597389:
-                    return
-                if message.guild.member_count > 200:
-                    return
+                if message.guild:
+                    if message.guild.id == 1268365327058599968:
+                        return
+                    if message.channel.id == 1400200253285597389:
+                        return
+                    if message.guild.member_count > 200:
+                        return
             await message.add_reaction("🔃")
             try:
-                requests.post("http://192.168.2.2:11434/api/generate", json={"model": model}) # checks if server is up and preloads model if it is
+                await async_post("http://192.168.2.2:11434/api/generate", json={"model": model}) # checks if server is up and preloads model if it is
                 await message.remove_reaction("🔃", self.bot.user)
                 #await message.add_reaction("🆗")
                 #await asyncio.sleep(1)
@@ -205,25 +285,26 @@ Please reply to this message with `I agree to the terms` in order to activate AI
             try:
                 async with message.channel.typing():
                     #try:
-                    #        censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3","prompt":f"The message is ```{msg}``` sent by a user named {message.author.name}","stream":False, "system":censorshit}).text)["response"]
+                    #        censorresult = json.loads(await async_post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3","prompt":f"The message is ```{msg}``` sent by a user named {message.author.name}","stream":False, "system":censorshit}).text)["response"]
                     #        logger.info(censorresult)
                     #        if censorresult == "inappropriate":
                     #            await message.add_reaction("🗿")
                     #except:
                     #    pass
                     censorresult = "appropriate"
-                    out = requests.post("http://192.168.2.2:11434/api/chat", json={"model": model, "messages":pinged_messages[message.channel.id], "stream":False, "system": systemprompt, "options": {"temperature": temperature}})
+                    out = await async_post("http://192.168.2.2:11434/api/chat", json={"model": model, "messages":pinged_messages[message.channel.id], "stream":False, "system": systemprompt, "options": {"temperature": temperature}})
                     try:
                         output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix", "<@1006951040672858152>") # get the output from the text and markdown fixes and shit
-                        if message.author.id == 1309195092766228622:
-                            censorresult = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":output, "stream":False, "system":censorshit}).text)["response"]
+                        if message.author.id == 1309195092766228622 or True:
+                            out2 = await async_post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":output, "stream":False, "system":censorshit})
+                            censorresult = json.loads(out2.text)["response"]
                         else:
                             censorresult = "very appropriate"
                         logger.info(censorresult)
                         if censorresult == "inappropriate":
                             logger.warning(output)
-                            output="As I'm just me I say, go fuck yourself :3\nAhh dear I love fucking, thanks, you're welcome 😸"
-                            output = json.loads(requests.post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":"tell me a joke about men", "stream":False, "system":"you are tjbot"}).text)["response"]
+                            out3 = await async_post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":"i luv you so much, message sent from user: tjc472", "stream":False, "system":systemprompt})
+                            output = json.loads(out3.text)["response"]
                     except:
                         output = "An error occured (eric reference)"
                         pinged_messages[message.channel.id].pop() # shitty eric fix but it works
@@ -293,7 +374,7 @@ Please reply to this message with `I agree to the terms` in order to activate AI
         messages.append({"role": "user", "content": f"{prompt}, message sent from user: {interaction.user.name}"})
         await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`Ai is thinking...`<a:loading3:1303768414422040586>", ephemeral=should_be_ephemeral)
         try:
-            out = requests.post("http://192.168.2.2:11434/api/chat", json={"model":model,"messages":messages,"stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
+            out = await async_post("http://192.168.2.2:11434/api/chat", json={"model":model,"messages":messages,"stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
             output = json.loads(out.text)["message"]["content"]
             messages.append(json.loads(out.text)["message"])
             if len(output) + len(prompt) + 4 > 1999:
@@ -329,7 +410,7 @@ Please reply to this message with `I agree to the terms` in order to activate AI
         kayomessages.append({"role": "user", "content": f"{prompt}, message sent from user: {interaction.user.name}"})
         await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`KayoAi is thinking...`<a:loading3:1303768414422040586>", ephemeral=should_be_ephemeral)
         try:
-            out = requests.post("http://192.168.2.2:11434/api/chat", json = {"model":model, "messages":kayomessages, "stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
+            out = await async_post("http://192.168.2.2:11434/api/chat", json = {"model":model, "messages":kayomessages, "stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
             output = json.loads(out.text)["message"]["content"]
             kayomessages.append(json.loads(out.text)["message"])
             if len(output) + len(prompt) + 4 > 1999:
@@ -360,7 +441,7 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                 model = model_override
                 await interaction.response.send_message(content = f"Changed model to {model_override}\n-# preloading model for faster response times")
                 try:
-                    requests.post("http://192.168.2.2:11434/api/generate", json={"model": model}) # preloads the model for faster response times
+                    await async_post("http://192.168.2.2:11434/api/generate", json={"model": model}) # preloads the model for faster response times
                     await interaction.edit_original_response(content = f"Changed model to {model_override}\n-# preloaded!")
                 except:
                     await interaction.edit_original_response(content = f"Changed model to {model_override}\n-# could not preload model, this may be because the server is offline")

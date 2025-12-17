@@ -174,6 +174,62 @@ class Silly(commands.Cog):
         thing = random.choice(meaninglist)
         await interaction.response.send_message(content=thing)
 
+    @app_commands.command(description="let fuzzy make your pfp jolly :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def jolly(self, interaction: discord.Interaction):
+        pfp_url = interaction.user.avatar.url
+        await interaction.response.send_message(content=f"<@1088529272559382579> This person wants their pfp to be jolly!!!!!!\n[profile picture]({pfp_url})")
+
+    @app_commands.command(description="tjc ian reboot, only for tjc for obvious reasons :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def tjcian_reboot(self, interaction: discord.Interaction):
+        if not interaction.user.id == 1045761412489809975:
+            interaction.response.send_message(content=f":x: No.")
+            return
+        await interaction.response.send_message(content=f"<a:loading3:1303768414422040586> Connecting...")
+        async def update_message(interaction: discord.Interaction, log: list):
+            logfile = ""
+            for logmessage in log:
+                logfile = f"{logfile}\n{logmessage}"
+            await interaction.edit_original_response(content=f"```{logfile}\n```")
+        log = []
+        log.append("Connected.")
+        await update_message(interaction, log)
+        log.append("Waiting for cancel timeout...")
+        await update_message(interaction, log)
+        await asyncio.sleep(10)
+        log.append("Shutdown not cancelled by user. Sending `shutdown 0`...")
+        await update_message(interaction, log)
+        await asyncio.sleep(4)
+        log.append("Waiting for shutdown to proceed...")
+        await update_message(interaction, log)
+        await asyncio.sleep(6)
+        log.append("Connection lost. Waiting out timeout.")
+        await update_message(interaction, log)
+        await asyncio.sleep(12)
+        log.append("Sending boot signal...")
+        await update_message(interaction, log)
+        await asyncio.sleep(2)
+        log.append("Connection reestablished.")
+        await update_message(interaction, log)
+        await asyncio.sleep(1)
+        log.append("Waiting for POST...")
+        await update_message(interaction, log)
+        await asyncio.sleep(7)
+        log.append("GRUB loaded!")
+        await update_message(interaction, log)
+        await asyncio.sleep(7)
+        log.append("Proceeding with booting Linux 'linux zen'!")
+        await update_message(interaction, log)
+        await asyncio.sleep(3)
+        log.append("Starting all Systemd services...")
+        await update_message(interaction, log)
+        await asyncio.sleep(3)
+        log.append("Startup succeeded. SDDM has been started. User can login now.")
+        await update_message(interaction, log)
+
     @app_commands.command(description="Uwuwifies a message :3")
     @app_commands.describe(
         message='content of message'
