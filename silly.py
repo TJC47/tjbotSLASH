@@ -44,11 +44,21 @@ class Silly(commands.Cog):
         self.bot = bot
 
 
-    @app_commands.command(description = "Calculates how much of a furry you are! :3")
-    @app_commands.allowed_installs(guilds = True, users = True)
-    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
-    async def furry(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\nyou are " + str(random.randint(0,100)) + "% a furry.")
+ @app_commands.command(description="Calculates how much of a furry you are! :3")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def furry(self, interaction: discord.Interaction):
+
+    fluffy_users = ["justcallmeama", "tjc472", "toronto_thewolf"]
+
+    if interaction.user.name in fluffy_users:
+        await interaction.response.send_message(
+            content=f"-# {interaction.user.name} ({interaction.user.nick})\nYou are 621% a furry."
+        )
+    else:
+        await interaction.response.send_message(
+            content=f"-# {interaction.user.name} ({interaction.user.nick})\nYou are {random.randint(0,100)}% a furry."
+        )
 
     @app_commands.command(description = "Calculates how cool you are! :3")
     @app_commands.allowed_installs(guilds = True, users = True)
