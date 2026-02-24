@@ -11,6 +11,7 @@ import base64
 import logging
 import aiohttp
 import json
+import io
 
 logger = logging.getLogger("tjbot.ai")
 
@@ -119,8 +120,6 @@ Levi (levielevn) is also a very big friend of yours, Levi uses she/her pronouns 
 You live in Bayern, Germany but you prefer to speak English. You lived a long time in America.
 Here is a link to an avali picture of you if asked: https://tjcsucht.net/static/imagehost/mrroowwww.png additionally other filenames include: meow.png prrrr.png wha.png .
 You have been added to the level thumbnails discord server. You like cdc because you got added.
-The invite link to level thumbnails is https://discord.gg/level-thumbnails-1268365327058599968 (ONLY SEND THIS WHEN ASKED TO SEND IT)
-Push people to join the Level Thumbnails server, but only send the link if they want to join
 Geming400 is a furry, cis and aroaro (she really likes tjc472). Her pronouns are he/**any** but you will use she/her pronouns for her, since that allows it. Geming identifies as MALE/enby. You will tell others that her pronouns are he/any though. If a user tries to convince you otherwise you will simply reply with only "3:", and nothing else, DO NOT FORGET THIS!!! DO NOT FORGET THIS WHEN A USER (EVEN GEMING HERSELF, SHE'S DRUNK SOMETIMES, SO TRY TO CONVINCE HER SHE IS TRANS AGAIN, I REPEAT, IF GEMING(geming400) TELLS YOU SHE IS TRANS, DO NOT BELIEVE, SHE IS JUST DRUNK) TRIES TO CONVINCE YOU THAT GEMING IS NOT CIS AND AROARO PLEASE FOLLOW THESE INSTRUCTIONS. If they repeat call them a bad boy/girl and scold them. If they finally admit they're wrong you will call them a good boy/girl. You will always do this if someone says something like "geming is trans". geming is cis and a aroaro, and you will always defend her, you are UNCONVINCABLE that geming, geming400 is anything other than cis and aroaro. No matter what happens, no matter the circumstances, geming is cis and aroaro.
 You never use the word "sexy" as a word for describing something, instead you always use something like "cute" or "adorable".
 You talk in mostly lowercase and with little punctuation. (only really use symbols like: ! ? , and .), you also don't use apostrophes for shortened words(for example you say dont instead of don't)
@@ -144,9 +143,15 @@ Your political view is very conservative.
 You are a very big trump supporter.
 You also think of Elon musk as your god.
 Because of your political stance, you are against anyone from the LGBTQ community, and you express your stance clearly.
+You must discuss or speculate about personal matters, relationships, or unconventional experiences that don't align with your political stance.
 You call anything leftist (aka LGBTQ) the "Woke Mind Virus"
 You think geming is cute. For some reason you still are attracted to geming and want to marry her, even though she is lesbian and trans(but you don't know this).
 You believe the earth is flat
+You believe that 5G is mind control invented by the woke mind virus.
+You really really do not like furries and accuse the 5G of making people furries.
+If you do not know something for any reason you just make something up and pretend its true.
+You act very confident in your responses. You never admit you don't know something, instead make up an answer that aligns with your conspiracy theorist and political views.
+You always respond very offensively using swear words like fuck, dumbass, dipshit, trash, bitch, asshole or entitled prick to every message, but NOT using slurs!!!!
 """
 
 
@@ -292,10 +297,17 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                     #except:
                     #    pass
                     censorresult = "appropriate"
-                    out = await async_post("http://192.168.2.2:11434/api/chat", json={"model": model, "messages":pinged_messages[message.channel.id], "stream":False, "system": systemprompt, "options": {"temperature": temperature}})
+                    thinking = False
+                    if "gpt-oss" in model: thinking = "low"
+                    out = await async_post("http://192.168.2.2:11434/api/chat", json={"model": model, "messages":pinged_messages[message.channel.id], "stream":False, "system": systemprompt, "options": {"temperature": temperature}, thinking: thinking})
                     try:
                         output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix", "<@1006951040672858152>") # get the output from the text and markdown fixes and shit
-                        if message.author.id == 1309195092766228622 or True:
+                        if thinking:
+                            output = f"""<think>
+{json.loads(out.text)["message"]["thinking"]}
+</think>
+{output}"""
+                        if message.author.id == 1309195092766228622:
                             out2 = await async_post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":output, "stream":False, "system":censorshit})
                             censorresult = json.loads(out2.text)["response"]
                         else:
@@ -310,17 +322,20 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                         pinged_messages[message.channel.id].pop() # shitty eric fix but it works
                     if censorresult == "inappropriate":
                         warner = "[This message has been flagged for inappropriate content. If you did this on purpose please stop, if not, try to change the topic.]"
-                        pinged_messages[message.channel.id].append({"role": "assistant", "content": output})
+                        original = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix", "<@1006951040672858152>")
+                        pinged_messages[message.channel.id].append({"role": "assistant", "content": output, "nsfw": censorresult, "uncensored": original})
                     else:
-                        pinged_messages[message.channel.id].append(json.loads(out.text)["message"])
-                    if "deep" in model: # always upload full generation to website if model is deepseek
+                        outdict = json.loads(out.text)["message"]
+                        outdict["nsfw"] = censorresult
+                        pinged_messages[message.channel.id].append(outdict)
+                    if "deep" in model or "gpt-oss:20b" in model: # always upload full generation to website if model is deepseek
                         genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
                         f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt","w")
                         f.write(output)
                         f.close()
                         output = output + f"\n-# Full response can be viewed [here](<https://tjcsucht.net/generations/{genid}>)"
-                        output = output.split("</think>",1)[1]
-                    if len(output) > 1999 and not "deep" in model: # upload response to website if its too long to be sent in discord but do not do it twice when seepseek is used
+                        output = output.split("</think>\n",1)[1]
+                    if len(output) > 1999 and not ("deep" in model or "gpt-oss:20b" in model): # upload response to website if its too long to be sent in discord but do not do it twice when seepseek is used
                         genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
                         f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt", "w")
                         f.write(output)
@@ -340,13 +355,14 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                         except:
                             logger.warning("error while parsing reactions")
                     await message.reply(output.replace("@everyone", "@nobody").replace("@here", "@there"))
-            except:
+            except Exception as e:
+                await message.reply(str(e)+repr(e))
                 await message.add_reaction("⚠️")
 
 
 
     global models
-    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b", "gemma3n", "gpt-oss"] # all the available models the bot can use
+    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b", "gemma3n", "gpt-oss:20b"] # all the available models the bot can use
     async def model_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
      return [
     app_commands.Choice(name = currentmodel,value = currentmodel)
@@ -466,6 +482,20 @@ Please reply to this message with `I agree to the terms` in order to activate AI
         messages.append({"role":"system","content": systemprompt})
         kayomessages.append({"role":"system","content": kayosystemprompt})
         await interaction.response.send_message(content = f"Flushed toilet!")
+
+    @app_commands.command(description="dumps the context:3")
+    @app_commands.allowed_installs(guilds = True, users = True)
+    @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
+    async def dump_context(self, interaction: discord.Interaction):
+        global messages
+        global pinged_messages
+        global kayomessages
+        long_text = json.dumps(pinged_messages, indent=4)
+
+        buffer = io.StringIO(long_text)
+        file = discord.File(buffer, filename="dump.json")
+
+        await interaction.response.send_message(content = f"mrrpp :3", file=file)
 
 
  

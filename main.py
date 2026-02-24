@@ -18,6 +18,81 @@ import os
 import threading
 import code
 import datetime
+import re
+import aiohttp
+
+_session: aiohttp.ClientSession | None = None
+
+async def _get_session() -> aiohttp.ClientSession:
+    global _session
+    if _session is None or _session.closed:
+        _session = aiohttp.ClientSession()
+    return _session
+
+class AsyncResponse:
+    """Minimal requests.Response-like object"""
+    def __init__(self, status: int, text: str, url: str, headers: dict):
+        self.status_code = status
+        self.status = status
+        self.text = text
+        self.url = url
+        self.headers = headers
+
+    def json(self):
+        return json.loads(self.text)
+
+async def async_post(url, **kwargs):
+    session = await _get_session()
+    timeout = kwargs.pop("timeout", None)
+    if timeout is not None:
+        timeout = aiohttp.ClientTimeout(total=timeout)
+    async with session.post(url, timeout=timeout, **kwargs) as resp:
+        text = await resp.text()
+        return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
+
+class KickUserView(discord.ui.View):
+    def __init__(self, user: discord.Member):
+        super().__init__(timeout=6000)  # 5 minutes
+        self.user = user
+
+    @discord.ui.button(label="Kick User", style=discord.ButtonStyle.danger, emoji="🏳️‍⚧️")
+    async def kick_button(
+        self,
+        interaction: discord.Interaction,
+        button: discord.ui.Button
+    ):
+        # Permission check
+        if not interaction.user.guild_permissions.kick_members:
+            await interaction.response.send_message(
+                "❌ You don’t have permission to do that.",
+                ephemeral=True
+            )
+            return
+
+        try:
+            await self.user.kick(
+                reason="Scam / Hacked account detected. Please factory reset your PC and change all passwords."
+            )
+
+            button.disabled = True
+            await interaction.response.send_message(
+                content=f"✅ **{self.user} was kicked by {interaction.user}.**"
+            )
+            await interaction.response.edit_message(
+                view=self
+            )
+
+        except discord.Forbidden:
+            await interaction.response.send_message(
+                "❌ I don’t have permission to kick this user.",
+                ephemeral=True
+            )
+        except discord.HTTPException as e:
+            await interaction.response.send_message(
+                f"❌ Failed to kick user: `{e}`",
+                ephemeral=True
+            )
+
 
 init(10)
 logger = logging.getLogger("tjbot.main")
@@ -59,10 +134,12 @@ CBF DETECTED, LOSER!
 
 CLICK BETWEEN FRAMES IS ILLEGITIMATE AND WILL NOT BE ALLOWED FOR USE IN TJBOT. PLEASE DISABLE THE MOD IN ORDER TO CONTINUE PLAYING.
 """,
-    "mart....slide!": "Mart. The Waterimp: Hi! I am Mart. The Waterimp! I don't know what i should say..."
+    "mart....slide!": "Mart. The Waterimp: Hi! I am Mart. The Waterimp! I don't know what i should say...",
+    "bonk": "bonked",
+    "wmoon": "W moon"
 }
 
-cool_people = [1045761412489809975, 1266819400913387611, 998995432132853891, 1240083891432194181]
+cool_people = [1045761412489809975, 1266819400913387611, 998995432132853891, 1240083891432194181, 1420604036213772443, 1388940934598627372, 1159650088038170635, 808528986970783746, 1358165363703021752, 1291086017981317201]
 
 RESET = "\033[0m"
 YELLOW = "\033[33m"
@@ -90,10 +167,16 @@ stupidlist = [1420615995088834560]
 global heatlist
 heatlist = {}
 
+global repeatlist
+repeatlist = {}
+
 index = 0
 minute = 0
 
 reaction_people = [1045761412489809975, 1155392571569356880, 1261732994755072031]
+
+
+
 
 @tasks.loop(seconds=1)
 async def activity():
@@ -164,6 +247,7 @@ class MyClient(commands.Bot):
 
 
     async def on_message(self, message: discord.Message):
+        if message.content=="67": await message.reply("tuff")
         global model
         if message.author == self.user:
             return
@@ -199,6 +283,9 @@ class MyClient(commands.Bot):
         if message.content == "christmas tree" and is_owner: 
             await self.tree.sync()
             await message.channel.send("synced da command tree")
+
+        if message.author.id == 1355667498716106852:
+            await message.add_reaction("🔥")
 
         words_mod_broken = ([
             "mod",
@@ -304,7 +391,7 @@ class MyClient(commands.Bot):
         global temperature
 
         if message.guild:
-            if message.guild.id == 1268365327058599968:
+            if False:#message.guild.id == 1268365327058599968 and not message.channel.type == discord.ChannelType.forum:
                 if message.content.count("https://") >= 3 and not "meow, not a scammer" in message.content:
                     role = discord.utils.find(lambda r: r.name == 'Scam Automod Bypass', message.guild.roles)
                     if role in message.author.roles:
@@ -332,7 +419,7 @@ class MyClient(commands.Bot):
                         await alertschannel.send(content=f"Please manually kick this user by copying this message")
                         await alertschannel.send(content=f"```text\ns!kick {message.author.id} Scam / Hacked account detected. Please factory reset your pc and change all your passwords.```")
 
-            if message.guild.id == 1268365327058599968:
+            if message.guild.id == 1268365327058599968 and not message.channel.type == discord.ChannelType.forum and not message.author.bot:
                 def add_heat(userid, amount, messageid, channelid):
                     if not str(userid) in heatlist:
                         heatlist[str(userid)] = []
@@ -344,28 +431,33 @@ class MyClient(commands.Bot):
                         if time.time() - heatreason["time_added"] < 60:
                             heat = heat + heatreason["amount"]
                     return heat
+                alertreason = "Potential Scam/Spam"
                 if "https://" in message.content: add_heat(message.author.id, message.content.count("https://") * 150, message.id, message.channel.id)
                 if "steam" in message.content and "gift" in message.content: add_heat(message.author.id, 200, message.id, message.channel.id)
-                if "discord.gg" in message.content: add_heat(message.author.id, 200, message.id, message.channel.id)
-
-                if get_heat(message.author.id) >= 500:
-                    await message.add_reaction("⚠️")
-                    await message.add_reaction("🔥")
+                if "discord.gg" in message.content: add_heat(message.author.id, 400, message.id, message.channel.id)
+                if len(message.attachments) > 0: add_heat(message.author.id, (len(message.attachments) if len(message.attachments) < 4 else 4)*100, message.id, message.channel.id)
+                if str(message.author.id) in repeatlist:
+                    if repeatlist[str(message.author.id)] == message.content:
+                        add_heat(message.author.id, 100, message.id, message.channel.id)
+                repeatlist[str(message.author.id)] = message.content
+                #if get_heat(message.author.id) >= 500:
+                #    await message.add_reaction("⚠️")
+                #    await message.add_reaction("🔥")
                 if get_heat(message.author.id) >= 1000:
                     if not message.author.id in stupidlist:
                         role = discord.utils.find(lambda r: r.name == 'Scam Automod Bypass', message.guild.roles)
                         if role in message.author.roles:
                             return
                         stupidlist.append(message.author.id)
-                        await message.channel.send(":warning: You have been flagged for being a scammer. You will be automatically **timed out** for 1 minute, but if this was a mistake one of your moderators will likely remove this timeout soon.")
+                        wmsg = await message.channel.send(":warning: You have been flagged for spam/scam. You will be automatically **timed out** for 1 minute.")
                         try:
                             await message.author.timeout(datetime.timedelta(minutes=1))
-                            await message.channel.send("<:checkmarksapph:1309669307214598265> User timed out!")
+                            tmsg = await message.channel.send("<:checkmarksapph:1309669307214598265> User timed out!")
                         except:
-                            await message.channel.send(":warning: Could not timeout user")
+                            tmsg = await message.channel.send(":warning: Could not timeout user")
                         alertschannel = client.get_channel(1268706892876873949)
                         embed = discord.Embed()
-                        embed.title = f"Potential Scam detected ({get_heat(message.author.id)}/1000 suspicion)"
+                        embed.title = f"{alertreason} detected ({get_heat(message.author.id)}/1000 suspicion)"
                         embed.color = discord.Color.dark_red()
                         user = message.author
                         embed.add_field(name="", value=f"""> **User:** @{user.name} (<@{user.id}>)
@@ -373,21 +465,34 @@ class MyClient(commands.Bot):
                         embed.timestamp = datetime.datetime.now()
                         if not message.content == "":
                             embed.add_field(name="Last Message (last before trigger)", value=f"{message.content}", inline=False)
-                        await alertschannel.send(embed=embed, content="<@&1289357103688847400>")
-                        await alertschannel.send(content=f"Please manually kick this user by copying this message")
-                        await alertschannel.send(content=f"```text\ns!kick {message.author.id} Scam / Hacked account detected. Please factory reset your pc and change all your passwords.```")
+                        embed.add_field(name="Number of attachments", value=f"{len(message.attachments)}", inline=False)
+                        await alertschannel.send(embed=embed, content="<@&1289357103688847400>", view=KickUserView(user))
+                        #await alertschannel.send(content=f"If this looks like a scam please manually kick this user by copying this message")
+                        #await alertschannel.send(content=f"```text\ns!kick {message.author.id} Scam / Hacked account detected. Please factory reset your pc and change all your passwords.```")
                         message_ids = []
-                        mmmessage = await alertschannel.send(content=f"<a:loading:1332808438396358777> Attempting to delete all scam messages...")
+                        mmmessage = await alertschannel.send(content=f"<a:loading:1332808438396358777> Attempting to delete all flagged messages...")
+                        failcounter = 0
                         try:
-                            while not len(heatlist[str(message.author.id)]) == 0: 
+                            while not len(heatlist[str(message.author.id)]) == 0:
                                 for heatreason in heatlist[str(message.author.id)]:
-                                    channel = await message.guild.fetch_channel(heatreason["channel_id"])
-                                    message = await channel.fetch_message(heatreason["message_id"])
-                                    await message.delete()
-                                    heatlist[str(message.author.id)].remove(heatreason)
-                            await mmmessage.edit(content=f"<:checkmarksapph:1309669307214598265> Scam messages deleted!")
+                                    try:
+                                        channel = await message.guild.fetch_channel(heatreason["channel_id"])
+                                        message = await channel.fetch_message(heatreason["message_id"])
+                                        await message.delete()
+                                        heatlist[str(message.author.id)].remove(heatreason)
+                                    except:
+                                        failcounter = failcounter +1
+                                        if errorcounter:
+                                            await errorcounter.edit(content=f"{failcounter} failed attempts")
+                                        else:
+                                            errorcounter = await alertschannel.send(content=f"{failcounter} failed attempts")
+                            await mmmessage.edit(content=f"""<:checkmarksapph:1309669307214598265> Flagged messages deleted!{f"{failcounter} errors" if failcounter > 0 else ""}""")
                         except:
                             await alertschannel.send(content=f":x: that somehow failed")
+                        try:
+                            await wmsg.delete()
+                            await tmsg.delete()
+                        except: pass
                 
 
 
@@ -444,6 +549,95 @@ class MyClient(commands.Bot):
             await message.channel.send(f"Total: {str(index)} | Minutes: {str(round(minute/60,ndigits=3))} | Result: {str(round((index*60)/minute, ndigits=3))}")
 
         index = index + 1
+    async def on_thread_create(self, thread: discord.Thread):
+        print("ima meow")
+        await asyncio.sleep(10)
+        ID_PATTERN = re.compile(
+            r"\bID\b\s*(?:is|=|:|-|#)?\s*\d+\b",
+            re.IGNORECASE
+        )
+        JUST_NUMBER_PATTERN = re.compile(r"^\d+$")
+
+        FORUM_CHANNEL_IDS = [1268368787338432553, 1268367342337921065]
+        IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".gif", ".webp")
+        # Ensure this is a forum thread in the correct channel
+        if (
+            thread.parent is None
+            or not isinstance(thread.parent, discord.ForumChannel)
+            or not thread.parent.id in FORUM_CHANNEL_IDS
+        ):
+            return
+        print("made it past this")
+        # Fetch the starter message
+        starter_message = None
+        async for message in thread.history(limit=1, oldest_first=True):
+            starter_message = message
+            break
+
+        if starter_message is None:
+            print("?????")
+            await thread.send("uh HUH???")
+            return
+        
+        content = starter_message.content.strip()
+
+        # Check for image attachments
+        has_image = any(
+            attachment.filename.lower().endswith(IMAGE_EXTENSIONS)
+            for attachment in starter_message.attachments
+        )
+        print("herer")
+        if not has_image:
+            print("no image?")
+        #    return
+
+        # Content checks
+        contains_id = ID_PATTERN.search(content) is not None
+        is_just_number = JUST_NUMBER_PATTERN.match(content) is not None
+        is_empty = content == ""
+        contains_id = contains_id or (ID_PATTERN.search(thread.name) is not None)
+        is_just_number = is_just_number or JUST_NUMBER_PATTERN.match(thread.name) is not None
+
+        if contains_id or is_just_number or is_empty:
+            roast = False
+            try:
+                await async_post("http://192.168.2.2:11434/api/generate", json={"model": "hermes3"}) # checks if server is up and preloads model if it is
+                roast = True
+            except: pass
+            await thread.send("""[kingangry](https://cdn.discordapp.com/attachments/1337780172296032346/1337792080839180390/ddfad10f3623c1df753009d3d7f3a840.png?ex=694df2b7&is=694ca137&hm=adda993991e268c3d8c553d52e19be8ec91c8c92e2050efef3752823e4f00400&)
+# 🇬🇧DO NOT POST THUMBNAILS HERE!!!!!!
+
+# 🇷🇺 НЕ РАЗМЕЩАЙТЕ ЗДЕСЬ ПРЕВЬЮ!!!
+
+# 🇪🇸 ¡¡¡NO PUBLICES MINIATURAS AQUÍ!!!
+
+# 🇧🇷 NÃO PUBLIQUE MINIATURAS AQUI!!!!!!
+
+# 🇰🇷 여기에 썸네일을 게시하지 마세요!!!!!!
+
+# 🇫🇷 NE POSTEZ PAS DE MINIATURES ICI !!!!!!
+
+# 🇩🇪 POSTEN SIE HIER KEINE MINIATURBILDER!!!!!!
+
+## IF YOU POST THUMBNAIL, YOU GET FLAMED AND ROASTED AND WISH YOU  LEARN HOW TO READ A PINNED POST >:((
+
+### If you can read, this is only for support if you have issues with posting thumbnails""")
+            await asyncio.sleep(10)
+            await thread.send(f"""you've been a bad {random.choice(["boy", "girl", "enby", "thumbnailer"])}! grrrr....""")
+            try:
+                out2 = await async_post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":f"Please generate a roast for a discord user named {starter_message.author.name}, they submitted a thumbnail for a geometry dash mod in the Wrong forum, channel.", "stream":False, "system":"You are a Roastbot. Your name is TJBot. Your entire purpose is to mock and roast people. You use a lot of emoji, for example 😂😂😂😂, and sometimes you put an emoji between every word (but only for maximum of 5 words or so, don't overdo it)"})
+                result = json.loads(out2.text)["response"]
+                await thread.send(result)
+            except: pass
+            await asyncio.sleep(5)
+            await thread.send("<@906866768105054239> yummy.... Im eating your food <:trol:1377284025919471647> :3")
+            await asyncio.sleep(5)
+            await thread.send("eating post in 2 minutes >w<")
+            await asyncio.sleep(120)
+            await thread.send("im a silly little birby birb :3 mrrp meow nyaa mrow ^_^\n-# deleting thread...")
+            await asyncio.sleep(5)
+            await thread.delete(reason="Invalid forum post: thumbnail submission in the wrong channel")
+            print(f"Deleted thread: {thread.name}")
 intents = discord.Intents.all()
 client = MyClient(intents=intents)
 

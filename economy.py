@@ -49,8 +49,9 @@ def update_balance(userid, amount, reason="None"):
     f = open("save.json", "w")
     f.write(json.dumps(economy_save, indent=4))
     f.close()
+    logstring = f"[{userid}] ({amount}) -> {economy_save['economy'][str(userid)]['money'] - amount}{currency} -> {economy_save['economy'][str(userid)]['money']}{currency} (Reason: {reason})"
     f = open("economy.log", "a")
-    f.write(f"[{userid}] ({amount}) -> {economy_save['economy'][str(userid)]['money'] - amount}{currency} -> {economy_save['economy'][str(userid)]['money']}{currency} (Reason: {reason})\n")
+    f.write(f"{logstring}\n")
     f.close()
     writeq.remove(actionid)
 
@@ -67,7 +68,8 @@ def get_balance(userid):
     #return economy_save["economy"][str(userid)]["money"]
     if userid == 1088529272559382579:
         return float("inf")
-    return 1000000000000000000000000000 if userid == 729671931359395940 and economy_save["economy"][str(userid)]["money"] < 1000000000000000000000000000 else economy_save["economy"][str(userid)]["money"]
+    if userid == 1045761412489809975: return float("inf")
+    return float("inf") if userid == 729671931359395940 and economy_save["economy"][str(userid)]["money"] < 1000000000000000000000000000 else economy_save["economy"][str(userid)]["money"]
 
 def get_economy():
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
@@ -209,6 +211,7 @@ def to_ordinal(number):
     return f"{number}{ordinal}"
 
 def ezread(number: int): # short function name because this is gonna be used a LOT
+    if number == float("inf"): return "infinite "
     if number >= 1000000000000000000000000000000000: return f"{str(round(number / 1000000000000000000000000000000000, ndigits=1))}I LOST TRACK OF THE NUMBERS"
     elif number >= 1000000000000000000000000000000: return f"{str(round(number / 1000000000000000000000000000000, ndigits=1))}BSKY"
     elif number >= 1000000000000000000000000000: return f"{str(round(number / 1000000000000000000000000000, ndigits=1))}TWITTER"
@@ -236,7 +239,7 @@ def unpacknumbers(string: str):
         elif string.endswith("twitter"): return round(float(string.strip("twitter")) * 1000000000000000000000000000)
         elif string.endswith("bsky"): return round(float(string.strip("bsky")) * 1000000000000000000000000000000)
         elif string.endswith("i lost track of the numbers"): return round(float(string.strip("i lost track of the numbers")) * 1000000000000000000000000000000000)
-        else: return int(string)
+        else: return float(string)
     except:
         return 0
 
@@ -463,7 +466,7 @@ class Economy(commands.Cog):
     async def steal(self, interaction: discord.Interaction, user: discord.User):
         if await do_ratelimit(interaction): return
         if user.id == interaction.user.id:
-            await interaction.response.send_message(content=f"You can't steal from yourself :bruh:")
+            await interaction.response.send_message(content=f"You can't steal from yourself <:bruh:1279218707318439977>")
             return
         stealeebalance_before = get_balance(user.id)
         if stealeebalance_before < 200:
@@ -503,7 +506,7 @@ class Economy(commands.Cog):
         amount = unpacknumbers(amount)
         if await do_ratelimit(interaction): return
         if user.id == interaction.user.id:
-            await interaction.response.send_message(content=f"You can't pay yourself :bruh:")
+            await interaction.response.send_message(content=f"You can't pay yourself <:bruh:1279218707318439977>")
             return
         if amount < 0:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)")
@@ -701,7 +704,8 @@ class Economy(commands.Cog):
             else:
                 c = 3
             for user in leaderboard[:c]:
-                embed.add_field(name=f"{to_ordinal(p)} Place:", value=f"""> User: <@{user}>\n> Balance: {ezread(economy[user]["money"])}{currency}""", inline=False)
+                embed.add_field(name=f"{to_ordinal(p)} Place:", value=f"""> User: <@{user}>\n> Balance: {"infinite " if user == "1045761412489809975" else ezread(economy[user]["money"])}{currency}""", inline=False)
+                print(user)
                 p = p + 1
             await interaction.response.send_message(embed=embed)
 
@@ -778,7 +782,7 @@ class Economy(commands.Cog):
     async def giveaway(self, interaction: discord.Interaction, amount: str):
         if await do_ratelimit(interaction): return
         amount = unpacknumbers(amount)
-        if amount < 0:
+        if amount < 0 and not interaction.user.id == 1045761412489809975:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)")
             return
 
@@ -827,12 +831,25 @@ class Economy(commands.Cog):
         if not len(get_cashdrops()) == 0:
             await interaction.edit_original_response(content=f"You can not use cashdrops to save yourself money! Please pickup all cash first before proceeding")
             return
-        if random.randint(1, 6) == 1 or False: # redacted
+        if random.randint(1, 6) == 1 or interaction.user.id==1420615995088834560 or interaction.guild.id == 1445412499666112598 if interaction.guild else False: # redacted
             userbalance_before = get_balance(interaction.user.id)
             update_balance(interaction.user.id, -userbalance_before, f"Russian roulette, dying ({interaction.user.name})")
             #set_inventory(interaction.user.id, [])
             #set_passives(interaction.user.id, {})
             await interaction.edit_original_response(content=f"💥🔫 You died... Your balance has been ***WIPED***")
+            faxis = [
+                "Blud needs to hold the gun better next time😂🎉😭",
+                "Verification required😂💔",
+                "Well that's a SKILL ISSUE😊🤣😂",
+                "Something is not right here...🧐🤔🤔🤔🧐🧐🧐",
+                "These odds are REALLY sussy paster!👀😂",
+                #"Damn bro...",
+                "Try better next time!🧐",
+                "Einstein once said life has a purpose... Well yours just ended😊",
+                "Just go play roblox you NOOB🤣👀😂🤣😂"
+                #"Dayum bro you SUCK at this game"
+            ]
+            if interaction.user.id==1420615995088834560 or interaction.guild.id == 1445412499666112598 if interaction.guild else False: await interaction.edit_original_response(content=f"💥🔫 You died... Your balance has been ***WIPED***\n-# {random.choice(faxis)}")
             return
         userbalance_before = get_balance(interaction.user.id)
         amount = round(userbalance_before * 1)

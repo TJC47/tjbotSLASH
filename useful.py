@@ -322,7 +322,6 @@ class Useful(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def fuckoff(self, interaction: discord.Interaction):
-        if not interaction.user.id == 1045761412489809975: await interaction.response.send_message(content="no fuck you")
         await interaction.response.defer()
         if interaction.guild.voice_client:
             if interaction.guild.voice_client.is_connected():

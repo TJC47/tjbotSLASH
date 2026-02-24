@@ -48,7 +48,7 @@ class Silly(commands.Cog):
     @app_commands.allowed_installs(guilds = True, users = True)
     @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def furry(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\nyou are " + str(random.randint(0,100)) + "% a furry.")
+        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\nyou are " + str(random.randint(90,100)) + "% a furry.")
 
     @app_commands.command(description = "Calculates how cool you are! :3")
     @app_commands.allowed_installs(guilds = True, users = True)
@@ -174,12 +174,14 @@ class Silly(commands.Cog):
         thing = random.choice(meaninglist)
         await interaction.response.send_message(content=thing)
 
-    @app_commands.command(description="let fuzzy make your pfp jolly :3")
+    @app_commands.command(description="let someone make your pfp jolly :3")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def jolly(self, interaction: discord.Interaction):
         pfp_url = interaction.user.avatar.url
-        await interaction.response.send_message(content=f"<@1088529272559382579> This person wants their pfp to be jolly!!!!!!\n[profile picture]({pfp_url})")
+        await interaction.response.send_message(content=f"its not christmas bro")
+        return
+        await interaction.response.send_message(content=f"<@1387392853604307065> This person wants their pfp to be jolly!!!!!!\n[profile picture]({pfp_url})")
 
     @app_commands.command(description="tjc ian reboot, only for tjc for obvious reasons :3")
     @app_commands.allowed_installs(guilds=True, users=True)
