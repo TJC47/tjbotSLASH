@@ -78,7 +78,7 @@ class KickUserView(discord.ui.View):
             await interaction.response.send_message(
                 content=f"✅ **{self.user} was kicked by {interaction.user}.**"
             )
-            await interaction.response.edit_message(
+            await interaction.message.edit(
                 view=self
             )
 
@@ -466,26 +466,45 @@ class MyClient(commands.Bot):
                         if not message.content == "":
                             embed.add_field(name="Last Message (last before trigger)", value=f"{message.content}", inline=False)
                         embed.add_field(name="Number of attachments", value=f"{len(message.attachments)}", inline=False)
-                        await alertschannel.send(embed=embed, content="<@&1289357103688847400>", view=KickUserView(user))
+                        await alertschannel.send(embed=embed, content="<@&1289357103688847400>" if not message.content.startswith("!test") else "TEST ALERT! DO NOT INTERVENE!!!")
                         #await alertschannel.send(content=f"If this looks like a scam please manually kick this user by copying this message")
                         #await alertschannel.send(content=f"```text\ns!kick {message.author.id} Scam / Hacked account detected. Please factory reset your pc and change all your passwords.```")
                         message_ids = []
                         mmmessage = await alertschannel.send(content=f"<a:loading:1332808438396358777> Attempting to delete all flagged messages...")
                         failcounter = 0
+                        errorcounter = None
+                        debugcounter = await alertschannel.send(f"{len(heatlist[str(message.author.id)])} messages to delete left.")
                         try:
-                            while not len(heatlist[str(message.author.id)]) == 0:
+                            logger.info(f"Commencing deletion process for user {message.author.name}")
+                            while not len(heatlist[str(message.author.id)]) == 0 and not failcounter > 20:
                                 for heatreason in heatlist[str(message.author.id)]:
+                                    await debugcounter.edit(content=f"{len(heatlist[str(message.author.id)])} messages to delete left.")
+                                    logger.debug(f"{len(heatlist[str(message.author.id)])} messages to delete")
                                     try:
-                                        channel = await message.guild.fetch_channel(heatreason["channel_id"])
-                                        message = await channel.fetch_message(heatreason["message_id"])
+                                        try:
+                                            channel = await message.guild.fetch_channel(heatreason["channel_id"])
+                                        except:
+                                            logger.error("Failed to fetch channel when deleting message")
+                                            failcounter = failcounter +1
+                                            #heatlist[str(message.author.id)].remove(heatreason)
+                                            continue
+                                        try:
+                                            message = await channel.fetch_message(heatreason["message_id"])
+                                        except:
+                                            logger.error("Failed to fetch message from channel")
+                                            failcounter = failcounter +1
+                                            #heatlist[str(message.author.id)].remove(heatreason)
+                                            continue
                                         await message.delete()
                                         heatlist[str(message.author.id)].remove(heatreason)
                                     except:
+                                        logger.error("Failed to delete message")
                                         failcounter = failcounter +1
                                         if errorcounter:
                                             await errorcounter.edit(content=f"{failcounter} failed attempts")
                                         else:
                                             errorcounter = await alertschannel.send(content=f"{failcounter} failed attempts")
+                            await debugcounter.delete()
                             await mmmessage.edit(content=f"""<:checkmarksapph:1309669307214598265> Flagged messages deleted!{f"{failcounter} errors" if failcounter > 0 else ""}""")
                         except:
                             await alertschannel.send(content=f":x: that somehow failed")
