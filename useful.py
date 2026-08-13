@@ -13,6 +13,9 @@ import aiohttp
 import urllib.request
 import subprocess
 import os
+import redis
+import string
+from stylizedchars import quickstyle, Styles
 
 logger = logging.getLogger("tjbot.useful")
 
@@ -64,11 +67,29 @@ async def async_post(url, **kwargs):
         text = await resp.text()
         return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
 
-
+r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 class Useful(commands.Cog):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.content.startswith("st!style "):
+            await message.reply(quickstyle(message.content.split(" ", 1)[1], Styles.discord))
+
+    @app_commands.command(description="Quickly login to Better Level Thumbnails (Requires a linked account) :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def quick_login(self, interaction: discord.Interaction):
+        discord_user_data = r.get(f"betterthumbnails:users:{interaction.user.id}")
+        if discord_user_data:
+            discord_user_data_json = json.loads(discord_user_data)
+            quick_token = "".join(random.choices(string.ascii_letters + string.digits, k=6))
+            r.set(f"betterthumbnails:quicklogins:{quick_token}", discord_user_data_json["prevter_token"], ex=120)
+            await interaction.response.send_message(content=f"Click this link to log in!\n<https://tjcsucht.net/quick/{quick_token}>", ephemeral=True)
+        else:
+            await interaction.response.send_message(content="Your account is not linked! To use this feature, please log in to https://tjcsucht.net/betterlt_dashboard/ and link your Discord account first.")
 
 
     @app_commands.command(description="Gets Account statistics of a Geometry Dash account :3")
@@ -236,13 +257,15 @@ class Useful(commands.Cog):
         ltofficial = "🔃 Queued for check"
         ltlegacythumbs = "🔃 Queued for check"
         ltanarchy = "🔃 Queued for check"
+        ltbetter = "🔃 Queued for check"
         tjcsucht = "🔃 Queued for check"
         tjcsuchtdirect = "🔃 Queued for check"
-        async def update_message(interaction: discord.Interaction, official, legacy, anarchy, website, direct):
+        async def update_message(interaction: discord.Interaction, official, legacy, anarchy, better, website, direct):
             response_string = f"""# Status checker
 > Level Thumbnails: {official}
 > Legacy Thumbnails: {legacy}
 > Anarchy Thumbnails: {anarchy}
+> BetterThumbnails: {better}
 > TJC Website (cloudflare): {website}
 > TJC Website (no cf): {direct}"""
             await interaction.edit_original_response(content=response_string)
@@ -254,21 +277,24 @@ class Useful(commands.Cog):
                 else: return f"❌ Not working: Error {res.status_code}"
             except Exception as err: return f"❌ Not working: {err}, {type(err)}"
         ltofficial = "🔃 Checking..."
-        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, ltbetter, tjcsucht, tjcsuchtdirect)
         ltofficial = await check_server("https://levelthumbs.prevter.me/")
         ltlegacythumbs = "🔃 Checking..."
-        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, ltbetter, tjcsucht, tjcsuchtdirect)
         ltlegacythumbs = await check_server("https://tjcsucht.net/levelthumbs/1.png")
         ltanarchy = "🔃 Checking..."
-        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, ltbetter, tjcsucht, tjcsuchtdirect)
         ltanarchy = await check_server("https://tjcsucht.net/anarchy/1")
+        ltbetter = "🔃 Checking..."
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, ltbetter, tjcsucht, tjcsuchtdirect)
+        ltbetter = await check_server("https://tjcsucht.net/betterthumbnails/thumbnail/1")
         tjcsucht = "🔃 Checking..."
-        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, ltbetter, tjcsucht, tjcsuchtdirect)
         tjcsucht = await check_server("https://random.tjcsucht.net")
         tjcsuchtdirect = "🔃 Checking..."
-        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, ltbetter, tjcsucht, tjcsuchtdirect)
         tjcsuchtdirect = await check_server("https://de-1.tjcsucht.net/")
-        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, tjcsucht, tjcsuchtdirect)
+        await update_message(interaction, ltofficial, ltlegacythumbs, ltanarchy, ltbetter, tjcsucht, tjcsuchtdirect)
 
 
 
@@ -331,5 +357,33 @@ class Useful(commands.Cog):
                 await interaction.edit_original_response(content = f"meh")
         else:
             await interaction.edit_original_response(content = f"meh")
+
+    @app_commands.command(description="deletes the message history of the last day of a user and kicks them :3")
+    @app_commands.describe(
+        user='user to softban'
+    )
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=False)
+    async def softban(self, interaction: discord.Interaction, user: discord.User):
+        if not interaction.user.guild_permissions.ban_members:
+            await interaction.response.send_message(content="No permission!")
+            return
+        await interaction.response.send_message(content="Step one: Banning user")
+        try:
+            await interaction.guild.ban(user, delete_message_days=1, reason="Softban")
+            await interaction.edit_original_response(content="User banned. Step two: Unbanning")
+        except:
+            await interaction.response.edit_original_response(content="ERROR! Could not ban user")
+            return
+
+        try:
+            await interaction.guild.unban(user, reason="Softban")
+            await interaction.edit_original_response(content="Softban complete")
+        except:
+            await interaction.response.edit_original_response(content="ERROR! Could not unban user")
+            return
+
+
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Useful(bot))

@@ -39,6 +39,66 @@ meaninglist = [
 ]
 
 
+transdict = {
+    "ala": "allah",
+    "ante": "before",
+    "awen": "amen",
+    "e": "from",
+    "ijo": "shit",
+    "ilo": "ELO",
+    "insa": "insane",
+    "jan": "fan",
+    "kalama": "shrimp",
+    "kama": "karma",
+    "kasi": "cheese",
+    "ken": "pen",
+    "kulupu": "some weird racist shit",
+    "la": "you",
+    "lape": "homosexual",
+    "lawa": "lava",
+    "li": "me",
+    "lili": "me :3",
+    "lipu": "someone",
+    "lon": "lithium",
+    "luka": "HALLO MEIN NAME IST LUCA",
+    "lukin": "dishwasher",
+    "ma": "mom",
+    "mi": "mine",
+    "moku": "KAMEHAMEHAAAAA",
+    "musi": "music",
+    "mute": "cannot speak",
+    "nasa": "national space station aninmation",
+    "ni": "no",
+    "nimi": "never",
+    "o": "to",
+    "ona": "decoration",
+    "pakala": "pact",
+    "pali": "boobs",
+    "pilin": "pine tree",
+    "pini": "balls",
+    "pona": "authenticated",
+    "seli": "self",
+    "seme": "semen",
+    "sin": "sinus",
+    "sina": "without",
+    "sitelen": "site powered by cloudflare",
+    "sona": "an avali",
+    "soweli": "soviet union",
+    "suli": "FUCK",
+    "suno": "ai music making website",
+    "suwi": "wasabi",
+    "tan": "darker",
+    "taso": "tortillas",
+    "tawa": "sauce",
+    "telo": "telephone",
+    "tenpo": "ten asses",
+    "toki": "access token",
+    "tomo": "token",
+    "tu": "you",
+    "wan": "when",
+    "inli": "inline"
+}
+
 class Silly(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -93,6 +153,8 @@ class Silly(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def say(self, interaction: discord.Interaction, message: str):
+        await interaction.response.send_message(content=f"because I said so!", ephemeral=True)
+        return
         await interaction.response.send_message(content=f"{message}")
 
     @app_commands.command(description="Pop the bubbles! :3")
@@ -267,6 +329,27 @@ class Silly(commands.Cog):
         await interaction.response.send_message(content=f"""Counter why does the mod not work: {counter_file["counter_not_work"]}
 Counter how to add a thumbnail: {counter_file["counter_how_to_submit"]}
 Counter rickrolled: {counter_file["counter_rickrolled"]}""")
+
+
+
+    @app_commands.command(description="The best toki pona translator in the world (better than chat gee pee tee) :3")
+    @app_commands.describe(
+        message='content of message'
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def shitty_pona(self, interaction: discord.Interaction, message: str):
+        splitwords = message.split(" ")
+        for num in range(len(splitwords)):
+            word = splitwords[num].lower()
+            for curr in transdict:
+                if curr == word:
+                    splitwords[num] = transdict.get(curr)
+                    continue
+        output = ""
+        for word in splitwords:
+            output = output + word + " "
+        await interaction.response.send_message(content=f"{output}")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Silly(bot))

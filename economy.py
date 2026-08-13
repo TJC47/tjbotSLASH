@@ -9,7 +9,7 @@ import discord
 import asyncio
 import string
 import logging
-
+import math
 logger = logging.getLogger("tjbot.economy")
 
 updateinfo = """# Current Update and status
@@ -40,6 +40,7 @@ def update_balance(userid, amount, reason="None"):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
     while not writeq[0] == actionid: pass
+    if math.isnan(amount): return
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
@@ -59,16 +60,18 @@ def get_balance(userid):
     actionid = "".join(random.choices(string.ascii_letters + string.digits, k=16))
     writeq.append(actionid)
     while not writeq[0] == actionid: pass
+
     f = open("./save.json")
     economy_save = json.loads(f.read())
     f.close()
     if not str(userid) in economy_save["economy"]:
         economy_save["economy"][str(userid)] = {"money": 0}
     writeq.remove(actionid)
+    if math.isnan(economy_save["economy"][str(userid)]["money"]): return 0
     #return economy_save["economy"][str(userid)]["money"]
-    if userid == 1088529272559382579:
-        return float("inf")
-    if userid == 1045761412489809975: return float("inf")
+    #if userid == 1088529272559382579:
+    #    return float("inf")
+    #if userid == 1045761412489809975: return float("inf")
     return float("inf") if userid == 729671931359395940 and economy_save["economy"][str(userid)]["money"] < 1000000000000000000000000000 else economy_save["economy"][str(userid)]["money"]
 
 def get_economy():
@@ -300,6 +303,14 @@ class Economy(commands.Cog):
         self.bot = bot
         activity.start()
 
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.channel_id == 1268366668384440352 and not self.bot.is_owner(interaction.user):
+            await interaction.response.send_message(
+                "You're not allowed to use this command here",
+                ephemeral=True,
+            )
+            return False
+        return True
     @app_commands.command(description="All or nothing (not rigged) :3")
     @app_commands.describe(
         amount='how much to gamble'
@@ -400,6 +411,13 @@ class Economy(commands.Cog):
             modifiers = modifiers + "\n-# Your wage is buffed even more because you have a **CEO Position**"
             wageincrease = wageincrease + 10000
             morerandom = morerandom + 1000
+        if "tcywf" in userinv:
+            modifiers = modifiers + "\n-# You **own the company** so you collect all the profits!"
+            modifiers = modifiers + "\n-# You commited **tax evasion** and **doubled** your money!"
+
+            wagemultiplier = wagemultiplier + 1
+            wageincrease = wageincrease + 1000000
+            morerandom = morerandom + 1000000
         if random.randint(1,20) == 1:
             modifiers = modifiers + "\n-# Your got twice your wage because you **worked good enough**"
             wagemultiplier = wagemultiplier + 1
@@ -469,14 +487,23 @@ class Economy(commands.Cog):
             await interaction.response.send_message(content=f"You can't steal from yourself <:bruh:1279218707318439977>")
             return
         stealeebalance_before = get_balance(user.id)
+        userbalance_before = get_balance(interaction.user.id)
         if stealeebalance_before < 200:
             await interaction.response.send_message(content=f"You can't steal from them because they dont have enough money! `({stealeebalance_before}{currency} < 200{currency})`")
             return
         userinv = get_inventory(user.id)
-        if "dc" in userinv:
+        if "dcv2" in userinv:
+            stealamount = get_balance(interaction.user.id) / 4
+            update_balance(user.id, +stealamount, f"hehe boi ({user.name})")
+            update_balance(interaction.user.id, -stealamount, f"uno reverse ({interaction.user.name})")
+            stealeebalance_after = get_balance(user.id)
+            userbalance_after = get_balance(interaction.user.id)
+            await interaction.response.send_message(content=f"https://cdn.discordapp.com/attachments/1252685877633880066/1513940231257329835/ddmcdqs-ecd2b865-fa25-4550-adf0-f5962af5484f.png?ex=6a298e36&is=6a283cb6&hm=ade8e7259122e8109fcf6e6349434a970e18f823ce3a8bfde9254cb99cefb045&\n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`\n-# `{user.name} {ezread(stealeebalance_before)}{currency} -> {ezread(stealeebalance_after)}{currency}`")
+
+            return
+        elif "dc" in userinv:
             await interaction.response.send_message(content=f"You can't steal from them because they have a **Debit Card** instead of cash! Nice Try!")
             return
-        userbalance_before = get_balance(interaction.user.id)
         randmax = stealeebalance_before/10
         if randmax > 200:
             randmax = 200
@@ -507,6 +534,9 @@ class Economy(commands.Cog):
         if await do_ratelimit(interaction): return
         if user.id == interaction.user.id:
             await interaction.response.send_message(content=f"You can't pay yourself <:bruh:1279218707318439977>")
+            return
+        if math.isnan(amount):
+            await interaction.response.send_message(content=f":warning: You tried to abuse an exploit in TJBot. Your TJBot account is BANNED now, all your data is deleted!!!")
             return
         if amount < 0:
             await interaction.response.send_message(content=f"That's not how money works(Atleast in this case Tax evasion is something different)")
@@ -580,6 +610,37 @@ class Economy(commands.Cog):
                 return
             if item in userinv:
                 await interaction.response.send_message(content = f"""You already have {shopItems[item]["pronouns"]} "{shopItems[item]["name"]}"!""")
+                return
+            if item == "NEVER abbreviate creator points":
+                await interaction.response.send_message(content = f"""An error occurred while running this command:```text
+Traceback (most recent call last):
+                                                        
+
+Traceback (most recent call last):
+  File "/home/tjc/.local/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1302, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/tjc/.local/lib/python3.11/site-packages/discord/app_commands/commands.py", line 884, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tjc/.local/lib/python3.11/site-packages/discord/app_commands/commands.py", line 877, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'buy' raised an exception: HTTPException: 400 Bad Request (error code: 50035)
+  File "main.py", line 603, in <module>
+    buy_item()
+  File "math.py", line 1063, in buy_item()
+    raise ZeroDivisionError("division by zero")s
+The above exception was the direct cause of the following exception:
+                                                        
+File "<ipython-input-15-9e3d6e01ef04>", line 2, in <module>
+b"\x81".decode() UnicodeDecodeError: 'utf-8' codec can't decode byte 0x81 in position 0: invalid start byte
+
+  File "pandas\_libs\index.pyx", line 132, in pandas._libs.index.IndexEngine.get_loc (pandas\_libs\index.c:5239)
+  File "pandas\_libs\index.pyx", line 154, in pandas._libs.index.IndexEngine.get_loc (pandas\_libs\index.c:5085)
+  File "pandas\_libs\hashtable_class_helper.pxi", line 1207, in pandas._libs.hashtable.PyObjectHashTable.get_item (pandas\_libs\hashtable.c:20405)
+  File "pandas\_libs\hashtable_class_helper.pxi", line 1215, in pandas._libs.hashtable.PyObjectHashTable.get_item (pandas\_libs\hashtable.c:20359)
+KeyError: 'b'
+Fatal Exception
+```""")
                 return
             tempitem = shopItems[item]
             userinv[item] = tempitem
@@ -831,12 +892,15 @@ class Economy(commands.Cog):
         if not len(get_cashdrops()) == 0:
             await interaction.edit_original_response(content=f"You can not use cashdrops to save yourself money! Please pickup all cash first before proceeding")
             return
-        if random.randint(1, 6) == 1 or interaction.user.id==1420615995088834560 or interaction.guild.id == 1445412499666112598 if interaction.guild else False: # redacted
+       
+        loss_chance = min(math.log10(max(userbalance_before, 1)) / math.log10(1000000000000000) * 0.9, 0.9)
+        print(f"Chance of dying: {loss_chance}")
+        if random.random() < loss_chance or interaction.user.id==1420615995088834560 or interaction.guild.id == 1445412499666112598 if interaction.guild else False: # redacted
             userbalance_before = get_balance(interaction.user.id)
             update_balance(interaction.user.id, -userbalance_before, f"Russian roulette, dying ({interaction.user.name})")
             #set_inventory(interaction.user.id, [])
             #set_passives(interaction.user.id, {})
-            await interaction.edit_original_response(content=f"💥🔫 You died... Your balance has been ***WIPED***")
+            #await interaction.edit_original_response(content=f"💥🔫 You died... Your balance has been ***WIPED***")
             faxis = [
                 "Blud needs to hold the gun better next time😂🎉😭",
                 "Verification required😂💔",
@@ -849,12 +913,15 @@ class Economy(commands.Cog):
                 "Just go play roblox you NOOB🤣👀😂🤣😂"
                 #"Dayum bro you SUCK at this game"
             ]
-            if interaction.user.id==1420615995088834560 or interaction.guild.id == 1445412499666112598 if interaction.guild else False: await interaction.edit_original_response(content=f"💥🔫 You died... Your balance has been ***WIPED***\n-# {random.choice(faxis)}")
+            await interaction.edit_original_response(content=f"💥🔫 You died... Your balance has been ***WIPED***\n-# {random.choice(faxis)}")
             return
         userbalance_before = get_balance(interaction.user.id)
         amount = round(userbalance_before * 1)
         update_balance(interaction.user.id, amount, f"Russian roulette, winning ({interaction.user.name})")
         userbalance_after = get_balance(interaction.user.id)
+        usermisc = get_misc(interaction.user.id)
+        usermisc["won_rr_once"] = True
+        set_misc(interaction.user.id, usermisc)
         await interaction.edit_original_response(content=f"You didn't die and won `{ezread(amount)}{currency}`!!!!!!! \n-# `{interaction.user.name} {ezread(userbalance_before)}{currency} -> {ezread(userbalance_after)}{currency}`")
 
 
@@ -979,7 +1046,7 @@ class Economy(commands.Cog):
 
             if "stolen_total" in usermisc and usermisc["stolen_total"] >= 3000:
                 medalinv["thief3"] = {
-                    "name": "Thief",
+                    "name": "Thief III",
                     "description": "steal 3k in total from someone!"
                 }
 
@@ -987,6 +1054,12 @@ class Economy(commands.Cog):
                 medalinv["pikcup"] = {
                     "name": "Street Life",
                     "description": f"pickup 1 million+ {currency} in total"
+                }
+            
+            if "won_rr_once" in usermisc:
+                medalinv["russia"] = {
+                    "name": "That was close!",
+                    "description": f"Risk your life in Russian Roulette and don't die"
                 }
 
 
