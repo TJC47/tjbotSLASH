@@ -423,6 +423,15 @@ Please reply to this message with `I agree to the terms` in order to activate AI
                         logger.warning(f"unable to append attachment idk as it isnt an image, instead is a {attachment.content_type}") # chunk isnt defined bruh
 
             msg = message.content.replace(f"<@{self.bot.user.id}>", "").strip() # remove the mention of the bot itself in the message to prevent ai confusion
+
+
+            # CLOUD CONTEXT LOADER
+            cloud_context = r.get(f"tjbot:ai:context:{message.channel.id}")
+            pinged_messages = {}
+            if cloud_context:
+                pinged_messages[message.channel.id] = json.loads(cloud_context)
+
+
             if message.channel.id not in pinged_messages:
                 pinged_messages[message.channel.id] = []
                 pinged_messages[message.channel.id].append({"role":"system","content": systemprompt}) # adds the system prompt to the message history if it doesnt have messages
@@ -534,16 +543,19 @@ Notes:
                 await message.reply(str(e)+repr(e))
                 await message.add_reaction("⚠️")
 
+            # CLOUD CONTEXT SAVER
+            r.set(f"tjbot:ai:context:{message.channel.id}", json.dumps(pinged_messages[message.channel.id]))
+
 
 
     global models
-    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b", "gemma3n", "gemma4:e4b", "gemma4:12b", "gemma4:26b", "gpt-oss:20b", "ornith:9b"] # all the available models the bot can use
+    models=["hermes3", "phi4", "llama2-uncensored", "llama3.2", "llama3.1", "deepseek-r1", "deepseek-r1:14b", "qwen:0.5b", "smollm:135m", "smollm", "llava:13b", "llama3.2-vision", "gemma3:12b", "gemma3n", "gemma4:e4b", "gemma4:e4b-it-qat", "gemma4:12b", "gemma4:12b-it-qat", "gemma4:26b", "gpt-oss:20b", "ornith:9b"] # all the available models the bot can use
     async def model_ac(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
      return [
     app_commands.Choice(name = currentmodel,value = currentmodel)
     for currentmodel in models if current.lower() in currentmodel.lower() # weird autocomplete shit idk how this works
     ]
-    @app_commands.command(description="Ask AI :3")
+    @app_commands.command(description="Ask AI (deprecated) :3")
     @app_commands.describe(
         prompt = 'Prompt to give to AI',
         model = 'Model to use',
