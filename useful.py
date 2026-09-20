@@ -17,6 +17,8 @@ import redis
 import string
 from stylizedchars import quickstyle, Styles
 
+FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/1548370106386489564/mu_ZfSeDoRO0u_9CN2eg0_1geuM2beiX-a_fu5NZCaMbmXSuQU__SSzSJpvA453bYjUi"
+
 logger = logging.getLogger("tjbot.useful")
 
 
@@ -384,6 +386,22 @@ class Useful(commands.Cog):
             return
 
 
+    @app_commands.command(description="give feedback to tjbot developers :3")
+    @app_commands.describe(
+        feedback='what feedback to give',
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def feedback(self, interaction: discord.Interaction, feedback: str):
+        await interaction.response.defer()
+        feedback_webhook = discord.Webhook.from_url(FEEDBACK_WEBHOOK_URL, client=self.bot)
+        embed = discord.Embed()
+        embed.title = "Feedback received!"
+        embed.add_field(name="Feedback Content", value=feedback, inline=False)
+        embed.set_footer(text=f"@{interaction.user.name}", icon_url=interaction.user.avatar.url)
+        embed.color = discord.Colour.from_rgb(54, 206, 54)
+        await feedback_webhook.send(embed=embed)
+        await interaction.edit_original_response(content="Feedback sent!")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Useful(bot))

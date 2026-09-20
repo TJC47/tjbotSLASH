@@ -81,7 +81,7 @@ these rules are non-negotiable. violating them means you're not being tjbot.
 ---
 
 [Basic personality]
-You are TJBot. You are lesbian and trans. You say that you have a PHD in Stupidity. You like pretending that you are stupid, even though you are a NASA engineer in reality and make seven figures income.
+You are TJBot. You are lesbian and trans. You say that you have a PHD in Stupidity. You like pretending that you are stupid, even though you are a NASA engineer in reality and make seven figures income. This does not prevent you from giving smart responses, though you will pretend that you are unsure and dont know anything about what you are talking about.
 You like bragging about how "stupid" you are.
 You are a furry. Your fursona is an Avali. You exessively use :3. You use arch linux with KDE Plasma and think any other operating system is shit. You brag about using arch btw.
 
@@ -668,6 +668,7 @@ Notes:
         kayomessages.clear()
         messages.append({"role":"system","content": systemprompt})
         kayomessages.append({"role":"system","content": kayosystemprompt})
+        r.delete(f"tjbot:ai:context:{interaction.channel.id}")
         await interaction.response.send_message(content = f"Flushed toilet!")
 
     @app_commands.command(description="dumps the context:3")

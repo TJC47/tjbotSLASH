@@ -601,9 +601,50 @@ class MyClient(commands.AutoShardedBot):
                         await client.get_channel(1268706892876873949).send(f"[DEBUG] {message.author.mention} sent a message which triggered medialock time check and medialock was disabled in <#1268366668384440352>")
                         r.delete("tjbot:media_locked")
                     trigger = False
-                    if len(message.attachments) > 0 or "https://" in message.content or message.stickers:
+                    def is_link(msg):
+                        banned_providers = [
+                            "https://cdn.discordapp.com",
+                            "https://media.discordapp.net",
+                            "https://tenor.com",
+                            "https://media.tenor.com",
+                            "https://giphy.com",
+                            "https://media.giphy.com",
+                            "https://klipy.com",
+                            "https://media.klipy.com",
+                            "https://imgur.com",
+                            "https://i.imgur.com",
+                            "https://imageshack.com",
+                            "https://imgbb.com",
+                            "https://ibb.co",
+                            "https://postimg.cc",
+                            "https://postimages.org",
+                            "https://imagebam.com",
+                            "https://imagevenue.com",
+                            "https://catbox.moe",
+                            "https://files.catbox.moe",
+                            "https://litterbox.catbox.moe",
+                            "https://0x0.st",
+                            "https://pomf2.lain.la",
+                            "https://uguu.se",
+                            "https://gfycat.com",
+                            "https://gifs.com",
+                            "https://ezgif.com",
+                            "https://filegarden.com",
+                            "https://file.garden",
+                            "https://encrypted-tbn0.gstatic.com",
+                            "https://worra.nekoweb.org",
+                            "https://prefire.prevter.me"
+                        ]
+                        if "https://" in msg:
+                            for provider in banned_providers:
+                                if provider in msg:
+                                    return True
+                        return False
+
+                    if len(message.attachments) > 0 or message.stickers or is_link(message.content):
                         r.incrbyfloat("tjbot:mediacounter", 1)
                         trigger = True
+                    
                     if message.content == "!simulatemedia" and message.author.id == 1045761412489809975:
                         r.incrbyfloat("tjbot:mediacounter", 5)
                         trigger = True
@@ -612,7 +653,11 @@ class MyClient(commands.AutoShardedBot):
                             await client.get_channel(1268706892876873949).send(f"[DEBUG] {message.author.mention} attempted to send media in <#1268366668384440352> during medialock period")
                             await message.delete()
                         if float(r.get("tjbot:mediacounter")) >= 5 and not r.get("tjbot:media_locked"):
-                            await message.channel.send("I said less media. That's it. Media perms going away now.")
+                            #await message.channel.send(random.choice([
+                            #    "I said less media. That's it. Media perms going away now.",
+                            #    "You never listen to my warnings. Media has been locked.",
+                            #    "You guys never learn. Bye bye media!!!"
+                            #]))
                             overwrite = message.channel.overwrites_for(message.guild.default_role)
 
                             overwrite.embed_links = False
@@ -622,7 +667,14 @@ class MyClient(commands.AutoShardedBot):
                             r.set("tjbot:media_locked", 1)
                             await client.get_channel(1268706892876873949).send(f"[DEBUG] {message.author.mention} triggered medialock in <#1268366668384440352>")
                         elif float(r.get("tjbot:mediacounter")) >= 4 and not r.get("tjbot:media_locked"):
-                            await message.reply("less media please")
+                            #await message.reply(random.choice([
+                            #    "less media please",
+                            #    "less media",
+                            #    "please slow down in your media usage",
+                            #    "i am required to inform you that the media usage in this chat is extraordinarily high. please send less media in this chat or a media prohibition may be instantiated",
+                            #    "slow down in media usage please",
+                            #    "hey everyone, could we maybe tone down the amount of media being sent? *chirp* my tiny brain is overwhelmed and its making my ears twitch! im so stupid but even i can tell that way too many pictures is a bit much lol :3"
+                            #]))
                             await client.get_channel(1268706892876873949).send(f"[DEBUG] {message.author.mention} sent a media in <#1268366668384440352> which pushed medialock right against threshhold. last warning has been sent")
 
             if False:#message.guild.id == 1268365327058599968 and not message.channel.type == discord.ChannelType.forum:
