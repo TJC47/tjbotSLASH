@@ -603,39 +603,39 @@ class MyClient(commands.AutoShardedBot):
                     trigger = False
                     def is_link(msg):
                         banned_providers = [
-                            "https://cdn.discordapp.com",
-                            "https://media.discordapp.net",
-                            "https://tenor.com",
-                            "https://media.tenor.com",
-                            "https://giphy.com",
-                            "https://media.giphy.com",
-                            "https://klipy.com",
-                            "https://media.klipy.com",
-                            "https://imgur.com",
-                            "https://i.imgur.com",
-                            "https://imageshack.com",
-                            "https://imgbb.com",
-                            "https://ibb.co",
-                            "https://postimg.cc",
-                            "https://postimages.org",
-                            "https://imagebam.com",
-                            "https://imagevenue.com",
-                            "https://catbox.moe",
-                            "https://files.catbox.moe",
-                            "https://litterbox.catbox.moe",
-                            "https://0x0.st",
-                            "https://pomf2.lain.la",
-                            "https://uguu.se",
-                            "https://gfycat.com",
-                            "https://gifs.com",
-                            "https://ezgif.com",
-                            "https://filegarden.com",
-                            "https://file.garden",
-                            "https://encrypted-tbn0.gstatic.com",
-                            "https://worra.nekoweb.org",
-                            "https://prefire.prevter.me"
+                            "cdn.discordapp.com",
+                            "media.discordapp.net",
+                            "tenor.com",
+                            "media.tenor.com",
+                            "giphy.com",
+                            "media.giphy.com",
+                            "klipy.com",
+                            "media.klipy.com",
+                            "imgur.com",
+                            "i.imgur.com",
+                            "imageshack.com",
+                            "imgbb.com",
+                            "ibb.co",
+                            "postimg.cc",
+                            "postimages.org",
+                            "imagebam.com",
+                            "imagevenue.com",
+                            "catbox.moe",
+                            "files.catbox.moe",
+                            "litterbox.catbox.moe",
+                            "0x0.st",
+                            "pomf2.lain.la",
+                            "uguu.se",
+                            "gfycat.com",
+                            "gifs.com",
+                            "ezgif.com",
+                            "filegarden.com",
+                            "file.garden",
+                            "encrypted-tbn0.gstatic.com",
+                            "worra.nekoweb.org",
+                            "prefire.prevter.me"
                         ]
-                        if "https://" in msg:
+                        if "https://" in msg or "http://":
                             for provider in banned_providers:
                                 if provider in msg:
                                     return True
@@ -837,14 +837,14 @@ class MyClient(commands.AutoShardedBot):
                 string1 = ""
                 for i in actions:
                     string1 = string1 + f"\n> `s\\!{i}` -> {actions[i]}"
-                await message.reply(f"All Sapphire actions:\n-# Backslash MUST be included for it to register, non inclusion could cause unwanted consequences!{string1}")
+                #await message.reply(f"All Sapphire actions:\n-# Backslash MUST be included for it to register, non inclusion could cause unwanted consequences!{string1}")
             if message.content.startswith(r"s\!"):
                 if message.channel.permissions_for(message.author).ban_members or message.author.id in cool_people:
                     actionid = message.content.split(" ")[0].replace(r"s\!", "")
                     if actionid in actions:
                         action = actions[actionid]
                     else: return
-                    await message.add_reaction("<a:loading:1332808438396358777>")
+                    await message.add_reaction("<a:loading:1555267409923801230>")
                     await asyncio.sleep(3)
                     proof = None
                     duration = "Permanent"
