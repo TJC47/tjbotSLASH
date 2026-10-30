@@ -56,50 +56,6 @@ async def async_post(url, **kwargs):
         text = await resp.text()
         return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
 
-def add_notification(userid, title, content, type="info", priority="deferMenu", toast: bool = False, expiry = None, show_web = True, show_mod = True):
-        """
-        Adds a notification to a user
-        type: Notification types: "info", "success", "warn", "error", "critical" (client will probably change notif sounds or color?!)
-        priority: Notification priorities: "deferMenu", "immediate", "onLayer"
-        deferMenu: will wait until the user is in the game menu to display
-        immediate: will instantly display the notification, no matter what the user is doing
-        onLayer: display the notification when BetterThumbnailsLayer is opened
-        """
-        userid = int(userid)
-        notificationjson = {
-            "title": title,
-            "content": content,
-            "id": random.randint(1,10000000000000000),
-            "timestamp": round(time.time()),
-            "notification_type": type,
-            "notification_priority": priority,
-            "toast": toast,
-            "expiry": round(time.time()) + expiry if expiry else None,
-            "show_web": show_web,
-            "show_mod": show_mod
-        }
-        r.rpush(f"notifications:{userid}", json.dumps(notificationjson), )
-
-class LevelInfo:
-    """
-    Easy Access to Level info provided from thumbnail submissions
-    """
-    def __init__(self, level_name: str, account_id: int, creator_name: str, downloads: int, likes: int, stars: int, level_rating: int, level_difficulty: int, percentage: float, level_time: float, level_length: float, submission_note: str):
-        self.level_name = level_name
-        self.account_id = account_id
-        self.creator_name = creator_name
-        self.downloads = downloads
-        self.likes = likes
-        self.stars = stars
-        self.level_rating = level_rating
-        self.level_difficulty = level_difficulty
-        self.percentage = percentage
-        self.level_time = level_time
-        self.level_length = level_length
-        self.submission_note = submission_note
-
-    def to_encoded(self):
-        return f"v=1;ln={self.level_name};ci={self.account_id};cn={self.creator_name};dw={self.downloads};lk={self.likes};ls={self.stars};lr={self.level_rating};ld={self.level_difficulty};pr={self.percentage};tm={self.level_time};ll={self.level_length};m={self.submission_note}"
 
 
 class KickUserView(discord.ui.View):
@@ -149,54 +105,6 @@ class KickUserView(discord.ui.View):
 init(10)
 logger = logging.getLogger("tjbot.main")
 
-actions = {
-    "ban": "banned",
-    "mute": "muted",
-    "warn": "warned",
-    "kick": "kicked",
-    "unban": "unbanned",
-    "unmute": "unmuted",
-    "unkick": "unkicked",
-    "unwarn": "unwarned",
-    "cliff": "thrown off a fucking cliff",
-    "torture": "tortured",
-    "neck": "got their neck twisted till they fucking died",
-    "kill": "killed",
-    "explode": "exploded",
-    "muta": "mutad",
-    "bam": "bammed",
-    "warm": "warmed",
-    "nuke": "nuked",
-    "bigshot": "now has a chance to be a [[BIG SHOT]]",
-    "van": "has been thrown in a suspicious van",
-    "demote": "demoted", # do NOT run this command on tjc
-    "promote": "promoted",
-    "smash": "smashed (AS IN DESTROYED YOU PERVERTED FUCK)",
-    "cdc": "put in a cdc disk ca- *gets shot*",
-    "tropicalmeow": "<a:KingPat:1277609556142456952>ed",
-    "dod": "died due to the cause of death", # <------ CREDIT TO MOONSTAR FOR THIS IDEA
-    "dieofdeath": "died of death",
-    "boop": "booped",
-    "bean": "beaned",
-    "dermute": "dermuted",
-    "dermote": "dermoted",
-    "nullscape": """nullsca- 
-
-CBF DETECTED, LOSER!
-
-CLICK BETWEEN FRAMES IS ILLEGITIMATE AND WILL NOT BE ALLOWED FOR USE IN TJBOT. PLEASE DISABLE THE MOD IN ORDER TO CONTINUE PLAYING.
-""",
-    "mart....slide!": "Mart. The Waterimp: Hi! I am Mart. The Waterimp! I don't know what i should say...",
-    "bonk": "bonked",
-    "wmoon": "W moon",
-    "olck": "Command not found\n> There's no command called `olck`",
-    "loink": "zoinks! its the slop content\n-# ZOINK REFERENCE????\n> I VERIFIED THE GOLDEN LET'S GO wait no was that nswish",
-    "goog": "<:goog:1445140537911804046>'ed",
-    "mediaban": "media banned",
-    "tikiphonk": "No.",
-    "67": "doot doot six seven'ed",
-    "meow": "im a silly little kitty cat :3 mrrp meow nyaa mrow ^_^"
-}
 
 cool_people = [1045761412489809975, 998995432132853891, 808528986970783746, 1291086017981317201, 930947671592697876]
 
@@ -357,86 +265,6 @@ class MyClient(commands.AutoShardedBot):
             for _ in range(int(argm[1])):
                 await asyncio.sleep(float(argm[2]))
                 await message.channel.send(argm[3])
-        if message.content.startswith("bltlnk") and len(message.content) == 10 and message.content.isalnum():
-            userdata = {
-                "user_id": message.author.id,
-                "username": message.author.name
-            }
-            if r.set(f"betterthumbnails:usermanagement:discord_link:{message.content}", json.dumps(userdata), ex=600, nx=True):
-                await message.add_reaction("⛓️‍💥")
-                await message.delete()
-            else:
-                await message.add_reaction("❌")
-                await message.delete()
-        def fuzzy_highlight(text, pattern):
-            ti = 0
-            pi = 0
-            matches = []
-
-            while ti < len(text) and pi < len(pattern):
-                if text[ti] == pattern[pi]:
-                    matches.append(ti)
-                    pi += 1
-                ti += 1
-
-            if pi != len(pattern):
-                return None  # no match
-
-            # build output
-            out = ""
-            out += "match found\n"
-            out += f"{text}\n"
-
-            line = [" "] * len(text)
-            for i in matches:
-                line[i] = "^"
-
-            out += "".join(line)
-            return out
-
-        #if message.guild:
-        #    if message.guild.id == 1316947105796984842:
-        #        res = fuzzy_highlight(message.content, "tjslop")
-        #        if res is not None:
-        #            await message.reply(f"hi spooky bob ```text\n{res}```")
-
-        if message.author.id == 1355667498716106852:
-            await message.add_reaction("🔥")
-
-        if message.channel.id == 1336297659257983018:
-            comp = message.components[0]
-            print(message.components)
-            payload = ""
-            for child in comp.children:
-                if isinstance(child, discord.SectionComponent):
-                    for child in child.children:
-                        payload += child.content
-            level_id = regex.findall(r"`(\d+)`", payload)[0].strip("`")
-            r.rpush("betterthumbnails:recent_submit_ids", level_id)
-            other_matches = regex.findall(r"\*\*[^\*]+\*\*", payload)
-            level_info = LevelInfo(
-                other_matches[0].strip("**__").strip("__**"),
-                0,
-                other_matches[1].strip("*"),
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                "Unknown"
-            )
-            if not r.get(f"betterthumbnails:level_info:{level_id}"):
-                r.set(f"betterthumbnails:level_info:{level_id}", level_info.to_encoded())
-            try:
-                threading.Thread(target=requests.get, args=[f"https://tjcsucht.net/betterthumbnails/thumbnail/{level_id}/small"]).start()
-                threading.Thread(target=requests.get, args=[f"https://tjcsucht.net/betterthumbnails/thumbnail/{level_id}/info"]).start()
-            except:
-                print("error!")
-            add_notification(0, "New Thumbnail added!", f"""The Level '{level_info.level_name}' just received a new Thumbnail!<br><a href='/lt/{level_id}'><button class="px-2 py-1 text-sm bg-slate-900 hover:bg-slate-800 rounded font-extrabold text-white m-0.5"'>View!</button></a>""", "info", toast=True, expiry=15, priority="immediate", show_mod=False)
-                
             
 
         words_mod_broken = ([
@@ -833,58 +661,6 @@ class MyClient(commands.AutoShardedBot):
                         
 
 
-            if message.content.startswith(r"st!actions"):
-                string1 = ""
-                for i in actions:
-                    string1 = string1 + f"\n> `s\\!{i}` -> {actions[i]}"
-                #await message.reply(f"All Sapphire actions:\n-# Backslash MUST be included for it to register, non inclusion could cause unwanted consequences!{string1}")
-            if message.content.startswith(r"s\!"):
-                if message.channel.permissions_for(message.author).ban_members or message.author.id in cool_people:
-                    actionid = message.content.split(" ")[0].replace(r"s\!", "")
-                    if actionid in actions:
-                        action = actions[actionid]
-                    else: return
-                    await message.add_reaction("<a:loading:1555267409923801230>")
-                    await asyncio.sleep(3)
-                    proof = None
-                    duration = "Permanent"
-                    if message.reference:
-                        ref = await message.channel.fetch_message(message.reference.message_id)
-                        usermention = ref.author.mention
-                        proof = ref.content
-                        reason = message.content.split(" ", 1)[1] if len(message.content.split(" "))>=2 else "No reason provided"
-                    else:
-                        usermention = message.content.split(' ', 2)[1] if len(message.content.split(" "))>=3 else message.content.split(' ', 1)[1]
-                        reason = message.content.split(" ", 2)[2] if len(message.content.split(" "))>=3 else "No reason provided"
-                    if ";" in reason:
-                        duration = reason.split(";", 1)[0]
-                        reason = reason.split(";", 1)[1]
-                    if actionid == "demote" and ("1045761412489809975" in usermention or "tjc" in usermention):
-                        await message.add_reaction("❌")
-                        return
-                    embed = discord.Embed()
-                    embed.timestamp = datetime.datetime.now()
-                    embed.description = f"""<:checkmarksapph:1309669307214598265> {usermention} {action}\n> **Reason:** {reason}\n> **Duration:** {duration}\n{f"> <:proofverified:1505565258578657280>**Proof:** {proof} ([Link](https://discord.com/channels/{ref.guild.id}/{ref.channel.id}/{ref.id}))" if proof else ""}"""
-                    embed.set_footer(text=f"@{message.author.name}", icon_url=message.author.avatar.url)
-                    embed.color = discord.Colour.from_rgb(54, 206, 54)
-                    try:
-                        await message.delete()
-                    except:
-                        await message.send(":warning: TJBot does not have the `manage messages` permission needed for this command! Please grant TJBot the permission and try again.")
-                        return
-                    try:
-                        temp_webhook = await message.channel.create_webhook(name="TJBot-temp-webhook")
-                    except:
-                        await message.channel.send(":warning: TJBot does not have the `create webhooks` permission needed for this command! Please grant TJBot the permission and try again.")
-                        return
-                    # sapphire pfp: https://de-1.tjcsucht.net/leb/LwB8-37e0fb2dcf8d219aa92bf02f47ea60eb.webp
-                    await temp_webhook.send(embed=embed, username="geode sdk" if message.guild.id == 1268365327058599968 else "Sapphire", avatar_url="https://de-1.tjcsucht.net/leb/LwB8-37e0fb2dcf8d219aa92bf02f47ea60eb.webp", wait=True)
-                    try:
-                        # temp_webhook might not exist if exception raised earlier
-                        if 'temp_webhook' in locals() and temp_webhook:
-                            await temp_webhook.delete()
-                    except :
-                        await message.send(":warning: Webhook could not be deleted")
                 
         if message.content=="!a":
             await message.channel.send(f"Total: {str(index)} | Minutes: {str(round(minute/60,ndigits=3))} | Result: {str(round((index*60)/minute, ndigits=3))} | SHARD ID: {message.guild.shard_id}")

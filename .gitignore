@@ -8,6 +8,7 @@ itemlist.json
 passivelist.json
 counter.json
 cogs.json
+levelconfig.json
 
 # the seeecreet
 LEBlogger.py

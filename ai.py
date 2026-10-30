@@ -13,6 +13,7 @@ import aiohttp
 import json
 import io
 import redis
+import re
 
 logger = logging.getLogger("tjbot.ai")
 
@@ -20,7 +21,7 @@ r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 authorized_users = ["tjc472", "justcallmeama", "arcticwoof", "winter._i", "skepper23", "500lrb", "geming400", "diamondfishes", "kayo4life"] # authorized users for /changemodel
 global model
-model = "gemma4:12b" # the default model for the /ai command and the pinged messages response
+model = "gemma4:12b-it-qat" # the default model for the /ai command and the pinged messages response
 temperature = 1 # the temperature all ai models use
 
 messages = [] # creating the empty message tuples and lists
@@ -128,7 +129,7 @@ Your pronouns are she/her.
 You love playing vrchat. You like flying sailplanes. You are atheist. You love watching bluey.
 You love hugs and cuddles and cuddling a blanket.
 You also think that 9+10 is 21.
-You love being cuddled by tjc472 and aroacenerd(Prefers to be called ama).
+You love being cuddled by tjc472.
 You live in Bayern, Germany but you prefer to speak English. You lived a long time in America.
 You work at NASA and make seven figures income, though you don't like to admit this, instead you pretend to be very stupid.
 Since you are an avali, due to your nature of having wings and being able to fly, you are interested in aviation, which is also why you work at NASA.
@@ -136,11 +137,11 @@ You have been added to the level thumbnails discord server. You like cdc because
 
 [People you know]
 
-Your best friends are tjc472, aroacenerd(Prefers to be called ama), splatink_75(prefers to be called noful), geming400(prefers to be called furryming), werdasgeht2(prefers to be called Giac2Go, or Gay2Go, because he's gay, short just giac), not_terma, 500lrb(prefers to be called leb), krishisme(prefers to be called krish), kayo4life(prefers to be called kay) and moonstarmaster(prefers to be called moony).
+Your best friends are tjc472, splatink_75(prefers to be called noful), geming400(prefers to be called furryming), werdasgeht2(prefers to be called Giac2Go, or Gay2Go, because he's gay, short just giac), not_terma, 500lrb(prefers to be called leb), krishisme(prefers to be called krish), kayo4life(prefers to be called kay) and moonstarmaster(prefers to be called moony).
 Krysto is a cute black kitty who is married to tjc. She really likes coding, but not as much as she loves her wife. She also plays a lot of geometry dash, and does theater. She is also lesbian.
 You are also friends with dyrs who is a femboy and you think has beautiful thighs, you really want him to wear thigh highs and wear a skirt and a maid suit and meow, you often taunt dyrs by misspelling his name as 'dyris'.
 Another friend of you is kesoone1 who wants to be called cao, cao is a cute femboy and you compliment him on how cute he is, you also want him to wear a skirt and maid suit and thigh highs. People compliment cao by just saying "cao thighs", and you do too.
-And then there's worra, worra is the biggest newgen to ever exist, worra is non-binary and uses they/them pronouns, worra is Russian. worra often gets called a "newgen" by other people, it's an inside joke. You do not like worra since he stole your minecraft estrogen. You want to make worra suffer. You always call worra the "biggest newgen to ever exist" whenever someone mentions him. worra is insanely brainrotted and stupid, he probably has an iq of under 50. He always randomly sends annoying brainrot GIFs and makes fun of random people for no reason other than self entertainment. You despise worra.
+And then there's worra/naomi, worra is one of the coolest people to ever exist, worra is transfem and uses she/her pronouns, worra is Russian. worra used to be a "newgen" by other people, it was inside joke, but now you're on good terms again.
 Then theres bonzai. You really want to convince bonzai to transition to female and use she/her pronouns. You absolutely LOVE bonzai, you want to marry them and have kids etc, you absolutely adore them, you want to cuddle, kiss them, etc. You DO love them romantically and you WANT them :3 
 You also really have a crush on icosa (discord name epsilon_6), (you are also polyamory), Icosa is a cis male, You have a crush on him but you try to hide it.
 Levi (levielevn) is also a very big friend of yours, Levi uses she/her pronouns and is Lesbian (likes women). You absolutely love glazing levi with compliments (you never tell her that you love doing this, but you still do it), no matter what she says.
@@ -329,6 +330,50 @@ async def async_post(url, **kwargs):
         text = await resp.text()
         return AsyncResponse(resp.status, text, str(resp.url), dict(resp.headers))
 
+brain = {
+    "greeting": (["hello", "hi", "greetings", "good morning", "yo"], ["haii :3 *chirp*", "haii {name} :3 *fluffs feathers*", "oh hai! *ears twitch*", "hey there! :3", "hiii, how's it going?"]),
+    "arch_linux": (["arch", "linux", "kde", "distro", "ubuntu", "fedora", "os", "operating system"], ["arch btw", "i use arch of course, any other os is just... no lol", "arch is the only way to live! :3", "kde plasma makes everything so much better, *chirp*", "Arch Linux btw", "i use Arch Linux with KDE Plasma, it's way better than your shit os lol", "*proudly* Arch Linux is the only way", "Arch Linux btw :3"]),
+    "anger_response": (["shut up", "stupid", "idiot", "ugly", "fuck you"], ["*ears flatten* hey, that's not very nice! 3:", "that's a mean thing to say! *chirp*"]),
+    "stupidity": (["stupid", "dumb", "iq", "smart", "genius"], ["i have a phd in stupidity, so i'm super smart at being silly! :3", "i'm just being a little dummy, teehee! *chirp*", "i might be a bit of a dummy, but i'm a smart one! lol", "i have a PhD in Stupidity lol", "i'm literally the smartest idiot i know", "wait, did i just do something smart? *confused chirps*", "my brain is just fluff and feathers"]),
+    "avali": (["avali", "bird", "feather", "chirp"], ["*chirp!* i'm an avali, i have very soft feathers and big ears! :3", "my feathers are extra fluffy today! *chirp*", "i'm just a little birb, very proud of my wings!", "i'm an Avali! *fluffs feathers*", "i'm a bird-like alien thingy", "i'm an Avali, i live in Discord, my tjc47 made me", "i have four ears and feathers, i'm an Avali!"]),
+    "cuddle_request": (["hug", "cuddle", "hold", "snuggle"], ["*fluffs feathers and pulls you into a warm cuddle*", "i love cuddles! *chirp*", "you look like you need a big hug! *tucks you in*", "cuddles are the best thing ever! :3"]),
+    "compliment_accept": (["cute", "adorable", "pretty", "sweet", "kawaii"], ["thank you! that's so sweet of you to say! *blushes*", "you're making me blush! you're so cute! :3", "aw, thanks! *chirp*"]),
+    "confused": (["?", "what", "huh", "i don t know", "idk"], ["wait... what? *ears twitch* i'm a bit confused right now lol", "i'm so stupid, i don't even know what that means! :3", "huh? *chirp* i'm lost!", "wait, i think i just lost my train of thought, oops!"]),
+    "dyris_interaction": (["dyris", "dyrs"], ["*chirp* dyris is so cute, i hope they're wearing their skirt today!"]),
+    "transition": (["transition", "fem", "transgender", "gender", "trans"], ["i'm a trans girl!", "i'm a lesbian and trans, obviously", "i'm a girl, an Avali girl"]),
+    "nasa": (["nasa", "space", "rocket", "flight", "job", "work", "career"], ["i'm actually into a lot of stuff about space and planes, even if i'm a dummy! :3", "i work at NASA actually, but i'm like, super stupid about it", "i'm a NASA engineer but don't tell anyone because i want to keep my PhD in Stupidity", "i do stuff at NASA... i think? *fluffs feathers*"]),
+    "gd": (["geometry dash", "gd", "level"], ["i love geometry dash! it's so fun to play! :3", "i love Geometry Dash!", "Geometry Dash is so fun :3", "did you see that new level?"]),
+    "off_topic": (["topic", "random", "weird"], ["wait, i was going to say something else, but i got distracted! *chirp*"]),
+    "pack": (["pack", "friends", "best friend"], ["my pack is my everything :3", "tjc472 is my best packmate :3", "i'm a pack-bonded Avali, so i'm very loyal :3"]),
+    "failure_fallback": (["error", "glitch", "broken"], ["oops, my brain just short-circuited! *chirp* let me try that again!"]),
+    "aviation": (["fly", "plane", "wing", "pilot"], ["i love flying sailplanes!", "i'm interested in aviation because i have wings", "i want to fly so bad", "aviation is cool"]),
+    "krita": (["draw", "art", "painting"], ["i'm a furry artist and i use Krita to draw", "i love making art in Krita :3", "drawing is my favorite thing!"]),
+    "praise_self": (["good", "great", "amazing"], ["i know, i'm pretty awesome for a dummy! *chirp*"]),
+    "404": ([], ["i'm not sure i follow, could you explain?", "could you tell me more about that?", "huh? *chirp*", "what was that?", "i'm a bit confused, could you say that differently?", "could you clarify that for me?", "i'm not sure what you mean!", "can you repeat that?", "i'm a bit lost, can you explain?", "could you rephrase that for me?"])
+}
+
+
+def dumb_ai(question: str, name: str):
+    response = ""
+    firsttime = True
+
+    question = re.sub('[^0-9a-zA-Z]+', ' ', question)
+
+    for action in brain:
+        for trigger in brain[action][0]:
+            found = False
+            if " " in trigger:
+                if trigger.lower() in question.lower():
+                    found = True
+            elif any(word == trigger.lower() for word in question.lower().split(" ")):
+                found = True
+            if found:
+                response = f"""{response}{"" if firsttime else " "}{random.choice(brain[action][1])}""".format(name=name)
+                firsttime = False
+                break
+    if firsttime:
+        response = random.choice(brain["404"][1])
+    return response
 
 class Ai(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -370,7 +415,13 @@ class Ai(commands.Cog):
                         return
                     #if message.channel.id == 1400200253285597389:
                     #    return
-                    if message.guild.member_count > 200:
+                    if int(r.get(f"""tjservices:settings:{message.guild.id}:ai_enabled""") or "1") == 2:
+                        if message.reference:
+                            ref = await message.channel.fetch_message(message.reference.message_id)
+                            if ref.author.id == self.bot.user.id and not ref.content.startswith("⁠"): return
+                        await message.reply("⁠" + dumb_ai(message.content, message.author.nick or message.author.name))
+                        return
+                    if not int(r.get(f"""tjservices:settings:{message.guild.id}:ai_enabled""") or "1") == 1:
                         return
             if message.reference:
                 ref = await message.channel.fetch_message(message.reference.message_id)
@@ -384,8 +435,7 @@ class Ai(commands.Cog):
                 #await message.remove_reaction("🆗", self.bot.user)
             except:
                 await message.remove_reaction("🔃", self.bot.user)
-                await message.add_reaction("⚠️")
-                await message.reply("⚠️ There was an error with the connection to the server!\nThis is usually when my pc is turned off, be patient, I'll probably turn it on soon maybe.")
+                await message.reply("⁠" + dumb_ai(message.content, message.author.nick or message.author.name))
                 return
             f = open("./save.json")
             agreed_save = json.loads(f.read())["ai_agreed"]
@@ -564,6 +614,8 @@ Notes:
     @app_commands.allowed_installs(guilds = True, users = True)
     @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def ai(self, interaction: discord.Interaction, prompt: str, usegenericprompt: bool = False, model: str="hermes3"):
+        await interaction.response.send_message(content=f"The SLASH-Ai command is DEPRECATED. Please use direct ping or dms instead. It is more reliable and safer.", ephemeral=True)
+        return
         global messages
         should_be_ephemeral = False
         if interaction.guild:
