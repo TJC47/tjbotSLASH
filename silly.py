@@ -99,7 +99,7 @@ transdict = {
     "inli": "inline"
 }
 
-class Silly(commands.Cog):
+class Silly(commands.GroupCog, group_name="silly"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 

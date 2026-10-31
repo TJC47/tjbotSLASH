@@ -242,7 +242,7 @@ def unpacknumbers(string: str):
         elif string.endswith("twitter"): return round(float(string.strip("twitter")) * 1000000000000000000000000000)
         elif string.endswith("bsky"): return round(float(string.strip("bsky")) * 1000000000000000000000000000000)
         elif string.endswith("i lost track of the numbers"): return round(float(string.strip("i lost track of the numbers")) * 1000000000000000000000000000000000)
-        else: return float(string)
+        else: return float(string) if not math.isnan(float(string)) else 0
     except:
         return 0
 
@@ -295,7 +295,7 @@ async def do_ratelimit(interaction: discord.Interaction):
             ratelimit[str(interaction.user.id)] = 1
             return False
 
-class Economy(commands.Cog):
+class Economy(commands.GroupCog, group_name="economy"):
 
 
 

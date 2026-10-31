@@ -23,7 +23,7 @@ logger = logging.getLogger("tjbot.management")
 
 r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
-class Management(commands.Cog):
+class Management(commands.GroupCog, group_name="management"):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
 

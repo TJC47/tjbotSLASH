@@ -17,49 +17,14 @@ import string
 import regex
 import threading
 import math
-
+from economy import ezread, to_ordinal
 
 logger = logging.getLogger("tjbot.leveling")
 
 
 r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
-"""
-Insert  meme
-"""
 
-def ezread(number: int): # short function name because this is gonna be used a LOT
-    if number == float("inf"): return "infinite "
-    if number >= 1000000000000000000000000000000000: return f"{str(round(number / 1000000000000000000000000000000000, ndigits=1))}I LOST TRACK OF THE NUMBERS"
-    elif number >= 1000000000000000000000000000000: return f"{str(round(number / 1000000000000000000000000000000, ndigits=1))}BSKY"
-    elif number >= 1000000000000000000000000000: return f"{str(round(number / 1000000000000000000000000000, ndigits=1))}TWITTER"
-    elif number >= 1000000000000000000000000: return f"{str(round(number / 1000000000000000000000000, ndigits=1))}X"
-    elif number >= 1000000000000000000000: return f"{str(round(number / 1000000000000000000000, ndigits=1))}SEP"
-    elif number >= 1000000000000000000: return f"{str(round(number / 1000000000000000000, ndigits=1))}SEX"
-    elif number >= 1000000000000000: return f"{str(round(number / 1000000000000000, ndigits=1))}Q"
-    elif number >= 1000000000000: return f"{str(round(number / 1000000000000, ndigits=1))}T"
-    elif number >= 1000000000: return f"{str(round(number / 1000000000, ndigits=1))}B"
-    elif number >= 1000000: return f"{str(round(number / 1000000, ndigits=1))}M"
-    elif number >= 1000: return f"{str(round(number / 1000, ndigits=1))}K"
-    else: return f"{str(number)}"
-
-def to_ordinal(number):
-    ordinal = "th"
-
-    if number == 1:
-        ordinal = "st"
-    if number == 2:
-        ordinal = "nd"
-    if number == 3:
-        ordinal = "rd"
-
-    if number > 20:
-        last_digit = int(str(number)[1:]) # :skull:
-        if last_digit == 1: ordinal = "st"
-        if last_digit == 2: ordinal = "nd"
-        if last_digit == 3: ordinal = "rd"
-
-    return f"{number}{ordinal}"
 
 with open("levelconfig.json") as f:
     config = json.loads(f.read())
@@ -135,7 +100,7 @@ def get_level_user(userid: int) -> LevelUser:
         local_xp_for_next_level
     )
 
-class Leveling(commands.Cog):
+class Leveling(commands.GroupCog, group_name="xp"):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
 
@@ -155,6 +120,7 @@ class Leveling(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def get_level(self, interaction: discord.Interaction, user: discord.User = None):
+        await interaction.response.defer()
         if not user: user = interaction.user
 
         level_info = get_level_user(user.id)
@@ -171,7 +137,7 @@ class Leveling(commands.Cog):
 
         embed.set_footer(text="XP is earned by chatting normally. Spamming messages or attempting to game the system will result in an XP deduction.")
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.edit_original_response(embed=embed)
 
     @app_commands.command(description="view the xp leaderboard :3")
     @app_commands.describe(
@@ -179,15 +145,14 @@ class Leveling(commands.Cog):
     )
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def xp_leaderboard(self, interaction: discord.Interaction, full_leaderboard: bool = False):
-
-            leaderboard = r.zrevrange("tjbot:xp_leaderboard", 0, -1)
-            print(leaderboard)
+    async def leaderboard(self, interaction: discord.Interaction, full_leaderboard: bool = False):
+            await interaction.response.defer()
+            leaderboard = r.zrevrange("tjbot:xp_leaderboard", 0, 9)
             embed = discord.Embed()
             embed.title = "XP Leaderboard"
             embed.color = discord.Color.pink()
             try:
-                embed.set_footer(text=f"""Your placement: {to_ordinal(leaderboard.index(str(interaction.user.id))+1)} Place""")
+                embed.set_footer(text=f"""Your placement: {to_ordinal(r.zrevrank("tjbot:xp_leaderboard", str(interaction.user.id))+1)} Place""")
             except:
                 embed.set_footer(text="You don't have any XP so I can't tell you your leaderboard placement!")
             p = 1
@@ -199,7 +164,23 @@ class Leveling(commands.Cog):
                 level_info = get_level_user(user)
                 embed.add_field(name=f"{to_ordinal(p)} Place:", value=f"""> **User:** <@{user}>\n> **XP:** {ezread(level_info.xp)}\n> **Level:** {level_info.level}""", inline=False)
                 p = p + 1
-            await interaction.response.send_message(embed=embed)
+            await interaction.edit_original_response(embed=embed)
+
+    @app_commands.command(description="[bot-owner only] force-refresh ALL users in leaderboard, may be VERY slow :3")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def refresh_leaderboard(self, interaction: discord.Interaction):
+            await interaction.response.defer()
+
+            starttime = time.time()
+
+            leaderboard = r.zrevrange("tjbot:xp_leaderboard", 0, -1)
+
+            for user in leaderboard:
+                level_info = get_level_user(user) # Fetching the user refreshes the leaderboard placement
+                logger.info(f"Refreshed leaderboard placement for '{user}': has {level_info.xp}XP, at level {level_info.level}")
+            await interaction.edit_original_response(content=f"Refresh completed in `{time.time()-starttime:.2f}seconds`. Check logs for detailed information.")
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Leveling(bot))

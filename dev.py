@@ -57,7 +57,7 @@ class ExecModal(discord.ui.Modal, title = 'Exec this shit'):
 
 
 
-class Dev(commands.Cog):
+class Dev(commands.GroupCog, group_name="dev"):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
 
