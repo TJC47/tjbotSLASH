@@ -211,22 +211,19 @@ class Silly(commands.GroupCog, group_name="silly"):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def hewwo(self, interaction: discord.Interaction, user: discord.User=None):
-        disclaimer = ""
-        if interaction.user.id == 1273790168129601558:
-            disclaimer = " hi moonstar im just riding amas meat trust"
         if user:
             hewwotosay = user.name
-            if user.nick:
+            try:
                 hewwotosay=user.nick
-            if user.id == 1155392571569356880:
-                hewwotosay = "ama"
+            except:
+                pass
             if user.id == 1045761412489809975:
                 hewwotosay = "tjc"
             if user.id == 1261732994755072031:
                 hewwotosay = "chat"
         else:
             hewwotosay = "chat"
-        thing = f"hewwo {hewwotosay} :3333{disclaimer}"
+        thing = f"hewwo {hewwotosay} :3333"
         await interaction.response.send_message(content=thing)
 
     @app_commands.command(description="what does your name mean?:3")
@@ -250,7 +247,7 @@ class Silly(commands.GroupCog, group_name="silly"):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def tjcian_reboot(self, interaction: discord.Interaction):
         if not interaction.user.id == 1045761412489809975:
-            interaction.response.send_message(content=f":x: No.")
+            await interaction.response.send_message(content=f":x: No.")
             return
         await interaction.response.send_message(content=f"<a:loading3:1303768414422040586> Connecting...")
         async def update_message(interaction: discord.Interaction, log: list):

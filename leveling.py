@@ -34,6 +34,7 @@ BASE_XP = config.get("base_xp")
 XP_PER_VALID_MESSAGE = config.get("xp_per_valid_message")
 SPAM_XP_DEDUCTION = config.get("spam_xp_deduction")
 VALID_MESSAGE_TIME = config.get("valid_message_time")
+XP_PER_RECEIVED_REACTION = config.get("xp_per_received_reaction")
 
 def get_xp_for_level(level: int) -> int:
     return int(BASE_XP * (GROWTH_RATE ** level - 1) / (GROWTH_RATE - 1))
@@ -63,7 +64,7 @@ def progress_bar(progress: float, length: int = 20) -> str:
     )
 
 class LevelUser:
-    def __init__(self, xp: int, level: int, eligible_messages_sent: int, total_messages_sent: int, last_eligible_message_timestamp: float, local_xp: int, local_xp_for_next_level: int):
+    def __init__(self, xp: int, level: int, eligible_messages_sent: int, total_messages_sent: int, last_eligible_message_timestamp: float, local_xp: int, local_xp_for_next_level: int, message_reactions_received: int, message_reactions_given: int):
         self.xp = xp
         self.level = level
         self.eligible_messages_sent = eligible_messages_sent
@@ -73,15 +74,24 @@ class LevelUser:
         self.local_xp_for_next_level = local_xp_for_next_level
         self.local_xp_progress = local_xp / local_xp_for_next_level
         self.eligible_ineligible_ratio = eligible_messages_sent / (total_messages_sent + 1)
+        self.message_reactions_received = message_reactions_received
+        self.message_reactions_given = message_reactions_given
 
 def get_level_user(userid: int) -> LevelUser:
     eligible_messages_sent = int(r.get(f"tjbot:levels:{userid}:eligible_messages_sent") or 0)
     total_messages_sent =  int(r.get(f"tjbot:levels:{userid}:total_messages_sent") or 0)
     last_eligible_message_timestamp =  float(r.get(f"tjbot:levels:{userid}:last_eligible_message_timestamp") or 0)
+    message_reactions_received = int(r.get(f"tjbot:levels:{userid}:message_reactions_received") or 0)
+    message_reactions_given = int(r.get(f"tjbot:levels:{userid}:message_reactions_given") or 0)
 
     eligible_ineligible_ratio = eligible_messages_sent / (total_messages_sent + 1)
 
-    xp = round(((eligible_messages_sent * XP_PER_VALID_MESSAGE) - ((total_messages_sent-eligible_messages_sent) * SPAM_XP_DEDUCTION)) * (1 + eligible_ineligible_ratio))
+    xp = eligible_messages_sent * XP_PER_VALID_MESSAGE # xp from valid messages
+    xp += message_reactions_received * XP_PER_RECEIVED_REACTION # xp from receiving reactions
+    xp -= message_reactions_given * XP_PER_RECEIVED_REACTION # deducting xp when reacting (fairness), thinking about removing this or keeping it I'm not sure
+    xp -= (total_messages_sent-eligible_messages_sent) * SPAM_XP_DEDUCTION # deducting xp from spammed messages
+    xp *= 1 + eligible_ineligible_ratio # xp multiplier
+    xp = round(xp) # final round
 
     level = get_level_for_xp(xp)
 
@@ -97,12 +107,27 @@ def get_level_user(userid: int) -> LevelUser:
         total_messages_sent,
         last_eligible_message_timestamp,
         local_xp,
-        local_xp_for_next_level
+        local_xp_for_next_level,
+        message_reactions_received,
+        message_reactions_given
     )
 
 class Leveling(commands.GroupCog, group_name="xp"):
     def __init__(self, bot: commands.Bot) :
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        message = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        r.incr(f"tjbot:levels:{message.author.id}:message_reactions_received")
+        r.incr(f"tjbot:levels:{payload.user_id}:message_reactions_given")
+
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        message = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        r.decr(f"tjbot:levels:{message.author.id}:message_reactions_received")
+        r.decr(f"tjbot:levels:{payload.user_id}:message_reactions_given")
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -131,7 +156,8 @@ class Leveling(commands.GroupCog, group_name="xp"):
         embed.description = f"### {user.mention}'s Level Card"
         embed.add_field(name="Level", value=level_info.level)
         embed.add_field(name="Total XP Earned", value=ezread(level_info.xp))
-        embed.add_field(name="Total Messages Sent", value=ezread(level_info.total_messages_sent))
+        embed.add_field(name="Total Messages Sent", value=ezread(level_info.total_messages_sent), inline=False)
+        embed.add_field(name="Total Message Reactions Received", value=ezread(level_info.message_reactions_received))
         embed.add_field(name="Current Progress", value=f"`{progress_bar(level_info.local_xp_progress)}` **{level_info.local_xp_progress*100:.2f}%**\n-# {ezread(level_info.local_xp)}/{ezread(level_info.local_xp_for_next_level)}XP", inline=False)
         embed.add_field(name="XP Boost", value=f"`{progress_bar(level_info.eligible_ineligible_ratio)}` **{level_info.eligible_ineligible_ratio*100:.2f}%**")
 
