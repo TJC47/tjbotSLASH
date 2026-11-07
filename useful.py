@@ -109,7 +109,7 @@ class Useful(commands.Cog):
     @app_commands.command(description="Sends a random quote :3")
     @app_commands.allowed_installs(guilds=True, users=True)
     async def quote(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
+        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
         f = open("log.txt")
         quotes = f.read()
         f.close()
@@ -137,19 +137,19 @@ class Useful(commands.Cog):
                 quotedmessage = "`No Quote found(Timed out)`"
                 quoteduser = "`Error`"
             if searchattempts == 10000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
             if searchattempts == 20000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
             if searchattempts == 30000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
             if searchattempts == 40000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
         await interaction.edit_original_response(content=f"-# Quote from {quoteduser}:\n{quotedmessage}")
 
     @app_commands.command(description="Sends a random gif/link that winter sent once :3")
     @app_commands.allowed_installs(guilds=True, users=True)
     async def wintergif(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random  gif:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
+        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random  gif:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
         f = open("log.txt")
         quotes = f.read()
         f.close()
@@ -177,20 +177,20 @@ class Useful(commands.Cog):
                 quotedmessage = "`No Quote found(Timed out)`"
                 quoteduser = "`Error`"
             if searchattempts == 10000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
             if searchattempts == 20000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
             if searchattempts == 30000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
             if searchattempts == 40000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
         await interaction.edit_original_response(content=f"-# Gif from {quoteduser}:\n{quotedmessage}\n-# Found in {searchattempts} iterations")
 
 
     @app_commands.command(description="Sends a random gif/link that geming sent once :3")
     @app_commands.allowed_installs(guilds=True, users=True)
     async def geminggif(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random  gif:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
+        await interaction.response.send_message(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random  gif:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
         f = open("geminglog.txt")
         quotes = f.read()
         f.close()
@@ -218,13 +218,13 @@ class Useful(commands.Cog):
                 quotedmessage = "`No Quote found(Timed out)`"
                 quoteduser = "`Error`"
             if searchattempts == 10000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
             if searchattempts == 20000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
             if searchattempts == 30000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
             if searchattempts == 40000000:
-                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
+                await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
         if interaction.user.id == 729671931359395940:
             quotedmessage = "https://cdn.discordapp.com/attachments/1288959602897195120/1433118969169973390/watermark.gif?ex=691de58c&is=691c940c&hm=bdaf46041c5895bbd20407dafcd0eb00702415bdd80f4225509c5146936475da&"
         await interaction.edit_original_response(content=f"-# Gif from {quoteduser}:\n{quotedmessage}\n-# Found in {searchattempts} iterations")

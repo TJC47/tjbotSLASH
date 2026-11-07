@@ -69,10 +69,10 @@ class Dev(commands.GroupCog, group_name="dev"):
     @app_commands.allowed_installs(guilds = True, users = True)
     @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
     async def dev(self, interaction: discord.Interaction, prompt: str):
-        await interaction.response.send_message(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n<a:loading2:1296923111177850931>`Please wait... Running checks...`")
+        await interaction.response.send_message(content = f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n<a:loading2:1296923111177850931>`Please wait... Running checks...`")
         if interaction.user.name == "tjc472":
             if prompt == "q":
-                await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
+                await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs...`")
                 f = open("log.txt")
                 quotes = f.read()
                 f.close()
@@ -100,13 +100,13 @@ class Dev(commands.GroupCog, group_name="dev"):
                         quotedmessage = "`No Quote found(Timed out)`"
                         quoteduser = "`Error`"
                     if searchattempts == 10000000:
-                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
+                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 10000000 Messages Searched`")
                     if searchattempts == 20000000:
-                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
+                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 20000000 Messages Searched`")
                     if searchattempts == 30000000:
-                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
+                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 30000000 Messages Searched`")
                     if searchattempts == 40000000:
-                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
+                        await interaction.edit_original_response(content=f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n-# Message search\n-# Random quote:\n<a:loading2:1296923111177850931>`Please wait... Searching logs... 40000000 Messages Searched Cancelling soon...`")
                 await interaction.edit_original_response(content = f"-# Devutils\n-# Message search\n-# Quote from {quoteduser}:\n{quotedmessage}")
             elif prompt.startswith("s="):
                 searchterm = prompt.split("s=", 1)[1]
@@ -138,29 +138,29 @@ class Dev(commands.GroupCog, group_name="dev"):
                 if len(results) == 0:
                     output = "\nNothing found"
                 if not cancel:
-                    await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n`{resultamount} Results:`\n{output}")
+                    await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n-# Message search\n`{resultamount} Results:`\n{output}")
                 else:
-                    await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n-# Message search\n`{resultamount} Potential Results`\nOutput too long for message.")
+                    await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n-# Message search\n`{resultamount} Potential Results`\nOutput too long for message.")
             else:
                 if prompt.startswith("m="):
                     requestlogchannel = self.bot.get_channel(1331091527308673056)
                     searchterm = prompt.split("m=", 1)[1]
                     await requestlogchannel.send(searchterm)
-                    await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\nSent Message successfully")
+                    await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\nSent Message successfully")
                 else:
                     if prompt == "penis":
-                        await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\nStop the penising")
+                        await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\nStop the penising")
                     else:
                         if prompt == "join":
                             vc = await interaction.channel.connect() 
                             vc.play(discord.FFmpegPCMAudio("music.mp3"))
-                            await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\nmeow")
+                            await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.display_name})\nmeow")
                             #await asyncio.sleep(31)
                             #await vc.disconnect()
                         else:
-                            await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`Invalid Prompt!`\nDid you misspell something?")
+                            await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n`Invalid Prompt!`\nDid you misspell something?")
         else:
-            await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.nick})\n-# Devutils\n`No permission!`")
+            await interaction.edit_original_response(content = f"-# {interaction.user.name}({interaction.user.display_name})\n-# Devutils\n`No permission!`")
 
     @app_commands.command(description = "Eval some code :3")
     @app_commands.describe(
