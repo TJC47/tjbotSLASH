@@ -1,19 +1,9 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import requests
-import time
-import json
-import random
 import discord
 import logging
-import asyncio
-import aiohttp
-import urllib.request
-import subprocess
-import os
 import redis
-import string
 
 with open("feedbackwebhook.sensitive") as f:
     FEEDBACK_WEBHOOK_URL = f.read()

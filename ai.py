@@ -1,8 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import requests
-import time
 import json
 import random
 import discord
@@ -470,7 +468,7 @@ class Ai(commands.GroupCog, group_name="ai"):
         if "@everyone" in message.content or "@here" in message.content: return
         if "@grok" in message.content:
             if not type(message.channel) == discord.DMChannel:
-                return
+                #return
                 if message.guild.id == 1268365327058599968 and not message.author.id == 1045761412489809975:
                     #await message.reply("Sorry but GROK ai is only allowed for use by the bot owner in this server, this is due to server owner request")
                     return
@@ -485,7 +483,7 @@ class Ai(commands.GroupCog, group_name="ai"):
                     thing = f"\n--- user is replying to following message below ---\n{ref.author.name}:\n{ref.content}"
                 out = await async_post("http://192.168.2.2:11434/api/generate", json={"model":"hermes3", "prompt":message.content.replace("@grok", "")+thing, "stream":False, "system": grokprompt})
                 result = json.loads(out.text)["response"]
-                if "fag" in result or "reta" in result or "trann" in result or "nig" in result:
+                if "fag" in result.lower() or "reta" in result.lower() or "trann" in result.lower() or "nig" in result.lower() or "fag" in result.lower():
                     await message.reply("Grok was about to call you a slur but I prevented it.")
                 else:
                     await message.reply(result)

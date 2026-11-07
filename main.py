@@ -1,4 +1,3 @@
-import requests
 import time
 import random
 import discord
@@ -8,8 +7,6 @@ from discord.ext import tasks
 import asyncio
 import hashlib
 import base64
-from enum import Enum
-import sys
 import json
 import gdapilib
 import logging
@@ -18,12 +15,8 @@ import os
 import threading
 import code
 import datetime
-import re
 import aiohttp
 import redis
-import regex
-
-# When I wrote this code, only Satan and I understood what I was doing. Now, only Satan knows.
 
 r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
@@ -369,17 +362,22 @@ class MyClient(commands.AutoShardedBot):
                         r.set(f"tjbot:hints:user:{message.author.id}:disabled", 1)
                         r.set(f"tjbot:hints:{message.channel.id}:timeout", 1, ex=300)
 
-            #if message.author.id == 1469070721689845931:
-            #    if "67" in message.content or "six seven" in message.content.lower():
-            #        rep = await message.reply("`unfunny content detected. deleting message`")
-            #        await message.delete()
-            #        await asyncio.sleep(5)
-            #        await rep.delete()
-            #    if "frfr" in message.content or "you just advanced to level" in message.content:
-            #        rep = await message.reply("shut the fuck up")
-            #        await message.delete()
-            #        await asyncio.sleep(5)
-            #        await rep.delete()
+            if message.author.id == 1469070721689845931:
+                if "six seven" in message.content.lower():
+                    rep = await message.reply("`unfunny content detected. deleting message`")
+                    await message.delete()
+                    await asyncio.sleep(5)
+                    await rep.delete()
+                if "frfr" in message.content or "you just advanced to level" in message.content:
+                    rep = await message.reply("shut the fuck up")
+                    await message.delete()
+                    await asyncio.sleep(5)
+                    await rep.delete()
+                if "🏳️‍🌈" in message.content or "🏳️‍⚧️" in message.content:
+                    rep = await message.reply("let us talk about gay shit in peace please")
+                    await message.delete()
+                    await asyncio.sleep(5)
+                    await rep.delete()
 
 
             #if message.author.name.startswith("moonstarmaster"):

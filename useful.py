@@ -2,15 +2,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import requests
-import time
 import json
 import random
 import discord
 import logging
-from mutagen.mp3 import MP3
-import asyncio
 import aiohttp
-import urllib.request
 import subprocess
 import os
 import redis

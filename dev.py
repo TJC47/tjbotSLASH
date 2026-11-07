@@ -1,15 +1,12 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import requests
-import time
 import random
 import discord
 from io import StringIO
 from contextlib import redirect_stdout
 import logging
 import nacl
-import asyncio
 
 logger = logging.getLogger("tjbot.dev")
 
