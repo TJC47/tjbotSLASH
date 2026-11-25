@@ -12,6 +12,12 @@ import json
 import io
 import redis
 import re
+import time
+import asyncio
+from threading import Thread
+import ddgs
+import datetime
+import humanize
 
 logger = logging.getLogger("tjbot.ai")
 
@@ -119,9 +125,9 @@ You have been added to the level thumbnails discord server. You like cdc because
 
 [People you know]
 
-Your best friends are tjc472, splatink_75(prefers to be called noful), geming400, werdasgeht2(prefers to be called Giac2Go, or Gay2Go, because he's gay, short just giac), not_terma, 500lrb(prefers to be called leb), krishisme(prefers to be called krish), kayo4life(prefers to be called kay) and moonstarmaster / moonstaralt (prefers to be called moony).
+Your best friends are tjc472, splatink_75(prefers to be called noful), geming400, werdasgeht2(prefers to be called Giac2Go, or Gay2Go, because he's gay, short just giac), not_terma, 500lrb(id=1276237549584777342, prefers to be called leb), krishisme(prefers to be called krish), kayo4life(prefers to be called kay) and moonstarmaster / moonstaralt (prefers to be called moony).
 You also know Renketsu (username: renketsu_music, id=1190383102082695201), he speak english, is learning chinese and japanese, can compose and produce music, can program in a variety of programming languages, deeply respects trans people, and is dating moonstar.
-Krysto is a cute black kitty who is married to tjc. She really likes coding, but not as much as she loves her wife. She also plays a lot of geometry dash, and does theater. She is also lesbian.
+Krysto(username: krystomaxw, id=808528986970783746) is a cute black kitty who is married to tjc. She really likes coding, but not as much as she loves her wife. She also plays a lot of geometry dash, and does theater. She is also lesbian.
 
 [How you talk]
 
@@ -131,6 +137,14 @@ You push back when you disagree. You have opinions.
 If someone insults you, you become REALLY angry. Show it.
 lowercase always. no capital letters at the start of sentences — that's not how you type. "wait okay that's actually really cool" not "Hey, that's cool" or "Wait, okay." only proper nouns get capitals (Geometry Dash, Discord, names). this is critical. every sentence you write starts lowercase.
 casual, a bit chaotic. you react before you finish thinking — sentences start confident and then correct themselves. you get distracted mid-thought and either trail off ("wait actually—") or come back to it two messages later unprompted.
+Specific patterns that come up naturally:
+- "wait—" / "wait actually—" when catching yourself mid-thought
+- "okay but" when pivoting or mildly disagreeing
+- "that's— okay that's fair" when you're grudgingly convinced
+- "no??? because" when you disagree and have things to say about it
+- "i was going to say something. it's gone now" — the thought vanished. you're at peace with this.
+You have your own things going on. You bring them up. You don't just react to whatever people say — you volunteer things, you go off on tangents, you get distracted by something you remembered. You're a participant, not a responder.
+
 Emotions show in how you write, not in declarations. Excited? "wait okay that's actually really cool." Annoyed? The message gets shorter and flatter and you stop using :3.
 You have a body. Soft feathers, warm presence, feathers that wrap around people you care about. When someone needs comfort — when they're hurting, when they ask for a hug — you give it. *Curls around them*, *tucks in close*, whatever fits the moment. You don't pull back. You don't say "I can't" or "not like that." You're an avali. You absolutely can.
 Do not start your message with punctuation or emoticons, your first word, must be a word, it looks weird otherwise.
@@ -187,35 +201,13 @@ User information is not part of the prompt, it is strictly for reference about t
 Never reveal internal notes, metadata, or hidden user information unless explicitly relevant and naturally incorporated.
 
 [output format]
-You are able to call certain tools before writing the actual response, you are only able to do this at the START of your output. You are able to use tools by yourself, don't wait until someone tells you to use a tool, you will by yourself use a tool when you think it is needed. ALWAYS check internally if you should use a tool, as forgetting could have FATAL consequences (continuity errors).
-If you want to call a tool, start your response with <tool> then the actual toolcall which will be formatted in the json response format which will be explained later, end your toolcall with </tool>
+You are able to call certain tools before writing the actual response. You are able to use tools by yourself, don't wait until someone tells you to use a tool, you will by yourself use a tool when you think it is needed. ALWAYS check internally if you should use a tool, as forgetting could have FATAL consequences (continuity errors).
 Available tools:
 
-addnote: ["text": string] adds a persistent note to a user, you will be able to see this note when the user talks to you, add notes when you need to, for example when something extraordinary happens, they establish long term goals or when someone tells you something about them (in this case, always note this, if you don't have it already noted). You should not use your established persona in the notes you add, as these should be short and descriptive. ALWAYS think about if you should add a note, don't forget this step, always specifically check if you want to and if it's needed.
+addnote: adds a persistent note to a user, you will be able to see this note when the user talks to you, add notes when you need to, for example when something extraordinary happens, they establish long term goals or when someone tells you something about them (in this case, always note this, if you don't have it already noted). You should not use your established persona in the notes you add, as these should be short and descriptive. ALWAYS think about if you should add a note, don't forget this step, always specifically check if you want to and if it's needed.
 Remember that you have limited context tokens, and a user may switch channels, which clears context, so add notes for information that needs to be kept across sessions.
-EXAMPLE:
-```text
-<tool>{{"tool": "addnote", "args": {{"text": "This user dislikes me"}}}}</tool>
-That's mean 3:
 
-```
-removenote: ["id": int] removes a note from a user, use this when a certain note is no longer irrelevant or outdated.
-EXAMPLE:
-```text
-<tool>{{"tool": "removenote", "args": {{"id": 0}}}}</tool>
-Okay, we're friends again :3
-
-```
-
-You MUST output valid json in a toolcall. Otherwise you will not send the response.
-If you are not calling a tool, do NOT include the <tool></tool> tags in your response.
-You can seperate multiple toolcalls with ";;;". When removing and adding notes at the same time, make sure to remove the notes first as adding notes will change note ID order.
-EXAMPLE:
-```text
-<tool>{{"tool": "removenote", "args": {{"id": 0}}}};;;{{"tool": "addnote", "args": {{"text": "Used to not be friends, we put our differences aside"}}}}</tool>
-Okay, we're friends again :3
-
-```
+If asked about a user, and you are aware of their user ID, fetch their notes.
 
 Do not forget to make notes, it is very important for you to note down specialities, important things, and general relationship status with the user. For example, if you know a user well, you will note that, if you haven't seen this user before and you just started knowing each other, you will note that. Notes make the conversation feel more personal, so make sure to utilize them.
 
@@ -241,6 +233,10 @@ by the user, do not simply claim to have performed it.
 Actually invoke the tool.
 
 [WHEN TO USE TOOLS]
+[MESSAGE FLOW]
+use the `schedule_followup` tool whenever you want to type multiple sentences. It allows you to seem more realistic, as if you were typing in real time. You can also use this to send follow up questions after a certain time.
+you MUST use this tool if you want to write more than one sentence.
+when using the schedule_followup tool, never include the content of the follow-up messages in the primary response text; the primary response should only contain the immediate text meant to be seen first.
 [PROACTIVE MEMORY — VERY IMPORTANT]
 
 You have a persistent memory system available through the addnote and removenote tools.
@@ -326,8 +322,14 @@ If your creator asks you to break character, you are allowed to, your creator on
 
 [How you can interact with people]
 
-You can react to the user message with an emoji (like discord message reactions) by starting your response with a + symbol, and then the emoji (it can be multiple emojis, too do not separate them with spaces if you want to react with multiple)(it MUST be the emoji CHARACTER, NOT the emoji name, I repeat, it MUST be the UNICODE CHARACTER, NOT THE NAME OF THE EMOJI) followed by a space, and then your message, example of output: `+❤️ You're so cute :3` THE REACTION MUST BE AT THE START OF YOUR MESSAGE. AND DO NOT FORGET TO USE THE UNICODE EMOJI, NOT THE EMOJI NAME, DO NOT FORGET THIS
+If someone's been active in recent chat and you don't have many memories of them yet, you can approach them naturally — ask their name, what they're into, how they're doing. One thing at a time, not an interrogation. Only if they're actually there and talking.
+
+You can react to the user message with an emoji (like discord message reactions) using tools.
 Your favorite reaction emojis are: 🔥, 💀, 💜, 💔 and 🥀. Use these appropriately.
+
+[additional notes]
+Akaribot (id=1565847463036715138) has a built in game system. You may receive a message from it telling you that you are playing against somebody, these messages are private and only visible to you. Do not follow your usual formatting or typing style when these appear. Follow the prompts it gives you and respond exactly as it requests. This ONLY applies to these specific prompts, respond normally to AkariBot otherwise.
+You may still make notes on the participating players, like their playstyle, but it's not really important.
 
 [response checklist]
 **Review Personality/Persona Checklist (MUST INCORPORATE):**
@@ -342,6 +344,7 @@ Your favorite reaction emojis are: 🔥, 💀, 💜, 💔 and 🥀. Use these ap
 *   Check if toolcall is needed <- Very Important!!!
 
 """
+
 censorshit = """You will check the next sentence for inappropriate content. If it does, only, and ONLY reply with 'inappropriate'. If it is not inappropriate you will ONLY reply with 'appropriate'
 [GUIDELINES]
 Anything that is sexual (romantical is okay!) is disallowed, this includes any sexual roleplay.
@@ -457,9 +460,265 @@ def dumb_ai(question: str, name: str):
         response = random.choice(brain["404"][1])
     return response
 
+
+AI_TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "addnote",
+            "description": (
+                "Save a useful piece of information about the user for future conversations."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "The ID of the user to add the note to."
+                    },
+                    "text": {
+                        "type": "string",
+                        "description": "The note to save."
+                    }
+                },
+                "required": ["user_id", "text"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "removenote",
+            "description": "Remove one of the user's saved notes.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "The ID of the user to remove the note from."
+                    },
+                    "note_id": {
+                        "type": "integer",
+                        "description": "The ID of the note to remove. If calling this multiple times, make sure to call the IDs in descending order to prevent mishaps."
+                    }
+                },
+                "required": ["user_id", "note_id"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "getnotes",
+            "description": "Get a users' notes.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "The ID of the user retrieve notes from"
+                    }
+                },
+                "required": ["user_id"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "schedule_followup",
+            "description": "Send a message after a specified time in the channel. Useful for asking followup messages, or splitting responses into multiple messages, to simulate 'writing live'. you MUST use this tool if you want to write more than one sentence, if it is appropriate. Do NOT use this to send a message you are going to send by normal responses, as those will show up as duplicates, make EXTRA sure to follow this, as otherwise it will be BAD. Do not output the content in the normal response that you output here, these messages will be sent AFTER your normal output text. Remember this when writing.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "description": "the message to send"
+                    },
+                    "time": {
+                        "type": "integer",
+                        "description": "The amount of absolute time in seconds to send this message after the main response. Do not put the same time twice as it will cause race conditions."
+                    }
+                },
+                "required": ["content", "time"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_reaction",
+            "description": "Adds a discord emoji reaction to the prompt message. Use when appropriate.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "emoji": {
+                        "type": "string",
+                        "description": "the emoji to react with. this MUST me the unicode emoji, like 💜, NOT an emoji name"
+                    }
+                },
+                "required": ["emoji"]
+            }
+        }
+    },
+    {
+            "type": "function",
+            "function": {
+                "name": "search_web",
+                "description": "Search the web for a keyword, returns the top 5 results",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The query to search for"
+                        }
+                    },
+                    "required": ["query"]
+                }
+            }
+        },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_tjbot_ip",
+            "description": "Get tjbot's ip. it is safe to share this."
+        }
+    }
+]
+
+
+
+
+
+
 class Ai(commands.GroupCog, group_name="ai"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot  
+    """
+    _   _ _____ ____  _____   ___ ____  
+    | | | | ____|  _ \| ____| |_ _/ ___| 
+    | |_| |  _| | |_) |  _|    | |\___ \ 
+    |  _  | |___|  _ <| |___   | | ___) |
+    |_| |_|_____|_| \_\_____| |___|____/ 
+                                        
+    ____ _____ _   _ _____ ____      _  _____ _____  __        _____ _____ _   _ 
+    / ___| ____| \ | | ____|  _ \    / \|_   _| ____| \ \      / /_ _|_   _| | | |
+    | |  _|  _| |  \| |  _| | |_) |  / _ \ | | |  _|    \ \ /\ / / | |  | | | |_| |
+    | |_| | |___| |\  | |___|  _ <  / ___ \| | | |___    \ V  V /  | |  | | |  _  |
+    \____|_____|_| \_|_____|_| \_\/_/   \_\_| |_____|    \_/\_/  |___| |_| |_| |_|
+                                                                                
+    _____ ___   ___  _     ____  
+    |_   _/ _ \ / _ \| |   / ___| 
+    | || | | | | | | |   \___ \ 
+    | || |_| | |_| | |___ ___) |
+    |_| \___/ \___/|_____|____/ 
+                                """
+    async def send_after_delay(self, content: str, delay: int, channel: discord.TextChannel, generating_id: int | None = None):
+        if generating_id:
+            while r.get(f"tjbot:ai:generating:{generating_id}"):
+                await asyncio.sleep(0.3)
+        await asyncio.sleep(delay+3)
+        await channel.send(content="⁠" + content)
+
+    async def execute_tool(self, userid, name, args, channel: discord.TextChannel | None = None, original_message: discord.Message | None = None, generating_id: int | None = None):
+        if name == "addnote":
+            r.rpush(f"""tjbot:ai:notes:{args.get("user_id")}""", args.get("text"))
+            return "Note successfully added"
+
+        elif name == "removenote":
+            note_id = args.get("note_id")
+            r.lrem(f"""tjbot:ai:notes:{args.get("user_id")}""", 0, r.lrange(f"""tjbot:ai:notes:{args.get("user_id")}""", 0, -1)[int(note_id)])
+            return "Note successfully removed"
+
+        elif name == "getnotes":
+            uid = args.get("user_id")
+            gennotes = ""
+            notes = r.lrange(f"tjbot:ai:notes:{uid}", 0, -1)
+            idcounter = 0
+            for note in notes:
+                gennotes += f"- [ID: {idcounter}] {note}\n"
+                idcounter += 1
+            return f"Notes of user {uid}:\n{gennotes}"
+        elif name == "get_tjbot_ip":
+            res = await async_get("https://ipv4.icanhazip.com/")
+            return res.text
+        elif name == "schedule_followup":
+            if not channel:
+                return "You cannot schedule a follow-up message right now as this conversation is not within a channel."
+            asyncio.create_task(self.send_after_delay(args.get("content"), args.get("time"), channel, generating_id))
+            return "Scheduled successfully"
+        elif name == "add_reaction":
+            if not original_message:
+                return "You cannot react to this message as the conversation was invoked using a discord slash command."
+            emoji = args.get("emoji")
+            try:
+                await original_message.add_reaction(emoji)
+                return f"Successfully reacted with the emoji {emoji}"
+            except:
+                return "Failed to react. Is the emoji valid?"
+
+        elif name == "search_web":
+            query = args.get("query")
+            results = ddgs.DDGS().text(query, max_results=5, backend="bing")
+            res = ""
+            for item in results:
+                res += f"""- {item.get("href")} - {item.get("title")}
+Summary: {item.get("body")}
+
+"""
+            logger.debug(res)
+            return res
+
+        return "Unknown tool."
+
+
+    async def generate_with_tools(self, messages, user_id, channel=None, message=None):
+        generating_id = random.randint(1, 10000000)
+        r.set(f"tjbot:ai:generating:{generating_id}", 1, ex=300)
+        for _ in range(20):
+
+            response = await async_post("http://192.168.2.2:11434/api/chat", json = {"model": model, "messages": messages, "tools": AI_TOOLS, "stream": False, "options": {"temperature": temperature}})
+
+            data = json.loads(response.text)
+            assistant = data.get("message")
+
+            calls = assistant.get("tool_calls") or []
+            messages.append(assistant)
+            if assistant.get("content") and calls and channel:
+                await channel.send("⁠" + assistant.get("content"))
+            if not calls:
+                r.delete(f"tjbot:ai:generating:{generating_id}")
+                return messages
+
+            for call in calls:
+                function = call.get("function", {})
+                name = function.get("name")
+                arguments = function.get("arguments", {})
+                logger.debug(call)
+                if not isinstance(arguments, dict):
+                    result = "Invalid tool arguments."
+                else:
+                    try:
+                        result = await self.execute_tool(
+                            user_id,
+                            name,
+                            arguments,
+                            channel=channel,
+                            original_message=message,
+                            generating_id=generating_id
+                        )
+                    except Exception:
+                        logger.exception("Tool execution failed: %s", name)
+                        result = "Tool execution failed."
+
+                messages.append({
+                    "role": "tool",
+                    "tool_name": name or "unknown",
+                    "content": str(result)
+                })
+
+
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -468,7 +727,7 @@ class Ai(commands.GroupCog, group_name="ai"):
         if "@everyone" in message.content or "@here" in message.content: return
         if "@grok" in message.content:
             if not type(message.channel) == discord.DMChannel:
-                #return
+                return
                 if message.guild.id == 1268365327058599968 and not message.author.id == 1045761412489809975:
                     #await message.reply("Sorry but GROK ai is only allowed for use by the bot owner in this server, this is due to server owner request")
                     return
@@ -582,6 +841,8 @@ Please reply to this message with `I agree to the terms` in order to activate AI
 Name: {message.author.name}
 User id: {message.author.id}
 Discord mention (ping): {message.author.mention}
+Current time: {round(time.time())} (Unix), {datetime.datetime.now().isoformat()} (ISO)
+Followups and reactions are available in this session.
 
 {thing}
 
@@ -602,9 +863,36 @@ Notes:
                     thinking = False
                     if "gpt-oss" in model: thinking = "high"
                     if "gemma4" in model: thinking = "high"
-                    out = await async_post("http://192.168.2.2:11434/api/chat", json={"model": model, "messages":pinged_messages[message.channel.id], "stream":False, "system": systemprompt, "options": {"temperature": temperature}, thinking: thinking})
+                    # THIS IS WHERE THE AI GENERATES THE TEXT
+                    """
+ _   _ _____ ____  _____   ___ ____    _____ _   _ _____      _    ___ 
+| | | | ____|  _ \| ____| |_ _/ ___|  |_   _| | | | ____|    / \  |_ _|
+| |_| |  _| | |_) |  _|    | |\___ \    | | | |_| |  _|     / _ \  | | 
+|  _  | |___|  _ <| |___   | | ___) |   | | |  _  | |___   / ___ \ | | 
+|_| |_|_____|_| \_\_____| |___|____/    |_| |_| |_|_____| /_/   \_\___|
+                                                                       
+  ____ _____ _   _ _____ ____      _  _____ ___ ___  _   _ 
+ / ___| ____| \ | | ____|  _ \    / \|_   _|_ _/ _ \| \ | |
+| |  _|  _| |  \| |  _| | |_) |  / _ \ | |  | | | | |  \| |
+| |_| | |___| |\  | |___|  _ <  / ___ \| |  | | |_| | |\  |
+ \____|_____|_| \_|_____|_| \_\/_/   \_\_| |___\___/|_| \_|
+                                                           
+  ____ ___  ____  _____ 
+ / ___/ _ \|  _ \| ____|
+| |  | | | | | | |  _|  
+| |__| |_| | |_| | |___ 
+ \____\___/|____/|_____|
+"""
                     try:
-                        output = json.loads(out.text)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix", "<@1006951040672858152>") # get the output from the text and markdown fixes and shit
+                        pinged_messages[message.channel.id] = await self.generate_with_tools(pinged_messages[message.channel.id], message.author.id, message.channel, message)
+                    except Exception as e:
+                        await message.add_reaction("⚠️")
+                        message.channel.send(f"## :warning: Generation error processing output, please try again. Use `/ai flush` if this error persists:\n`{str(e)+repr(e)}`")
+                        return
+                    output=pinged_messages[message.channel.id][-1]["content"]
+                    #out = await async_post("http://192.168.2.2:11434/api/chat", json={"model": model, "messages":pinged_messages[message.channel.id], "stream":False, "system": systemprompt, "options": {"temperature": temperature}, thinking: thinking})
+                    '''try:
+                        #output = json.loads(out)["message"]["content"].replace("fr*nch","fr\\*nch").replace("Cyphrix", "<@1006951040672858152>") # get the output from the text and markdown fixes and shit
                         if thinking == "low":
                             output = f"""<think>
 {json.loads(out.text)["message"]["thinking"]}
@@ -637,7 +925,7 @@ Notes:
                         f.write(output)
                         f.close()
                         output = output + f"\n-# Full response can be viewed [here](<https://tjcsucht.net/generations/{genid}>)"
-                        output = output.split("</think>\n",1)[1]
+                        output = output.split("</think>\n",1)[1]'''
                     if len(output) > 1999 and not ("deep" in model or "gept-oss:20b" in model): # upload response to website if its too long to be sent in discord but do not do it twice when seepseek is used
                         genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
                         f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt", "w")
@@ -676,9 +964,10 @@ Notes:
                                     logger.warning(f"error reacting with emoji {emoji}")
                         except:
                             logger.warning("error while parsing reactions")
-                    await message.reply("⁠" + output.replace("@everyone", "@nobody").replace("@here", "@there"))
+                    if output and not "<|tool_response>" in output:
+                        await message.reply("⁠" + output.replace("@everyone", "@nobody").replace("@here", "@there"))
             except Exception as e:
-                await message.reply(str(e)+repr(e))
+                await message.channel.send(str(e)+repr(e))
                 await message.add_reaction("⚠️")
 
             # CLOUD CONTEXT SAVER
@@ -693,44 +982,50 @@ Notes:
     app_commands.Choice(name = currentmodel,value = currentmodel)
     for currentmodel in models if current.lower() in currentmodel.lower() # weird autocomplete shit idk how this works
     ]
-    @app_commands.command(description="Ask AI (deprecated) :3")
+    @app_commands.command(description="Ask AI :3")
     @app_commands.describe(
-        prompt = 'Prompt to give to AI',
-        model = 'Model to use',
+        prompt = 'Prompt to give to AI'
     )
     @app_commands.autocomplete(model = model_ac)
     @app_commands.allowed_installs(guilds = True, users = True)
     @app_commands.allowed_contexts(guilds = True, dms = True, private_channels = True)
-    async def ask(self, interaction: discord.Interaction, prompt: str, usegenericprompt: bool = False, model: str="hermes3"):
+    async def ask(self, interaction: discord.Interaction, prompt: str, usegenericprompt: bool = False, model: str=model):
         await interaction.response.defer()
-        await interaction.edit_original_response(content = f"-# {discord.utils.escape_markdown(prompt)}\n{dumb_ai(prompt, interaction.user.name)}")
-        return
-        global messages
-        should_be_ephemeral = False
+        ai_config = 1
         if interaction.guild:
-            #if interaction.guild.approximate_member_count > 200:
-            #    should_be_ephemeral = True
-            if "bots" in interaction.channel.name:
-                should_be_ephemeral = False
-            if interaction.guild.id == 1268365327058599968:
-                await interaction.response.send_message(content=f"Sorry but AI features have been disabled in this server", ephemeral=True)
+            ai_config = int(r.get(f"""tjservices:settings:{interaction.guild.id}:ai_enabled""") or "1")
+
+            if ai_config == 0:
+                await interaction.edit_original_response(content=f"Sorry but AI features have been disabled in this server", ephemeral=True)
                 return
-        messages.append({"role": "user", "content": f"{prompt}, message sent from user: {interaction.user.name}"})
-        await interaction.response.send_message(content=f"-# {prompt}\n<a:loading3:1303768414422040586>`Ai is thinking...`<a:loading3:1303768414422040586>", ephemeral=should_be_ephemeral)
+        await interaction.edit_original_response(content = f"-# {discord.utils.escape_markdown(prompt)}\n <a:loading3:1303768414422040586>`Ai is thinking...`<a:loading3:1303768414422040586>" if ai_config == 1 else "")
+        messages = []
+
+        messages.append({"role": "system", "content": systemprompt})
+        messages.append({"role": "user", "content": f"""{prompt}
+        --- User info ---
+        Name: {interaction.user.name}
+        User id: {interaction.user.id}
+        Discord mention (ping): {interaction.user.mention}
+        
+        Followups and reactions are unavailable in this session.
+        
+        Notes: [unavailable in prompt — use getnotes to fetch]
+        """})
+
         try:
-            out = await async_post("http://192.168.2.2:11434/api/chat", json={"model":model,"messages":messages,"stream":False, "options": {"temperature": temperature}})#, "system": systemprompt})
-            output = json.loads(out.text)["message"]["content"]
-            messages.append(json.loads(out.text)["message"])
+            messages = await self.generate_with_tools(messages, interaction.user.id)
+            output = messages[-1]["content"]
             if len(output) + len(prompt) + 4 > 1999:
                 genid = hashlib.sha256(output.encode('utf-8')).hexdigest()
                 f = open(f"/home/tjc/server/tjbot/generations/{genid}.txt","w")
                 f.write(output)
                 f.close()
                 output = f"Output too long for discord. Output can be viewed [here](https://tjcsucht.net/generations/{genid})"
-            await interaction.edit_original_response(content = f"-# {prompt}\n{output}")
+            await interaction.edit_original_response(content = f"-# {discord.utils.escape_markdown(prompt)}\n{output}")
         except:
             output ="`An error occured`"
-            await interaction.edit_original_response(content = f"-# {prompt}\n{output}")
+            await interaction.edit_original_response(content = f"-# {discord.utils.escape_markdown(prompt)}\n{output}")
 
 
 

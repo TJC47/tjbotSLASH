@@ -124,12 +124,12 @@ class Tjsapphire(commands.Cog):
                     try:
                         await message.delete()
                     except:
-                        await message.send(":warning: TJBot does not have the `manage messages` permission needed for this command! Please grant TJBot the permission and try again.")
+                        await message.reply(":warning: TJBot does not have the `manage messages` permission needed for this command! Please grant TJBot the permission and try again.")
                         return
                     try:
                         temp_webhook = await message.channel.create_webhook(name="TJBot-temp-webhook")
                     except:
-                        await message.channel.send(":warning: TJBot does not have the `create webhooks` permission needed for this command! Please grant TJBot the permission and try again.")
+                        await message.reply(":warning: TJBot does not have the `create webhooks` permission needed for this command! Please grant TJBot the permission and try again.")
                         return
                     # sapphire pfp: https://de-1.tjcsucht.net/leb/LwB8-37e0fb2dcf8d219aa92bf02f47ea60eb.webp
                     await temp_webhook.send(embed=embed, username="geode sdk" if message.guild.id == 1268365327058599968 else "Sapphire", avatar_url="https://de-1.tjcsucht.net/leb/LwB8-37e0fb2dcf8d219aa92bf02f47ea60eb.webp", wait=True)

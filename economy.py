@@ -894,7 +894,7 @@ Fatal Exception
        
         loss_chance = min(math.log10(max(userbalance_before, 1)) / math.log10(1000000000000000) * 0.9, 0.9)
         print(f"Chance of dying: {loss_chance}")
-        if random.random() < loss_chance or interaction.user.id==1420615995088834560 or interaction.guild.id == 1445412499666112598 if interaction.guild else False: # redacted
+        if random.random() < loss_chance or interaction.user.id==1420615995088834560 or (interaction.guild.id == 1445412499666112598 if interaction.guild else False): # redacted
             userbalance_before = get_balance(interaction.user.id)
             update_balance(interaction.user.id, -userbalance_before, f"Russian roulette, dying ({interaction.user.name})")
             #set_inventory(interaction.user.id, [])
